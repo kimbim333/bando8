@@ -158,7 +158,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   .result-item .ty{font-family:var(--mono);font-size:9.5px;color:var(--text-2);}
 
   /* ---------- legend tree (Google-Earth-style Places panel) ---------- */
-  .legend-section{ max-height:280px; overflow-y:auto; position:relative; }
+  .legend-section{ max-height:min(52vh, 480px); overflow-y:auto; position:relative; }
   .legend-section-title-row{ display:flex; align-items:center; gap:8px; margin:0 0 10px; }
   .legend-section-title-row .section-title{ margin:0; flex:1; }
   .legend-expand-btn{
@@ -539,8 +539,10 @@ window.addEventListener('DOMContentLoaded',()=>{
 
     /* bigger tap targets on touch screens */
     .upload-btn, .measure-btn, #search-input{ padding-top:11px; padding-bottom:11px; }
-    .tree-row{ padding:8px 2px; }
-    .tree-row input[type="checkbox"]{ width:18px; height:18px; }
+    .tree-row{ padding:10px 2px; min-height:46px; }
+    .tree-row input[type="checkbox"]{ width:20px; height:20px; }
+    .tree-row .tree-label{ font-size:14.5px; }
+    .legend-section{ max-height:56vh; }
     .result-item{ padding:10px 8px; }
     .locate-btn{ width:40px; height:40px; }
 
@@ -623,6 +625,16 @@ window.addEventListener('DOMContentLoaded',()=>{
           <p class="share-link-hint" style="margin-top:8px;">Excel: mỗi sheet = 1 tuyến kênh (tên sheet = tên kênh). Cột cần có: <b style="color:var(--text-1)">K bắt đầu</b>, <b style="color:var(--text-1)">K kết thúc</b>, <b style="color:var(--text-1)">Người phụ trách</b>.</p>
         </div>
       </details>
+    </div>
+
+    <div class="section" style="padding-bottom:12px;">
+      <div class="section-title" style="margin-bottom:6px;">📍 Cự ly bắt kênh khi định vị</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="range" id="gps-dist-slider" min="5" max="20" step="1" value="15"
+          style="flex:1;accent-color:var(--accent);">
+        <span id="gps-dist-value" style="min-width:44px;text-align:right;font-weight:700;color:var(--accent);font-size:13.5px;">15m</span>
+      </div>
+      <div class="status-line" style="margin-top:4px;">Bấm ⊙ định vị: nếu bạn đứng trong cự ly này quanh 1 kênh, app tự tính K-cọc. Đứng xa hơn cự ly này thì không tự bắt (tránh nhầm kênh khác).</div>
     </div>
 
     <div class="section legend-section" id="legend-section">
@@ -945,7 +957,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   // (so we keep refreshing its K-cọc reading as the user walks, but stop the moment
   // they close it themselves — see closeInfoOverlay hook above).
   let gpsStationActive = false;
-  const GPS_CANAL_MAX_DIST_M = 15; // beyond this, GPS fix is considered "not on a kênh"
+  // Cự ly bắt kênh khi định vị GPS — người dùng tự chỉnh 5-20m qua thanh trượt trong
+  // sidebar, lưu vào localStorage (key dùng chung với bien-ban.html) để nhớ lựa chọn
+  // và đồng bộ giữa 2 trang.
+  const GPS_DIST_STORAGE_KEY = 'thuyloi_gpsCanalMaxDistM';
+  let GPS_CANAL_MAX_DIST_M = (()=>{
+    const saved = parseInt(localStorage.getItem(GPS_DIST_STORAGE_KEY), 10);
+    return (!isNaN(saved) && saved>=5 && saved<=20) ? saved : 15;
+  })();
+  const gpsDistSlider = document.getElementById('gps-dist-slider');
+  const gpsDistValue = document.getElementById('gps-dist-value');
+  gpsDistSlider.value = GPS_CANAL_MAX_DIST_M;
+  gpsDistValue.textContent = GPS_CANAL_MAX_DIST_M + 'm';
+  gpsDistSlider.addEventListener('input', ()=>{
+    GPS_CANAL_MAX_DIST_M = parseInt(gpsDistSlider.value, 10);
+    gpsDistValue.textContent = GPS_CANAL_MAX_DIST_M + 'm';
+    localStorage.setItem(GPS_DIST_STORAGE_KEY, String(GPS_CANAL_MAX_DIST_M));
+  });
 
   function toggleLocate(){
     if(watchId !== null){
