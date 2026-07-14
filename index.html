@@ -158,7 +158,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   .result-item .ty{font-family:var(--mono);font-size:9.5px;color:var(--text-2);}
 
   /* ---------- legend tree (Google-Earth-style Places panel) ---------- */
-  .legend-section{ max-height:min(60vh, 560px); overflow-y:auto; position:relative; }
+  .legend-section{ max-height:min(60vh, 560px); overflow-y:auto; position:relative; flex:1; min-height:0; }
   .legend-section-title-row{ display:flex; align-items:center; gap:8px; margin:0 0 10px; }
   .legend-section-title-row .section-title{ margin:0; flex:1; }
   .legend-expand-btn{
@@ -647,7 +647,7 @@ window.addEventListener('DOMContentLoaded',()=>{
           <span class="ic">▱</span>Đo diện tích
         </button>
       </div>
-      <div class="status-line" id="measure-status">Chọn một công cụ, click các điểm trên bản đồ. Click đúp hoặc bấm Enter để kết thúc, Esc để hủy.</div>
+      <div class="status-line" id="measure-status"></div>
       <div id="measure-result" class="measure-result" style="display:none;"></div>
       <button class="measure-clear" id="btn-measure-clear" style="display:none;">Xóa kết quả đo</button>
     </div>
@@ -662,7 +662,7 @@ window.addEventListener('DOMContentLoaded',()=>{
           <span class="ic">⊕</span>Vẽ điểm
         </button>
       </div>
-      <div class="status-line" id="draw-status">Chọn công cụ vẽ, click trên bản đồ. Double-click để kết thúc đường, Esc để hủy.</div>
+      <div class="status-line" id="draw-status"></div>
       <div id="draw-list" style="margin-top:8px;max-height:160px;overflow-y:auto;"></div>
       <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
         <button class="draw-export-btn" id="btn-export-kml" style="display:none;">⬇ Xuất file KML về máy</button>
@@ -671,13 +671,6 @@ window.addEventListener('DOMContentLoaded',()=>{
       </div>
     </div>
 
-    <div class="section" style="border-bottom:none;flex:1;">
-      <div class="status-line">Bấm vào một tuyến kênh hoặc một điểm công trình trên bản đồ — thông tin chi tiết sẽ hiện trong khung lớn phía dưới bản đồ.</div>
-    </div>
-
-    <footer class="help">
-      Phiên bản thử nghiệm chạy hoàn toàn trên trình duyệt — dữ liệu nạp vào sẽ <b>mất khi tải lại trang</b>. Mỗi phiên làm việc, hãy nạp lại file KML/KMZ và Excel gốc của đơn vị. Định vị GPS (nút ◎ trên bản đồ) cần <b>mở file qua máy chủ HTTPS</b>.
-    </footer>
   </div>
 
   <!-- Draw info popup -->
@@ -1109,7 +1102,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       if(measureLayer){ map.removeLayer(measureLayer); measureLayer = null; }
       measurePoints = [];
     }
-    measureStatus.textContent = 'Chọn một công cụ, click các điểm trên bản đồ. Click đúp hoặc bấm Enter để kết thúc, Esc để hủy.';
+    measureStatus.textContent = '';
   }
 
   function addMeasurePoint(latlng){
@@ -2366,7 +2359,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnDrawLine.classList.remove('active');
     map.getContainer().style.cursor = '';
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
-    drawStatus.textContent = 'Chọn công cụ vẽ, click trên bản đồ.';
+    drawStatus.textContent = '';
   }
 
   btnDrawPoint.addEventListener('click', ()=> setDrawMode('point'));
