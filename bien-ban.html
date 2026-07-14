@@ -200,7 +200,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <input id="ct" placeholder="VD: Đê sông Nhuệ"/></div>
       <div class="row">
         <div class="f"><label>Phường/xã</label><input id="px" placeholder="Kim Thanh"/></div>
-        <div class="f"><label>Phía</label><input id="phia" placeholder="Đồng"/></div>
         <div class="f"><label>Bờ</label><input id="bo" placeholder="Hữu"/></div>
       </div>
       <div class="row">
@@ -301,29 +300,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
                onchange="stampPhoto(this)"/>
       </label>
 
-      <label style="display:flex;align-items:center;justify-content:center;gap:8px;
-        border:1px dashed #aaa;border-radius:8px;padding:10px;cursor:pointer;
-        font-size:12.5px;color:#888;background:#fafafa;">
-        📎 Đính kèm ảnh Timemark (không đóng dấu lại)
-        <input type="file" accept="image/*" multiple style="display:none"
-               onchange="addPh(this)"/>
-      </label>
-
       <canvas id="stamp-canvas" style="display:none;"></canvas>
-    </div>
-  </div>
-
-  <!-- Link Timemark -->
-  <div class="card">
-    <div class="card-head" style="background:#2c3e50;">📲 Dùng Timemark (nếu đã cài)</div>
-    <div class="card-body">
-      <a class="tm-btn" href="https://apps.apple.com/app/id6446071834" target="_blank">
-        <span class="ico">📷</span>
-        <div>
-          <div>Mở Timemark trên iPhone</div>
-          <div style="font-size:11px;font-weight:400;opacity:.8;">Chụp xong đính kèm ảnh lên trên</div>
-        </div>
-      </a>
     </div>
   </div>
 
@@ -338,7 +315,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="gap"></div>
 </div>
 
-<!-- ===== TAB 4: DANH SÁCH ===== -->
+<!-- ===== TAB 4: DANH SÁCH ===== ->
 <div id="p-ds" class="panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
     <b style="font-size:13px;">Biên bản đã lập</b>
@@ -403,6 +380,7 @@ window.onload=()=>{
   if(p.get('lng')) g('y1').value=p.get('lng');
   if(p.get('px'))  g('px').value=p.get('px');
   if(p.get('nguoiPT')) g('n1').value=p.get('nguoiPT');
+  if(p.get('song')) g('song').value=p.get('song');
   initSk(); renderList();
 };
 
@@ -436,13 +414,7 @@ function getGPS(){
 // Cho phép mở thẳng bien-ban.html (không qua index.html trước) — ví dụ từ shortcut
 // PWA — mà vẫn tự tính được K-cọc/xã-phường/người phụ trách khi đứng tại hiện trường
 // bấm GPS, giống hệt như khi bấm vào kênh trên bản đồ.
-// Cự ly bắt kênh khi định vị — đồng bộ với thanh trượt bên index.html (localStorage
-// dùng chung khoá). Nếu chưa từng chỉnh bên index.html thì mặc định 15m.
-const GPS_DIST_STORAGE_KEY = 'thuyloi_gpsCanalMaxDistM';
-let GPS_CANAL_MAX_DIST_M = (()=>{
-  const saved = parseInt(localStorage.getItem(GPS_DIST_STORAGE_KEY), 10);
-  return (!isNaN(saved) && saved>=5 && saved<=20) ? saved : 15;
-})();
+const GPS_CANAL_MAX_DIST_M = 20;
 let bbCanals = [];      // [{name, latlngs:[{lat,lng}], totalLength}]
 let bbAdminAreas = [];  // [{name, latlngs}] — ranh giới xã/phường
 let bbPersonSegments = {}; // strippedTenKenh -> [{from_m,to_m,person,desc}]
@@ -629,6 +601,7 @@ function autofillFromCoords(lat, lng){
 
   g('tu_km').value = station;
   if(!g('ct').value) g('ct').value = best.canal.name;
+  if(!g('song').value) g('song').value = best.canal.name;
   if(px && !g('px').value) g('px').value = px;
   if(person && !g('n1').value) g('n1').value = person;
 
@@ -756,7 +729,7 @@ function stampPhoto(inp){
       if(done) return; done=true; clearTimeout(timer);
       const lat=pos.coords.latitude, lng=pos.coords.longitude;
       stampGPS = {lat,lng,acc:Math.round(pos.coords.accuracy),time:now};
-      if(gpsEl) gpsEl.textContent = `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)} (±${Math.round(pos.coords.accuracy)}m)`;
+      if(gpsEl) gpsEl.textContent = `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       processPhotos(stampGPS);
     }, ()=>{
       if(done) return; done=true; clearTimeout(timer);
@@ -781,7 +754,7 @@ function drawWatermark(ctx, W, H, gps){
 
   const lines = [
     fmtDateTime(now),
-    gps.lat ? `${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.acc?' (±'+gps.acc+'m)':''}` : 'GPS: không lấy được',
+    gps.lat ? `${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}` : 'GPS: không lấy được',
     [kCoc&&`K cọc ${kCoc}`, bo&&`Bờ ${bo}`, ct&&`Tuyến ${ct}`].filter(Boolean).join('  |  ') || '(chưa điền vị trí)',
     ho ? `Hộ: ${ho}` : 'Hộ vi phạm: (chưa điền)',
     hv1 ? hv1.slice(0,90)+(hv1.length>90?'...':'') : 'Hành vi: (chưa điền)',
@@ -870,7 +843,7 @@ function collect(){
   return{id:cid||Date.now().toString(),so:v('so'),ngay:v('ngay'),gio:v('gio'),dd:v('dd'),
     n1:v('n1'),cv1:v('cv1'),n2:v('n2'),cv2:v('cv2'),dv:v('dv'),
     vp_ten:v('vp_ten'),vp_gt:v('vp_gt'),vp_qt:v('vp_qt'),vp_nn:v('vp_nn'),vp_noo:v('vp_noo'),
-    ct:v('ct'),px:v('px'),phia:v('phia'),bo:v('bo'),song:v('song'),
+    ct:v('ct'),px:v('px'),bo:v('bo'),song:v('song'),
     tu_km:v('tu_km'),den_km:v('den_km'),x1:v('x1'),y1:v('y1'),x2:v('x2'),y2:v('y2'),
     hv1:v('hv1'),hv2:v('hv2'),hv3:v('hv3'),kt:v('kt'),khp:v('khp'),yk_vp:v('yk_vp'),
     photos:photos.map(p=>({id:p.id,src:p.src,nm:p.nm})),
@@ -890,7 +863,7 @@ function save(){
 function newBB(){
   cid=null;photos=[];
   restoreSketch(null);
-  ['so','ngay','gio','dd','n1','cv1','n2','cv2','vp_ten','vp_noo','ct','px','phia','bo',
+  ['so','ngay','gio','dd','n1','cv1','n2','cv2','vp_ten','vp_noo','ct','px','bo',
    'song','tu_km','den_km','x1','y1','x2','y2','hv1','hv2','hv3','khp','yk_vp'].forEach(id=>{
     if(g(id))g(id).value=id==='so'?'1':id==='dv'?'Xí nghiệp Thủy lợi Nhật Tựu':
       id==='vp_qt'?'Việt Nam':id==='ngay'?new Date().toISOString().slice(0,10):'';
@@ -929,7 +902,7 @@ function loadBB(id){
   const map={'so':'so','ngay':'ngay','gio':'gio','dd':'dd','n1':'n1','cv1':'cv1',
     'n2':'n2','cv2':'cv2','dv':'dv','vp_ten':'vp_ten','vp_gt':'vp_gt',
     'vp_qt':'vp_qt','vp_nn':'vp_nn','vp_noo':'vp_noo','ct':'ct','px':'px',
-    'phia':'phia','bo':'bo','song':'song','tu_km':'tu_km','den_km':'den_km',
+    'bo':'bo','song':'song','tu_km':'tu_km','den_km':'den_km',
     'x1':'x1','y1':'y1','x2':'x2','y2':'y2','hv1':'hv1','hv2':'hv2',
     'hv3':'hv3','kt':'kt','khp':'khp','yk_vp':'yk_vp'};
   Object.entries(map).forEach(([k,el])=>{if(g(el)&&d[k]!==undefined)g(el).value=d[k];});
@@ -1033,7 +1006,7 @@ tại ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
 <p>- Phát hiện hành vi vi phạm: ${fd2(d.ngay)} / ${yn(d.ngay)}</p>
 <p class="bold" style="margin-top:6px;">2. Địa điểm, vị trí phát sinh hành vi vi phạm:</p>
 <p>- Tên công trình: ${dot(d.ct)}, Thuộc địa bàn: ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
-<p>- Phạm vi: Phía ${dot(d.phia)}, Bờ ${dot(d.bo)} Sông ${dot(d.song)}</p>
+<p>- Phạm vi: Bờ ${dot(d.bo)} Sông ${dot(d.song)}</p>
 <p>- Từ Km ${dot(d.tu_km)}, đến Km ${dot(d.den_km)}</p>
 <p>- Tọa độ Gmaps điểm đầu: X = ${dot(d.x1)}, Y = ${dot(d.y1)}</p>
 ${d.x2?`<p>- Tọa độ Gmaps điểm cuối: X = ${d.x2}, Y = ${d.y2||'...'}</p>`:''}
@@ -1072,7 +1045,7 @@ ${d.khp?`<p style="margin-top:6px;">- Yêu cầu khắc phục trước ngày ${
 <p class="center"><i>(Kèm theo Biên bản làm việc ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)})</i></p>
 <p style="margin-top:10px;">- Họ và tên chủ hộ Ông (bà): ${dot(d.vp_ten)}</p>
 <p>- Địa điểm vi phạm: ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
-<p>- Vị trí: ${dot(d.phia)}, K.${dot(d.tu_km)}, Bờ ${dot(d.bo)} Sông: ${dot(d.song)}</p>
+<p>- Vị trí: K.${dot(d.tu_km)}, Bờ ${dot(d.bo)} Sông: ${dot(d.song)}</p>
 <div style="border:1px solid #000;padding:10px;margin:12px 0;min-height:280px;">
   ${skHtml}
 </div>
