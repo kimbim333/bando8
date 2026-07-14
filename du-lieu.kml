@@ -2,6 +2,7 @@
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
 <Document>
 	<name>XNTLTT sau sắp xếp</name>
+	<open>1</open>
 	<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
 	<Style id="icon-1565-01579B-labelson">
 		<IconStyle>
@@ -379,6 +380,16 @@
 		<Pair>
 			<key>highlight</key>
 			<styleUrl>#line-FF0000-4000-highlight110</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
 		</Pair>
 	</StyleMap>
 	<StyleMap id="m_ylw-pushpin030">
@@ -1161,6 +1172,19 @@
 			<styleUrl>#sh_ylw-pushpin20</styleUrl>
 		</Pair>
 	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<LineStyle>
+			<color>ffff5500</color>
+			<width>5</width>
+		</LineStyle>
+	</Style>
 	<Style id="s_ylw-pushpin60">
 		<IconStyle>
 			<scale>1.1</scale>
@@ -1188,6 +1212,19 @@
 				<href>http://maps.google.com/mapfiles/kml/paddle/blu-diamond-lv.png</href>
 			</ItemIcon>
 		</ListStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<LineStyle>
+			<color>ffff5500</color>
+			<width>5</width>
+		</LineStyle>
 	</Style>
 	<Style id="s_ylw-pushpin_hl60">
 		<IconStyle>
@@ -3133,12 +3170,21 @@
 			<width>5</width>
 		</LineStyle>
 	</Style>
+	<Placemark>
+		<name>Kênh test</name>
+		<description>kênh của thành dài 500m</description>
+		<styleUrl>#m_ylw-pushpin</styleUrl>
+		<LineString>
+			<tessellate>1</tessellate>
+			<coordinates>
+				105.8282054762579,20.90121234437627,0 105.8306012824527,20.9003517776008,0 105.8317468688413,20.89995842444967,0 
+			</coordinates>
+		</LineString>
+	</Placemark>
 	<Folder>
 		<name>Địa giới mới</name>
-		<open>1</open>
 		<Placemark>
 			<name>Xã Thường tín</name>
-			<visibility>0</visibility>
 			<description>Xã Thường Tín</description>
 			<styleUrl>#msn_ylw-pushpin16</styleUrl>
 			<Polygon>
@@ -3208,7 +3254,6 @@
 			</Placemark>
 			<Placemark>
 				<name>Đất phi nông nghiệp</name>
-				<visibility>0</visibility>
 				<description>Đất phi nông nghiệp , Diện tích: 24,25ha</description>
 				<styleUrl>#msn_ylw-pushpin240</styleUrl>
 				<Polygon>
@@ -3226,13 +3271,11 @@
 	</Folder>
 	<Folder>
 		<name>Cụm Nam</name>
-		<visibility>0</visibility>
 		<description>Tổng số CBCNV: 17
 Cụm trưởng: Nguyễn Kim Nhuận
 Cụm phó: Nguyễn Thanh Phan</description>
 		<Placemark>
 			<name>Xã Đại Thanh</name>
-			<visibility>0</visibility>
 			<description>Xã Đại Thanh
 Diện tích đất tự nhiên 18,92 km²</description>
 			<styleUrl>#msn_ylw-pushpin21</styleUrl>
@@ -3249,10 +3292,8 @@ Diện tích đất tự nhiên 18,92 km²</description>
 		</Placemark>
 		<Folder>
 			<name>Nguyễn Thanh Phan</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>Nguyễn Thanh Phan</name>
-				<visibility>0</visibility>
 				<description>Người phụ trách: Nguyễn Thanh Phan
 Chức vụ: Cụm phó
 Đơn vị quản lý: Cụm Nam
@@ -3271,7 +3312,6 @@ Loại kênh: Kênh tưới Hồng Vân</description>
 			</Placemark>
 			<Placemark>
 				<name>Đầu làng Vĩnh Thịnh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="521608790_1117527283598853_3062355384928042569_n_0.jpg">
 1 cửa 1,75x1,45
  Máy Đóng mở V3
@@ -3293,7 +3333,6 @@ K0+018]]></description>
 			</Placemark>
 			<Placemark>
 				<name>C3</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="516495189_2577479119260971_6804007477960821535_n_0.jpg">
 4cửa 1,85x1,5
  Máy Đóng mở V2
@@ -3315,7 +3354,6 @@ K0+802]]></description>
 			</Placemark>
 			<Placemark>
 				<name>ĐT 3 (cống vào đồng Ích Vịnh)</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="517021407_725327630209676_1399188406016594741_n_0.jpg">
 1cửa 1,1x1,3
 Máy Đóng mở V0
@@ -3337,7 +3375,6 @@ K0+914]]></description>
 			</Placemark>
 			<Placemark>
 				<name>CT2 (dẫn nc kênh T4)</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="521565637_659600940431587_3338304799586430249_n_0.jpg">
 2cửa 1,25x1,55
  Máy Đóng mở V2
@@ -3359,7 +3396,6 @@ K1+220]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống vào đồng Vĩnh Ninh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="519797706_1514006373300270_1444848664008747497_n_0.jpg">
 1cửa 1,35x1,3
  Máy Đóng mở V0
@@ -3381,7 +3417,6 @@ K1+213]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Vào đồng Vĩnh Thịnh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="518742636_768318558882038_8447215618604378574_n_0.jpg">
 1cửa 1,15x1,4
  Máy Đóng mở V0
@@ -3403,7 +3438,6 @@ k0+995]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống Đồng ngèn</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="516452944_748240450953099_6789585477711508590_n_0.jpg">
 1cửa 1,35x1,25
  Máy Đóng mở V0
@@ -3425,7 +3459,6 @@ K1+403]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống Đùn</name>
-				<visibility>0</visibility>
 				<description>2 cửa 1,25x1,55
  máy đóng mở V1
 K1+424</description>
@@ -3447,11 +3480,9 @@ K1+424</description>
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Hoà Bình (Tưới)</name>
-			<visibility>0</visibility>
 			<open>1</open>
 			<Placemark>
 				<name>TB Hòa Bình (tưới)</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812658936937_74291954ff4caede74073fe321d86d34_0.jpg"><img style="max-width:500px;" src="gen-h-z6812658943125_1fa544d091b02bff0feaa5df89a5eb2e_0.jpg"><br>Tổ máy bơm công suất: 3x 1120 m3/h<br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tưới<br>Cụm: Cụm Nam<br>mô tả:
 <br>Nguyễn Văn Thức -	Trạm trưởng
 <br>Lê Tuấn Anh -	Công nhân
@@ -3480,7 +3511,6 @@ K1+424</description>
 			</Placemark>
 			<Placemark>
 				<name>Cống TB Hòa bình tưới</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812659208494_41bf777a72b698df96a4bae4b2c2cf50_0.jpg">2 cống vuông 1.6mx1m]]></description>
 				<LookAt>
 					<longitude>105.8216839348584</longitude>
@@ -3499,10 +3529,8 @@ K1+424</description>
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Văn Thức</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống qua đường 70</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812660044936_f2f6aa29ff745b85f201f53dc264ea41_0.jpg">1.2x2m và 1.25x2m
 K0+700]]></description>
 					<LookAt>
@@ -3522,7 +3550,6 @@ K0+700]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống qua đường tàu</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812660538273_e1c782c07e1044842a2a18cc6c1fbee5_0.jpg"><img style="max-width:500px;" src="C:/Users/KimThanh/Desktop/files/gen-h-z6812660561821_9e0bfa5ae9982357246f25a44e4b3163.jpg">cống tròn phi 1000
 K0+350]]></description>
 					<LookAt>
@@ -3542,7 +3569,6 @@ K0+350]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn VĂn Thức</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Văn Thức
 Chức vụ: 	Trạm Trưởng
 Đơn vị quản lý: 	Đội Công Trình
@@ -3561,10 +3587,8 @@ Chiều dài (m) 	470
 			</Folder>
 			<Folder>
 				<name>Lê Anh Tuấn</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống Đương Sắt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813111991440_f4119009883be96217c042ec3b806c1c_0.jpg">
 1 cống tròn phi 1200
 k2+450]]></description>
@@ -3585,7 +3609,6 @@ k2+450]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống vào TB Ích Vịnh</name>
-					<visibility>0</visibility>
 					<description>3.5mx1m cống hộp</description>
 					<LookAt>
 						<longitude>105.836038496459</longitude>
@@ -3604,7 +3627,6 @@ k2+450]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống xóm 4</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813111959422_7e7e239dfdd567d0c77667532a33fdc3_0.jpg">
 2 cửa 1mx1.4
 k2+067]]></description>
@@ -3625,7 +3647,6 @@ k2+067]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Lê Anh Tuấn</name>
-					<visibility>0</visibility>
 					<description>Lê Anh Tuấn
 Công nhân
 Đội Công Trình
@@ -3643,7 +3664,6 @@ Xã Đại Thanh, Thanh Trì</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống cuối làng Ích Vinh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813111989165_74d1c961a77adcdc581458a93e0aae50_0.jpg">
 2 cửa 1,6x2,3
 k2+370]]></description>
@@ -3665,10 +3685,8 @@ k2+370]]></description>
 			</Folder>
 			<Folder>
 				<name>Phạm VĂn Bách</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Phạm VĂn Bách</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Phạm Xuân Bách
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -3687,10 +3705,8 @@ Chiều dài (m) 	550
 			</Folder>
 			<Folder>
 				<name>Nguyễn Văn Cao</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống b7</name>
-					<visibility>0</visibility>
 					<description>1.3x1.9
 K5+268</description>
 					<LookAt>
@@ -3710,7 +3726,6 @@ K5+268</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống VB 7-2</name>
-					<visibility>0</visibility>
 					<description><![CDATA[k 5+991<br>0,7x0,8]]></description>
 					<styleUrl>#msn_icon-1_1_000</styleUrl>
 					<Point>
@@ -3719,7 +3734,6 @@ K5+268</description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Văn Cao</name>
-					<visibility>0</visibility>
 					<styleUrl>#msn_ylw-pushpin15</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
@@ -3730,11 +3744,9 @@ K5+268</description>
 				</Placemark>
 				<Folder>
 					<name>Kênh VB6-3</name>
-					<visibility>0</visibility>
 					<open>1</open>
 					<Placemark>
 						<name>Cống VB6-3</name>
-						<visibility>0</visibility>
 						<description><![CDATA[k5+363<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_000</styleUrl>
 						<Point>
@@ -3743,7 +3755,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh VB6-3</name>
-						<visibility>0</visibility>
 						<styleUrl>#msn_ylw-pushpin</styleUrl>
 						<LineString>
 							<tessellate>1</tessellate>
@@ -3754,7 +3765,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>vb6-3-1</name>
-						<visibility>0</visibility>
 						<description>0.4x0.4 v0</description>
 						<LookAt>
 							<longitude>105.8496305602852</longitude>
@@ -3773,7 +3783,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>vb6-3-3</name>
-						<visibility>0</visibility>
 						<description>0.4x0.4 v0</description>
 						<LookAt>
 							<longitude>105.8501987266626</longitude>
@@ -3792,7 +3801,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>kênh B6</name>
-						<visibility>0</visibility>
 						<description>260m</description>
 						<styleUrl>#line-FF0000-4000110</styleUrl>
 						<LineString>
@@ -3805,10 +3813,8 @@ K5+268</description>
 				</Folder>
 				<Folder>
 					<name>Kênh B6</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống B6</name>
-						<visibility>0</visibility>
 						<description>k5+736
 0.50x0.50
  v1</description>
@@ -3819,7 +3825,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>B6-1</name>
-						<visibility>0</visibility>
 						<description>0.70x1.00</description>
 						<LookAt>
 							<longitude>105.8483924476696</longitude>
@@ -3838,7 +3843,6 @@ K5+268</description>
 					</Placemark>
 					<Placemark>
 						<name>B6-3</name>
-						<visibility>0</visibility>
 						<description>0.30</description>
 						<LookAt>
 							<longitude>105.8483924476696</longitude>
@@ -3860,13 +3864,10 @@ K5+268</description>
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Đại Thanh</name>
-			<visibility>0</visibility>
 			<Folder>
 				<name>Nguyễn Thị Vĩnh</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống VB 9-5</name>
-					<visibility>0</visibility>
 					<description>0,50 x 0,50
 K7+723</description>
 					<styleUrl>#msn_icon-1_1_0</styleUrl>
@@ -3876,7 +3877,6 @@ K7+723</description>
 				</Placemark>
 				<Placemark>
 					<name>vb9-5</name>
-					<visibility>0</visibility>
 					<description><![CDATA[xây 200<br>đất 400]]></description>
 					<styleUrl>#msn_ylw-pushpin0</styleUrl>
 					<LineString>
@@ -3888,7 +3888,6 @@ K7+723</description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Thị Vĩnh</name>
-					<visibility>0</visibility>
 					<styleUrl>#msn_ylw-pushpin00</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
@@ -3899,7 +3898,6 @@ K7+723</description>
 				</Placemark>
 				<Placemark>
 					<name>vb95-3</name>
-					<visibility>0</visibility>
 					<description>0,50 x 0,50
 K0+197</description>
 					<LookAt>
@@ -3919,7 +3917,6 @@ K0+197</description>
 				</Placemark>
 				<Placemark>
 					<name>vb95-4</name>
-					<visibility>0</visibility>
 					<description>0,50 x 0,50
 K0+197</description>
 					<LookAt>
@@ -3939,7 +3936,6 @@ K0+197</description>
 				</Placemark>
 				<Placemark>
 					<name>vb95-1</name>
-					<visibility>0</visibility>
 					<description>0,50 x 0,50
 K0+125</description>
 					<LookAt>
@@ -3959,7 +3955,6 @@ K0+125</description>
 				</Placemark>
 				<Placemark>
 					<name>vb95-2</name>
-					<visibility>0</visibility>
 					<description>0,50 x 0,50
 K0+125</description>
 					<LookAt>
@@ -3980,7 +3975,6 @@ K0+125</description>
 			</Folder>
 			<Placemark>
 				<name>TB Đại Thanh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813661544024_5dae1ad05afacf4463ac60283f6be684_0.jpg">
 Tổ máy bơm công suất: 3 x 980 m3 <br>Kiểu máy: Trục  ngang<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
 <br>Vũ Thị Kim Chinh -	Trạm trưởng
@@ -4010,11 +4004,9 @@ Tổ máy bơm công suất: 3 x 980 m3 <br>Kiểu máy: Trục  ngang<br>Hình 
 			</Placemark>
 			<Folder>
 				<name>Vũ Thị Kim Chinh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Vũ Thị Kim Chinh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Vũ Thị Kim Chinh
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Nam
@@ -4032,7 +4024,6 @@ Chiều dài (m) 	440
 				</Placemark>
 				<Placemark>
 					<name>Chăn nuôi</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813663453607_5f7c61abadd4f905afb5a72f5dda92c3_0.jpg">
 3 cửa 1,2x1,4
  máy đóng mở V2
@@ -4054,7 +4045,6 @@ K0+265]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Vào bể hút TB Đại Thanh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813661544027_00982931ab4608cd128614dea6b91fb0_0.jpg">
 2 cửa 1,2x1,2
  máy đóng mở V2
@@ -4077,11 +4067,9 @@ K1+800]]></description>
 			</Folder>
 			<Folder>
 				<name>Nguyễn Kim Hưng</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn kim Hưng</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn kim Hưng
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -4101,10 +4089,8 @@ Chiều dài (m)
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Nhân Hoà</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Nhân Hòa</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="516842215_1271498707942121_4017114357530010136_n_0.jpg">
 Tổ máy bơm công suất: 3 x 980 m3<br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tưới<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
 <br>Nguyễn Kim Binh -	Trạm trưởng
@@ -4134,11 +4120,9 @@ Tổ máy bơm công suất: 3 x 980 m3<br>Kiểu máy: Trục ngang<br>Hình th
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Kim Binh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Kim Binh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Kim Binh
 Chức vụ: Trạm trưởng
 Đơn vị quản lý: 	Cụm Nam
@@ -4156,7 +4140,6 @@ Chiều dài (m) : 1366
 				</Placemark>
 				<Placemark>
 					<name>Cống đồng Thượng Đoạn 1</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="518593803_1071471671211044_2328884961118211252_n_0.jpg">
 1 cửa 1,25x1,4
  máy đóng mở V0
@@ -4183,7 +4166,6 @@ K1+277]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống đồng 60/80</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="516745707_1364066938022352_6428358358504424092_n_0.jpg">
 
 1 cửa
@@ -4207,7 +4189,6 @@ K1+368]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống đồng Thượng Đoạn 2</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="516498752_1288258016145190_7712846360788063189_n_0.jpg">
 1 cửa 1,25x1,4
  máy đóng mở V0
@@ -4229,7 +4210,6 @@ K1+372]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống đồng Thượng Đoạn 3</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="517129271_1721537528484997_8238337828326587865_n_0.jpg">
 1 cửa 1,25x1,4
  máy đóng mở V0
@@ -4251,7 +4231,6 @@ K1+605]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống  đồng Nguyệt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="518944132_1084782333598680_167355818773431384_n_0.jpg">
 1 cửa 1,3x1,6
  máy đóng mở V0
@@ -4273,7 +4252,6 @@ k1+644]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Hậu Xá</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-n-z6814055658985_729c8ff1a168de09ce0181a645338d54_0.jpg">
 1 cửa 1,9x1,9
  máy đóng mở V3
@@ -4295,7 +4273,6 @@ K1+782]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyệt Áng</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-n-z6814029722146_cb097713a252640cd4bef4a188b7d0b6_0.jpg">
 3 cửa 2,00x2,00
  máy đóng mở V2
@@ -4317,7 +4294,6 @@ K1+801]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyệt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813856883563_66c613cb3b493c9cea4cda9e40a45553_0.jpg">
 3 cửa 1,85x2,25
  máy đóng mở V3 
@@ -4340,7 +4316,6 @@ K2+382]]></description>
 				</Placemark>
 				<Placemark>
 					<name>C1 tiêu</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853219933_b661d5491be3796fbc56fac028dfc3cb_0.jpg">
 1 cửa 1,0x1,0
 máy đóng mở V0
@@ -4363,7 +4338,6 @@ K1+818]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c2</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853208164_c7b7baf10f06375a26b2f3ac8efbf979_0.jpg">
 1 cửa 0,75x0,70
 máy đóng mở V1
@@ -4385,7 +4359,6 @@ K1+864]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c3</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853193343_635ed88ab27825443ca5451576616251_0.jpg">
 2 cửa 1,06x1,10
 máy đóng mở V1
@@ -4407,7 +4380,6 @@ K1+942]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c4</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853181165_06cc60e3b423be8c0497b70ca2d51411_0.jpg">
 1 cửa 0,75x0,70
 máy đóng mở V1
@@ -4429,7 +4401,6 @@ K2+089]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c5</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853175975_4ac4907530347159ca11dabc40b07424_0.jpg">
 1 cửa 0,75x0,70
 máy đóng mở V1
@@ -4452,7 +4423,6 @@ K2+097]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c6</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853190280_c1d9824dea4c3a70daf7244658202cd1_0.jpg">
 1 cửa 0,95x0,95
 máy đóng mở V1
@@ -4474,7 +4444,6 @@ K2+174]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c7</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853181165_06cc60e3b423be8c0497b70ca2d51411_0.jpg">
 1 cửa 0,75x0,70
 máy đóng mở V1
@@ -4496,7 +4465,6 @@ K2+342]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c8</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853160846_5f8bdafb63f07b053112a740475a468d_0.jpg">
 1 cửa 0,75x0,70
 máy đóng mở V1
@@ -4518,7 +4486,6 @@ K2+350]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c9</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853162359_1b2125cc16fec4cb5585b6ed48b72a81_0.jpg">
 1 cửa 1,70x1,70
  máy đóng mở V2
@@ -4540,7 +4507,6 @@ K2+473]]></description>
 				</Placemark>
 				<Placemark>
 					<name>c10</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813853196335_0f71f00d4c96ad91534dc973b8363c26_0.jpg">
 1 cửa 0,75x0,70
 Máy đóng mở V1
@@ -4563,10 +4529,8 @@ K2+456]]></description>
 			</Folder>
 			<Folder>
 				<name>Hà Xuân Bình</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Hà Xuân Bình</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Hà Xuân Bình
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -4585,10 +4549,8 @@ Chiều dài (m) 	 550
 			</Folder>
 			<Folder>
 				<name>Nguyễn Ngọc Biên</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Nguyễn Ngọc Biên</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Ngọc Biên +
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công trình
@@ -4607,11 +4569,9 @@ Chiều dài (m) 	626
 			</Folder>
 			<Folder>
 				<name>Nguyễn Thị Bích Hồng</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Kênh Nhân Hòa</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Thị Bích Hồng
 Chức vụ: 	Công nhân
 Đơn vị quản lý:  Cụm Nam
@@ -4629,7 +4589,6 @@ Chiều dài (m) 	1318
 				</Placemark>
 				<Placemark>
 					<name>nhánh 2 Nhân Hoà</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Thị Bích Hồng 2
 Chức vụ: 	Công nhân
 Đơn vị quản lý: Đội Công trình	Cụm Nam
@@ -4647,7 +4606,6 @@ Chiều dài (m) 	682
 				</Placemark>
 				<Placemark>
 					<name>cống qua đường liên xã</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="518075110_1348213203304286_4634705528874769654_n_0.jpg">
 phi 1000
 K0+295]]></description>
@@ -4670,10 +4628,8 @@ K0+295]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Siêu Quần</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Siêu Quần</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="Capture_0.PNG">
 Tổ máy bơm công suất: 5 x 2.500 m3 <br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
 <br>Nguyễn Hồng Đoan -	Trạm trưởng
@@ -4701,11 +4657,9 @@ Tổ máy bơm công suất: 5 x 2.500 m3 <br>Kiểu máy: Trục đứng<br>Hì
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Hồng Đoan</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Bể xả TB Siêu Quần</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812657529976_30f2bdc923140abde38be79505b28654_0.jpg">2 cửa 1,5x1,6
  máy đóng mở V0
 
@@ -4732,7 +4686,6 @@ K4+000]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Hồng Đoan</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Hồng Đoan
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Đội Công trình
@@ -4750,7 +4703,6 @@ Chiều dài (m) 	 1.869,0
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Hồng Đoan ( Đoạn 2)</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Hồng Đoan
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Đội Công trình
@@ -4768,7 +4720,6 @@ Chiều dài (m) 	 570
 				</Placemark>
 				<Placemark>
 					<name>Qua đê sông Nhuệ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812657506909_935ad08df08d3344490b400a15900ac4_0.jpg">2 cửa 1.50x1.60
 
 K4+000]]></description>
@@ -4789,7 +4740,6 @@ K4+000]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Thượng Phúc</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812657518776_d1a9e600f6d01cb3adf3985833ddc053_0.jpg">
 1 cửa 1.00x1.20
 K3+242]]></description>
@@ -4810,7 +4760,6 @@ K3+242]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Xiphong</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812657504403_eca29df183eb8beda53bc8e336437a32_0.jpg">
 2 cửa 1.65x1.7
 K3+743]]></description>
@@ -4832,11 +4781,9 @@ K3+743]]></description>
 			</Folder>
 			<Folder>
 				<name>Nguyễn Tràng Huy</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Tràng Huy</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Tràng Huy
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -4854,7 +4801,6 @@ Chiều dài (m) 	893,00
 				</Placemark>
 				<Placemark>
 					<name>Ra đường đài tưởng niệm</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812656592730_9a902cbb8026702ddf3b0b57a914ad22_0.jpg">1 cửa 1,25x1,30
 K0+533]]></description>
 					<LookAt>
@@ -4874,7 +4820,6 @@ K0+533]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Miếu Ông</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6812656600254_949d184a5b971a786cd71eb28809b424_0.jpg">phi 1000
 k0+731]]></description>
 					<LookAt>
@@ -4896,10 +4841,8 @@ k0+731]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Hữu Hoà</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Hữu Hòa</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813665204807_9354d2e3e93283248f1888e6cd6be3a1_0.jpg">
 <br>Tổ máy bơm công suất: 4 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tưới, tiêu<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
 <br>Phan Trọng Tòng -	Trạm trưởng
@@ -4929,11 +4872,9 @@ k0+731]]></description>
 			</Placemark>
 			<Folder>
 				<name>Phan Trọng Tòng</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống Quán Trần</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813165842648_728c2904147f124772961b4f4b162fb2_0.jpg">
 1.75x1.55 máy v2
 K0+405]]></description>
@@ -4954,7 +4895,6 @@ K0+405]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Mậu Lương</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813164004112_366ce025ce636b9f24cd9203bd32aa36_0.jpg">
 1.1x1.5 máy đóng mở v1
 K0+00]]></description>
@@ -4975,7 +4915,6 @@ K0+00]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Phan Trọng Tòng</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Phan Trọng Tòng
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Nam
@@ -4993,7 +4932,6 @@ Chiều dài (m) 	 800.0
 				</Placemark>
 				<Placemark>
 					<name>Cống so 1 Đường Sắt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-n-z6813876948407_bd71aeca83cc378e7ac04c32ac0d8fd2_0.jpg">
 2 cửa 2,2x2,1
 máy đóng mở V5
@@ -5016,10 +4954,8 @@ K0+800]]></description>
 			</Folder>
 			<Folder>
 				<name>Đỗ Khắc Kiên</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Đỗ Khắc Kiên</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Đỗ Khắc Kiên
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -5037,7 +4973,6 @@ Chiều dài (m) 	 900.0
 				</Placemark>
 				<Placemark>
 					<name>Cống xả tưới TB HH</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813662522336_998fefef18cfa4ce01a2d1390152b543_0.jpg">
 1 cửa 1,00x1,20
 máy đóng mở V1
@@ -5059,7 +4994,6 @@ K1+700]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Hữu hoà</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813662522254_ac6fb4c7a6a3ec777b44754b1c6b0c56_0.jpg">
 1cửa 1,60x1,60
 máy đóng mở V3
@@ -5081,7 +5015,6 @@ K1+700]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống số 4 qua đê SN</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813662522338_0df9e1abebf738d99c5713d0d16a5fbb_0.jpg">
 2 cửa 1,00x1,40
 máy đóng mở V2
@@ -5104,11 +5037,9 @@ K1+700]]></description>
 			</Folder>
 			<Folder>
 				<name>Phan Trọng Ngọc</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống Lách gara</name>
-					<visibility>0</visibility>
 					<open>1</open>
 					<description><![CDATA[<img style="max-width:500px;" src="z6815712044149_c35724aa1920d2e47c5c6a7a7dfeac13_0.jpg">
 2 cửa 1.60x1.70
@@ -5130,7 +5061,6 @@ K1+200]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Phan Trọng Ngọc</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Phan Trọng Ngọc
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -5148,7 +5078,6 @@ Chiều dài (m) 	520
 				</Placemark>
 				<Placemark>
 					<name>Phan Trọng Ngọc</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Phan Trọng Ngọc
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -5166,7 +5095,6 @@ Chiều dài (m) 	520
 				</Placemark>
 				<Placemark>
 					<name>Vào đồng xâm canh Hữu Hòa</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-n-z6813836509859_f41f96e6314fd6edd838cda0c1b10180_0.jpg">
 1 cửa 1,50x2,20
 K1+425]]></description>
@@ -5187,7 +5115,6 @@ K1+425]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Láng Tó</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="gen-h-z6813658439700_ad7169b6b8ed337eb707220a588e3a58_0.jpg">2 cửa 1,10x1,80
  máy đóng mở V2
 K1+835]]></description>
@@ -5208,11 +5135,9 @@ K1+835]]></description>
 				</Placemark>
 				<Folder>
 					<name>Tống Thị Hằng</name>
-					<visibility>0</visibility>
 				</Folder>
 				<Placemark>
 					<name>Tống Thị Hằng</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Tống Thị Hằng
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -5230,7 +5155,6 @@ Chiều dài (m) 	 1.000,0
 				</Placemark>
 				<Placemark>
 					<name>Tả Thanh Oai</name>
-					<visibility>0</visibility>
 					<description>1 cửa 1,4x1,7
  máy đóng mở V3
 K2+800</description>
@@ -5251,7 +5175,6 @@ K2+800</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống kênh Lách gara</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813152221729_3528c2feecf8f3db2cad03f945dc16b7_0.jpg">
 2 cống phi 0.8
 K1+23]]></description>
@@ -5275,13 +5198,11 @@ K1+23]]></description>
 	</Folder>
 	<Folder>
 		<name>Cum Đông</name>
-		<visibility>0</visibility>
 		<description>Tổng số CBCNV: 18
 Cụm trưởng: Phạm Văn Khánh
 Cụm phó: Lê Thúy Ngà</description>
 		<Placemark>
 			<name>Phường Yên Sở</name>
-			<visibility>0</visibility>
 			<description>Phường Yên Sở
 Diện tích tự nhiên: 5,62 km²</description>
 			<styleUrl>#msn_ylw-pushpin17</styleUrl>
@@ -5298,7 +5219,6 @@ Diện tích tự nhiên: 5,62 km²</description>
 		</Placemark>
 		<Placemark>
 			<name>Xã Nam Phù</name>
-			<visibility>0</visibility>
 			<description>Xã Nam Phù
 Diện tích đất tự nhiên : 13,74 km²</description>
 			<styleUrl>#msn_ylw-pushpin2</styleUrl>
@@ -5315,7 +5235,6 @@ Diện tích đất tự nhiên : 13,74 km²</description>
 		</Placemark>
 		<Placemark>
 			<name>Xã Thanh Trì</name>
-			<visibility>0</visibility>
 			<description>Xã Thanh Trì
 Diện tích đất tự nhiên : 9.94 km²</description>
 			<styleUrl>#msn_ylw-pushpin10</styleUrl>
@@ -5332,10 +5251,8 @@ Diện tích đất tự nhiên : 9.94 km²</description>
 		</Placemark>
 		<Folder>
 			<name>Lê Thúy Ngà</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>Đầu làng Mỹ Ả</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813771268609_b15a1e674b854b5646b90ca79fefb374_0.jpg">
 2 cửa 1,4x2 máy đóng mở V3 Vị trí tại K5 + 998 Trên kênh Đồng Trì - Đông Mỹ.]]></description>
 				<LookAt>
@@ -5355,7 +5272,6 @@ Diện tích đất tự nhiên : 9.94 km²</description>
 			</Placemark>
 			<Placemark>
 				<name>Cống Chùa Mỹ Ả</name>
-				<visibility>0</visibility>
 				<description>1 cửa  phi 1000 Vị trí tại K0 + 793 trên kênh Mỹ Ả</description>
 				<LookAt>
 					<longitude>105.8867004491828</longitude>
@@ -5374,7 +5290,6 @@ Diện tích đất tự nhiên : 9.94 km²</description>
 			</Placemark>
 			<Placemark>
 				<name>Cống cạnh cống ông Trừ</name>
-				<visibility>0</visibility>
 				<description>1 cửa  phi 1000; Vị trí tại K1 + 010 trên kênh Mỹ Ả</description>
 				<LookAt>
 					<longitude>105.8836619903152</longitude>
@@ -5393,7 +5308,6 @@ Diện tích đất tự nhiên : 9.94 km²</description>
 			</Placemark>
 			<Placemark>
 				<name>Cống ông Trừ</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813775177397_72b1a23c55261c8669ca9052ee8060c2_0.jpg">
 1 cửa 1,6x2  máy đóng mở V0; Vị trí tại K1 + 010 trên kênh Mỹ Ả]]></description>
 				<LookAt>
@@ -5413,7 +5327,6 @@ Diện tích đất tự nhiên : 9.94 km²</description>
 			</Placemark>
 			<Placemark>
 				<name>Lê Thúy Ngà</name>
-				<visibility>0</visibility>
 				<description>Người phụ trách: Lê Thúy Ngà
 Chức vụ: 	Cụm Phó
 Đơn vị quản lý: 	Cụm Đông
@@ -5432,10 +5345,8 @@ Chiều dài (m) 	 675
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Cầu Sắt</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Cầu Sắt</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813891779729_49f7c3f12a082bb1d227327f099045a5_0.jpg">
 Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tưới<br>Cụm: Cụm thủy nông Miền Đông<br>mô tả:
 03 Đ/c: - Nguyễn Văn Ánh - Trạm Trưởng; Trần Thị Kim Oanh - CN; Trần Quốc Toản - CN]]></description>
@@ -5462,11 +5373,9 @@ Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình t
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Văn Ánh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống TB Cầu Sắt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813772988164_0d3e033477c20cc80dcbf69077bc4812_0.jpg">
 1 cửa 3x3 máy đóng mở V3; Vị Trí: K0 + 00 Kênh Cầu Sắt - Mô Cam]]></description>
 					<LookAt>
@@ -5486,7 +5395,6 @@ Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình t
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Văn Ánh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Văn Ánh
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -5505,11 +5413,9 @@ Chiều dài (m) 	 1.600
 			</Folder>
 			<Folder>
 				<name>Trần Thị Kim Oanh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống Trước Cầu Vượt</name>
-					<visibility>0</visibility>
 					<description>2 cửa 3,10x2,00 Vị trí tại K5 + 500 trên Sông Tô Lịch ( Ngân Hàng - Sông Om)</description>
 					<LookAt>
 						<longitude>105.8572144572096</longitude>
@@ -5528,7 +5434,6 @@ Chiều dài (m) 	 1.600
 				</Placemark>
 				<Placemark>
 					<name>Trần Thị Kim Oanh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Trần Thị Kim Oanh
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5547,11 +5452,9 @@ Chiều dài (m) 	 645
 			</Folder>
 			<Folder>
 				<name>Trần Quốc Toản</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống Đồng Trì</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6814006106405_e6b9ea2b63a153fd855643bcbc50637a_1.jpg">
 2 cửa 9x5 máy đóng mở V5; Vị Trí tại K1 + 500 Kênh Đồng Trì - Đông Mỹ.]]></description>
 					<LookAt>
@@ -5571,7 +5474,6 @@ Chiều dài (m) 	 645
 				</Placemark>
 				<Placemark>
 					<name>Trần Quốc Toản</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Trần Quốc Toản
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5591,10 +5493,8 @@ Chiều dài (m) 	 1.000
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Mô Cam</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Mô Cam</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813890724388_41dbd2daa29eed194b8082a17bf50030_0.jpg">
 Tổ máy bơm công suất: 2 x1120 m3<br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tưới<br>Cụm: Cụm thủy nông Miền Đông<br>mô tả:         02 Đ/c: Hoàng Tuấn Sửu - Trạm trưởng; Vũ Thị Dương Thùy - CN.]]></description>
 				<styleUrl>#icon-1565-FF5252-labelson62</styleUrl>
@@ -5620,11 +5520,9 @@ Tổ máy bơm công suất: 2 x1120 m3<br>Kiểu máy: Trục ngang<br>Hình th
 			</Placemark>
 			<Folder>
 				<name>Hoàng Tuấn Sửu</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống Qua đường Cao Tốc</name>
-					<visibility>0</visibility>
 					<description>1 cửa 1,60x1,20; Vị trí tại K0 +390 thuộc kênh Mô Cam ra Đồng Trì Đông Mỹ</description>
 					<LookAt>
 						<longitude>105.8583378234093</longitude>
@@ -5643,7 +5541,6 @@ Tổ máy bơm công suất: 2 x1120 m3<br>Kiểu máy: Trục ngang<br>Hình th
 				</Placemark>
 				<Placemark>
 					<name>Hoàng Tuấn Sửu 2</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Hoàng Tuấn Sửu
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -5661,7 +5558,6 @@ Chiều dài (m) 	 620
 				</Placemark>
 				<Placemark>
 					<name>Hoàng Tuấn Sửu 1</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Hoàng Tuấn Sửu
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -5679,7 +5575,6 @@ Chiều dài (m) 	 839
 				</Placemark>
 				<Placemark>
 					<name>Vào bể hút TB Mô Cam</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813770867722_ba2eaa91ece0bafb481b9b6ddc58762e_0.jpg">
 1 cửa 0,90x1,30 máy đóng mở V0; Vị trí tại K2 + 439 thuộc kênh Cầu Sắt - Mô Cam]]></description>
 					<LookAt>
@@ -5700,11 +5595,9 @@ Chiều dài (m) 	 839
 			</Folder>
 			<Folder>
 				<name>Vũ Thị Dương Thùy</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Vũ Thị Dương Thùy</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Vũ Thị Dương Thùy
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5724,10 +5617,8 @@ Chiều dài (m) 	 558
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Giải Đò</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Giải Đò</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813892428984_566ea3a3760f1cb37fe732203d3527cd_0.jpg">
 Tổ máy bơm công suất: 2 x 1000 m3 <br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tưới<br>Cụm: Cụm thủy nông Miền Đông<br>mô tả: 
 03 Đ/c: Chử Văn Phúc - Trạm Trưởng; Nguyễn Anh Thông - CN; Nguyễn Thị Huệ - CN]]></description>
@@ -5754,11 +5645,9 @@ Tổ máy bơm công suất: 2 x 1000 m3 <br>Kiểu máy: Trục ngang<br>Hình 
 			</Placemark>
 			<Folder>
 				<name>Chử Văn Phúc</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Tròn đầu làng Vẹt 2</name>
-					<visibility>0</visibility>
 					<description>2 cửa   phi 1000; Vị Trí tại K2 + 640 trên kênh Đồng Trì - Đông Mỹ</description>
 					<LookAt>
 						<longitude>105.861888877189</longitude>
@@ -5777,7 +5666,6 @@ Tổ máy bơm công suất: 2 x 1000 m3 <br>Kiểu máy: Trục ngang<br>Hình 
 				</Placemark>
 				<Placemark>
 					<name>Hộp vuông cuối làng Vẹt 2</name>
-					<visibility>0</visibility>
 					<description>1 cửa 2,00x1,60 Vị trí tại K3 + 250 trên kênh Đồng Trì - Đông Mỹ</description>
 					<LookAt>
 						<longitude>105.8639092950665</longitude>
@@ -5796,7 +5684,6 @@ Tổ máy bơm công suất: 2 x 1000 m3 <br>Kiểu máy: Trục ngang<br>Hình 
 				</Placemark>
 				<Placemark>
 					<name>Đầu làng Đông Trạch</name>
-					<visibility>0</visibility>
 					<description>1 cửa  phi 1000 Vị Trí tại K3 + 830 trên kênh Đồng Trì - Đông Mỹ</description>
 					<LookAt>
 						<longitude>105.8650907729728</longitude>
@@ -5815,7 +5702,6 @@ Tổ máy bơm công suất: 2 x 1000 m3 <br>Kiểu máy: Trục ngang<br>Hình 
 				</Placemark>
 				<Placemark>
 					<name>Chử Văn Phúc</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Chử Văn Phúc
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -5834,11 +5720,9 @@ Chiều dài (m) 	 1.235
 			</Folder>
 			<Folder>
 				<name>Nguyễn Anh Thông</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Anh Thông</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Anh Thông
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5857,11 +5741,9 @@ Chiều dài (m) 	 1.000
 			</Folder>
 			<Folder>
 				<name>Nguyễn Thị Huệ</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Thị Huệ</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Thị Huệ
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5880,11 +5762,9 @@ Chiều dài (m) 	 1104m
 			</Folder>
 			<Folder>
 				<name>Nguyễn Ngọc Lợi</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống xả 1 Đông Mỹ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813865454629_ca35dca6638ff0a4a075842d8e81e211_1.jpg">
 1 cửa 1,3x1,2 Vị trí tại K6 + 145 trên Kênh Đồng Trì - Đông Mỹ ( nhánh kênh xả)]]></description>
 					<LookAt>
@@ -5904,7 +5784,6 @@ Chiều dài (m) 	 1104m
 				</Placemark>
 				<Placemark>
 					<name>Cống xả 2 Đông Mỹ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813865766683_70dcb18697b3b7ffb9012f41f00f5a7d_1.jpg">
 1 cửa 1,3x1,2 máy đóng mở V2 Vị trí tại K6 + 155 trên Kênh Đồng Trì - Đông Mỹ ( nhánh kênh xả)]]></description>
 					<LookAt>
@@ -5924,7 +5803,6 @@ Chiều dài (m) 	 1104m
 				</Placemark>
 				<Placemark>
 					<name>Cống TB Mô cam</name>
-					<visibility>0</visibility>
 					<description>2 cửa 0,90x1,30 máy đóng mở V0; Vị trí: K0 + 00 - Đầu Nhánh phải kênh tưới Mô Cam</description>
 					<LookAt>
 						<longitude>105.856470291928</longitude>
@@ -5943,7 +5821,6 @@ Chiều dài (m) 	 1104m
 				</Placemark>
 				<Placemark>
 					<name>Trước bể xả TB Mô Cam</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813758673186_79858f1ff59de9d182f2aec194ed38b8_1.jpg">
 2 cửa 0,90x1,30 máy đóng mở V0; Vị trí: K0 + 00 - Đầu Nhánh trái kênh tưới Mô Cam]]></description>
 					<LookAt>
@@ -5963,7 +5840,6 @@ Chiều dài (m) 	 1104m
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Ngọc Lợi</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Ngọc Lợi
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -5981,7 +5857,6 @@ Chiều dài (m)
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Ngọc Lợi 2</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Ngọc Lợi
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -6001,10 +5876,8 @@ Chiều dài (m)
 		</Folder>
 		<Folder>
 			<name>Trạm bơm Đông Mỹ</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Đông Mỹ</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813884945677_4e705a471950b62a10cec7ce34777825_0.jpg">
 Tổ máy bơm công suất: 24 x 1.100 m3 <br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Đông: Đ/c: Phạm Văn Khánh - Cụm Trưởng; Lê Thúy Ngà - Cụm Phó <br>mô tả: Trạm bơm gồm 04 Đ/c Nguyễn Kim Nam - Trạm trưởng; Trần Trung Kiên  CN; Phan Văn Quyết - Cn; Nguyễn Hồng Quân - CN]]></description>
 				<styleUrl>#icon-1565-01579B-labelson60</styleUrl>
@@ -6030,7 +5903,6 @@ Tổ máy bơm công suất: 24 x 1.100 m3 <br>Kiểu máy: Trục ngang<br>Hìn
 			</Placemark>
 			<Placemark>
 				<name>Cống 3 cửa Liên Ninh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813772112825_d87b80aa1d3f3426b44d92444b85e6b5_0.jpg">
 3 cửa 9,6x5,2 máy đóng mở V3 Vị Trí tại K8 + 150 trên Sông Tô Lịch ( Ngân Hàng - Sông Om)]]></description>
 				<LookAt>
@@ -6050,7 +5922,6 @@ Tổ máy bơm công suất: 24 x 1.100 m3 <br>Kiểu máy: Trục ngang<br>Hìn
 			</Placemark>
 			<Placemark>
 				<name>Qua đê Đông Mỹ</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813774867199_f3a236af941fb4a0b65004f04b14d582_0.jpg">
 2 cửa 4 cánh cống  2,4 x 1,7 máy đóng mở V5 Vị trí tại K5 + 998 trên kênh Đồng Trì - Đông Mỹ.]]></description>
 				<LookAt>
@@ -6070,10 +5941,8 @@ Tổ máy bơm công suất: 24 x 1.100 m3 <br>Kiểu máy: Trục ngang<br>Hìn
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Kim Nam</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống Cầu Đổ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813771594179_901bb25ad106c7426c28396fede89a20_0.jpg">
 2 cửa 6x4 máy đóng mở V3 Vị Trí tại K6 + 500 Trên Tuyến Sông Tô Lịch ( Ngân Hàng - Sông Om)]]></description>
 					<LookAt>
@@ -6093,7 +5962,6 @@ Tổ máy bơm công suất: 24 x 1.100 m3 <br>Kiểu máy: Trục ngang<br>Hìn
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Kim Nam</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Kim Nam
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -6112,10 +5980,8 @@ Chiều dài (m) 	 848
 			</Folder>
 			<Folder>
 				<name>Trần Trung Kiên</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Trần Trung Kiên</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Trần Trung Kiên
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -6134,11 +6000,9 @@ Chiều dài (m) 	 645
 			</Folder>
 			<Folder>
 				<name>Phạm Văn Quyết</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Phạm Văn Quyết</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Phạm Văn Quyết
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -6157,11 +6021,9 @@ Chiều dài (m) 	 550
 			</Folder>
 			<Folder>
 				<name>Nguyễn Hồng Quân</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cống cạnh TB Đồng Họa cũ</name>
-					<visibility>0</visibility>
 					<description>1 cửa phi 1000; Vị trí tại K0 + 220 trên kênh Mỹ Ả</description>
 					<LookAt>
 						<longitude>105.8895701015473</longitude>
@@ -6180,7 +6042,6 @@ Chiều dài (m) 	 550
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Hồng Quân</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Hồng Quân
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Đông
@@ -6224,11 +6085,9 @@ Diện tích đất tự nhiên : 13,35 km²</description>
 		</Placemark>
 		<Folder>
 			<name>Trạm Ngọc Hồi</name>
-			<visibility>0</visibility>
 			<open>1</open>
 			<Placemark>
 				<name>TB Ngọc Hồi</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6812883927100_9da5e0248c80602d6bc6e9ee7058d0b9_1.jpg">Tổ máy bơm công suất: 3 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tưới, tiêu<br>Cụm: Đội QLTN<br>mô tả:
 <br> Nguyễn Quang Dũng 
 <br>Nguyễn Ngọc Lam
@@ -6257,11 +6116,9 @@ Diện tích đất tự nhiên : 13,35 km²</description>
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Ngọc Lam</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Ngọc Lam</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Ngọc Lam
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -6279,7 +6136,6 @@ Chiều dài (m) 	1213
 				</Placemark>
 				<Placemark>
 					<name>Cống Trạm bơm Ô ngọ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812788218252_71f36c43d62e3d9a84bbaf56c5a16726_1.jpg">
 2 cống phi 800
 K0+480]]></description>
@@ -6300,7 +6156,6 @@ K0+480]]></description>
 				</Placemark>
 				<Placemark>
 					<name>cống tiêu thạnh niên</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812785988972_3dde38e322cf0655a777fb5ab66965a4_1.jpg">
 2 cửa 0.9x 0.9
 K0+437]]></description>
@@ -6321,7 +6176,6 @@ K0+437]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống sư đoàn</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812782663344_ad68db9f7d4644f0fcdbec79936599a7_1.jpg">2 cống vuông1.7	x1.3
 K0+437]]></description>
 					<LookAt>
@@ -6341,7 +6195,6 @@ K0+437]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cầu qua đường 70</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812791564114_f45238eeb89341a2bd328ae1d1d43259_1.jpg">12.4x6.8
 K0+750]]></description>
 					<LookAt>
@@ -6361,7 +6214,6 @@ K0+750]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Hoa Cà</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812795908406_60833423e4f016c2d4f766d76a704ad6_1.jpg">2.00x2.20
 
 k0+900]]></description>
@@ -6382,7 +6234,6 @@ k0+900]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Cầu Dạ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812800145629_753936ecf5dd96e7f8e5b252a4d59340_1.jpg">3.00x1.00
 K1+200]]></description>
 					<LookAt>
@@ -6403,10 +6254,8 @@ K1+200]]></description>
 			</Folder>
 			<Folder>
 				<name>LÃ Tiến Nhật</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống chợ cầu danh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812684155132_679820cafb26ca3a7e738d613e4a1160_1.jpg">
 1 máy đóng mở 1.2x1.4
 K1+795]]></description>
@@ -6427,7 +6276,6 @@ K1+795]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống giữa kênh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812684156703_8bdf2686d587ed4ca9c30cc17afdf23f_1.jpg">
 1 cửa 1x1.3
 K1+810]]></description>
@@ -6448,7 +6296,6 @@ K1+810]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Lã Tiến Nhật</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Lã Tiến Nhật
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -6467,10 +6314,8 @@ Chiều dài (m) 	450
 			</Folder>
 			<Folder>
 				<name>Nguyễn VĂn Minh</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Nguyễn Văn Minh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Văn Minh
 Chức vụ: Công Nhân
 Đơn vị quản lý: Đội Công Trình
@@ -6489,7 +6334,6 @@ Loại kênh Ngân hàng- Sông Om</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Ngân hàng</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6815864651688_f0303cb80d28811d73ab27d82e9a9b04_1.jpg">
 2 cửa 1.6x1.8
 K0+00]]></description>
@@ -6511,14 +6355,11 @@ K0+00]]></description>
 			</Folder>
 			<Folder>
 				<name>Tuyến Kênh Ngọc Hồi</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Folder>
 					<name>Cống Tròn</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8356150337297</longitude>
@@ -6537,7 +6378,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>Cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8356150337297</longitude>
@@ -6556,7 +6396,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>phi 350</description>
 						<LookAt>
 							<longitude>105.8357366998153</longitude>
@@ -6575,7 +6414,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>Cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8356584948211</longitude>
@@ -6594,7 +6432,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8364990061722</longitude>
@@ -6613,7 +6450,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>Cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8366091948123</longitude>
@@ -6632,7 +6468,6 @@ K0+00]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống HTX</name>
-						<visibility>0</visibility>
 						<description>Cống tròn phi 35</description>
 						<LookAt>
 							<longitude>105.8370007996663</longitude>
@@ -6652,7 +6487,6 @@ K0+00]]></description>
 				</Folder>
 				<Placemark>
 					<name>Nguyễn Quang Dũng</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Quang Dũng
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Đội Công Trình
@@ -6670,7 +6504,6 @@ Chiều dài (m) 	1212
 				</Placemark>
 				<Placemark>
 					<name>Cống luồn tiêu</name>
-					<visibility>0</visibility>
 					<description><![CDATA[cống luồn tiêu hèm 135cm<img style="max-width:500px;" src="luồn tiêu_1.jpg">]]></description>
 					<LookAt>
 						<longitude>105.8353632709266</longitude>
@@ -6689,7 +6522,6 @@ Chiều dài (m) 	1212
 				</Placemark>
 				<Placemark>
 					<name>Cống ao cá</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="ao cá_1.jpg">
 1x1.4
 K0+15]]></description>
@@ -6710,7 +6542,6 @@ K0+15]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống qua kênh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812921197406_df5288ef458557cd2f03c51b85d24b24_1.jpg">
 3 cống tròn phi 800
 K0+372]]></description>
@@ -6731,7 +6562,6 @@ K0+372]]></description>
 				</Placemark>
 				<Placemark>
 					<name>cống vào đồng Quỳnh đô</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="44_1.jpg">1x1.4
 K0+385]]></description>
 					<LookAt>
@@ -6751,7 +6581,6 @@ K0+385]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống tiêu nghĩa trang</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="33_1.jpg">
 1x1.4
 K0+668]]></description>
@@ -6772,7 +6601,6 @@ K0+668]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống vào khu Mả Tre</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="22_1.jpg">1x1.4
 K0+668]]></description>
 					<LookAt>
@@ -6792,7 +6620,6 @@ K0+668]]></description>
 				</Placemark>
 				<Placemark>
 					<name>cống vào Đám MẠ</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="111_1.jpg">1x1.4
 k0+800]]></description>
 					<LookAt>
@@ -6812,7 +6639,6 @@ k0+800]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống ra Đồng Lạc Thị</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="ra đông_1.jpg">1x2.4
 k0+896]]></description>
 					<LookAt>
@@ -6832,7 +6658,6 @@ k0+896]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống trước cửa trạm bơm NGọc HỒi</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="trước cửa ngọc hồi_1.jpg">có tay quay 4 phai ( mỗi bên 2 ) v5
 1.75x2
  K1+200]]></description>
@@ -6853,7 +6678,6 @@ k0+896]]></description>
 				</Placemark>
 				<Placemark>
 					<name>CT1 ( VB*-4)</name>
-					<visibility>0</visibility>
 					<description>1.4x1.7
 K0+000</description>
 					<LookAt>
@@ -6875,14 +6699,11 @@ K0+000</description>
 		</Folder>
 		<Folder>
 			<name>Tuyến Kênh Bắc</name>
-			<visibility>0</visibility>
 			<open>1</open>
 			<Folder>
 				<name>Nguyễn VĂn Cao</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống VB 7-2</name>
-					<visibility>0</visibility>
 					<description><![CDATA[k 5+991<br>0,7x0,8]]></description>
 					<styleUrl>#msn_icon-1_1_01</styleUrl>
 					<Point>
@@ -6891,7 +6712,6 @@ K0+000</description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Văn Cao</name>
-					<visibility>0</visibility>
 					<styleUrl>#msn_ylw-pushpin00</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
@@ -6902,10 +6722,8 @@ K0+000</description>
 				</Placemark>
 				<Folder>
 					<name>Kênh VB6-3</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống VB6-3</name>
-						<visibility>0</visibility>
 						<description><![CDATA[k5+363<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_00</styleUrl>
 						<Point>
@@ -6914,7 +6732,6 @@ K0+000</description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh VB6-3</name>
-						<visibility>0</visibility>
 						<description>486m</description>
 						<styleUrl>#msn_ylw-pushpin0</styleUrl>
 						<LineString>
@@ -6926,7 +6743,6 @@ K0+000</description>
 					</Placemark>
 					<Placemark>
 						<name>vb6-3-1</name>
-						<visibility>0</visibility>
 						<description>0.4x0.4 v0
 K0+142</description>
 						<LookAt>
@@ -6946,7 +6762,6 @@ K0+142</description>
 					</Placemark>
 					<Placemark>
 						<name>vb6-3-3</name>
-						<visibility>0</visibility>
 						<description>0.4x0.4 v0
 K0+163</description>
 						<LookAt>
@@ -6966,7 +6781,6 @@ K0+163</description>
 					</Placemark>
 					<Placemark>
 						<name>kênh B6</name>
-						<visibility>0</visibility>
 						<description>260m</description>
 						<styleUrl>#msn_ylw-pushpin19</styleUrl>
 						<LineString>
@@ -6979,10 +6793,8 @@ K0+163</description>
 				</Folder>
 				<Folder>
 					<name>Kênh B6</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống B6</name>
-						<visibility>0</visibility>
 						<description>k5+736
 0.50x0.50
  v1</description>
@@ -6993,7 +6805,6 @@ K0+163</description>
 					</Placemark>
 					<Placemark>
 						<name>B6-1</name>
-						<visibility>0</visibility>
 						<description>0.70x1.00
 K0+110</description>
 						<LookAt>
@@ -7013,7 +6824,6 @@ K0+110</description>
 					</Placemark>
 					<Placemark>
 						<name>B6-3</name>
-						<visibility>0</visibility>
 						<description>0.30
 K0+165</description>
 						<LookAt>
@@ -7034,7 +6844,6 @@ K0+165</description>
 				</Folder>
 				<Placemark>
 					<name>Cống b7</name>
-					<visibility>0</visibility>
 					<description>1.3x1.9
 K5+268</description>
 					<LookAt>
@@ -7055,10 +6864,8 @@ K5+268</description>
 			</Folder>
 			<Folder>
 				<name>NGuyễn Thị Hương Sen</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Nguyễn Thị Hương Sen</name>
-					<visibility>0</visibility>
 					<styleUrl>#msn_ylw-pushpin00</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
@@ -7069,10 +6876,8 @@ K5+268</description>
 				</Placemark>
 				<Folder>
 					<name>Kênh B9</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống b9</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300912_b04a3519ffe03e7514d7f1ca18f03851_1.jpg">
 k6+823<br>825m<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7082,7 +6887,6 @@ k6+823<br>825m<br>0,50x0,50]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh B9</name>
-						<visibility>0</visibility>
 						<description>825</description>
 						<styleUrl>#msn_ylw-pushpin30</styleUrl>
 						<LineString>
@@ -7094,7 +6898,6 @@ k6+823<br>825m<br>0,50x0,50]]></description>
 					</Placemark>
 					<Placemark>
 						<name>b9-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300917_317045387ce8e4ba6d56d7852968eda0_1.jpg">
 0,50x0,50
 K0+178]]></description>
@@ -7115,7 +6918,6 @@ K0+178]]></description>
 					</Placemark>
 					<Placemark>
 						<name>ĐT B9</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300905_b20590d2ebb2de1f8c503ab047fc326b_1.jpg">
 1,4x1,3
 K0+482]]></description>
@@ -7136,7 +6938,6 @@ K0+482]]></description>
 					</Placemark>
 					<Placemark>
 						<name>b9-4</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567317506_2070b5ec25a795824b7504120e263b72_1.jpg">
 0,50x0,50
 K0+490]]></description>
@@ -7157,7 +6958,6 @@ K0+490]]></description>
 					</Placemark>
 					<Placemark>
 						<name>cống qua đường nhựa</name>
-						<visibility>0</visibility>
 						<description>1,50x1,00
 K0+647</description>
 						<LookAt>
@@ -7177,7 +6977,6 @@ K0+647</description>
 					</Placemark>
 					<Placemark>
 						<name>b91</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567317502_753878682096268ad46aa6cf3d8cbf7e_1.jpg">
 0,50x0,50
 K0+488]]></description>
@@ -7199,10 +6998,8 @@ K0+488]]></description>
 				</Folder>
 				<Folder>
 					<name>Kênh vb7-3</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>VB7-3-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300891_ccd8d389c4645aff9238d9d26d1fea52_1.jpg">
 0,30x0,30
 K0+155]]></description>
@@ -7223,7 +7020,6 @@ K0+155]]></description>
 					</Placemark>
 					<Placemark>
 						<name>VB7-3-1</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300982_4238de4b35fccb19f0d6b513c8a6a910_1.jpg">
 0,4x0,4
 K0+134]]></description>
@@ -7244,7 +7040,6 @@ K0+134]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống VB 7-3</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300906_d7622cd82e128bbdb1b9dc764d327405_1.jpg">
 k6+111<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7254,7 +7049,6 @@ k6+111<br>0,50x0,50]]></description>
 					</Placemark>
 					<Placemark>
 						<name>kênh vb7-3 theo thiết kê là vb 75</name>
-						<visibility>0</visibility>
 						<description>705</description>
 						<styleUrl>#msn_ylw-pushpin1</styleUrl>
 						<LineString>
@@ -7267,10 +7061,8 @@ k6+111<br>0,50x0,50]]></description>
 				</Folder>
 				<Folder>
 					<name>Kênh VB7-5</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Kênh VB7-5</name>
-						<visibility>0</visibility>
 						<description>120</description>
 						<styleUrl>#msn_ylw-pushpin22</styleUrl>
 						<LineString>
@@ -7282,7 +7074,6 @@ k6+111<br>0,50x0,50]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống VB7-5</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300907_35030bb2f6a570b1a51a30a29bf78437_1.jpg">
 k6+364<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7292,7 +7083,6 @@ k6+364<br>0,50x0,50]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb7-5-1</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300987_3566ccbaddb98eb4ab125daa02ff0cbc_1.jpg">
 0,30x0,30
 K0+38]]></description>
@@ -7313,7 +7103,6 @@ K0+38]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb7-5-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300989_67e2c126e6ae0af696971f5fd38c4abe_1.jpg">
 0,30x0,30
 K0+9]]></description>
@@ -7334,7 +7123,6 @@ K0+9]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb7-5-4</name>
-						<visibility>0</visibility>
 						<description>0,30x0,30
 K0+100</description>
 						<LookAt>
@@ -7355,10 +7143,8 @@ K0+100</description>
 				</Folder>
 				<Folder>
 					<name>Kênh VB6-4</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>kênh VB6-4</name>
-						<visibility>0</visibility>
 						<description>430m</description>
 						<styleUrl>#msn_ylw-pushpin22</styleUrl>
 						<LineString>
@@ -7370,7 +7156,6 @@ K0+100</description>
 					</Placemark>
 					<Placemark>
 						<name>Cống VB6-4</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300919_33831dc023771f4a5c544a045a8f3edf_1.jpg">
 k6+193<br>0,50x0,50]]></description>
 						<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7382,13 +7167,10 @@ k6+193<br>0,50x0,50]]></description>
 			</Folder>
 			<Folder>
 				<name>Đinh Thị Thanh Tùng</name>
-				<visibility>0</visibility>
 				<Folder>
 					<name>Kênh VB8-2</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống VB 8-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300986_f5f9c63ca8c3d56d9a99cf6be2f801c4_1.jpg">
 0,50x0,50
 K7+150]]></description>
@@ -7399,7 +7181,6 @@ K7+150]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh Vb 8-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[xây 200<br>đất 1147]]></description>
 						<styleUrl>#msn_ylw-pushpin30</styleUrl>
 						<LineString>
@@ -7412,7 +7193,6 @@ K7+150]]></description>
 				</Folder>
 				<Placemark>
 					<name>Đinh Thị tHanh Tùng</name>
-					<visibility>0</visibility>
 					<styleUrl>#msn_ylw-pushpin00</styleUrl>
 					<LineString>
 						<tessellate>1</tessellate>
@@ -7423,7 +7203,6 @@ K7+150]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống từ ao</name>
-					<visibility>0</visibility>
 					<styleUrl>#icon-ci-1-nodesc11</styleUrl>
 					<Point>
 						<coordinates>105.837824,20.912909,0</coordinates>
@@ -7431,7 +7210,6 @@ K7+150]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống CT 1 ( VB84)</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813567300918_74d08aadee8a53f2fff9dc54b2fac49a_1.jpg">
 1,4x1,7]]></description>
 					<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7441,7 +7219,6 @@ K7+150]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống DT B8</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813567300997_cb3f34ae64ad2973fdd57891e80cd7dc_1.jpg">
 1.20x2.10
 
@@ -7453,10 +7230,8 @@ K7+081]]></description>
 				</Placemark>
 				<Folder>
 					<name>Kênh VB9-1</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống Vb 9-1</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300978_ab79635de15924da68c47ea46e80b258_1.jpg">
 xây 228<br>đất 144<br>k7+072<br>0,70 x 0,70]]></description>
 						<styleUrl>#msn_icon-1_1_010</styleUrl>
@@ -7466,7 +7241,6 @@ xây 228<br>đất 144<br>k7+072<br>0,70 x 0,70]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh VB 9-1</name>
-						<visibility>0</visibility>
 						<description><![CDATA[kênh xây 228<br>kênh đất 144]]></description>
 						<styleUrl>#msn_ylw-pushpin30</styleUrl>
 						<LineString>
@@ -7478,7 +7252,6 @@ xây 228<br>đất 144<br>k7+072<br>0,70 x 0,70]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb91-1</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567317507_50d80d61f596653d3c032cf7c58b38c7_1.jpg">
 0,3 x 0,3
 K0+080]]></description>
@@ -7499,7 +7272,6 @@ K0+080]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb9-1-3</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300911_246576b5a413f3e4aed3d09de695cdff_1.jpg">
 0,3 x 0,3
 K0+170]]></description>
@@ -7520,7 +7292,6 @@ K0+170]]></description>
 					</Placemark>
 					<Placemark>
 						<name>vb9-1-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300914_bcfcd64526fc1ec6a3279d0baebf7d57_1.jpg">
 0,3 x 0,3
 K0+120]]></description>
@@ -7542,10 +7313,8 @@ K0+120]]></description>
 				</Folder>
 				<Folder>
 					<name>Kênh b8</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>Cống b8</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300900_84ca183fd1f42c12703ed1fe0a987cea_1.jpg">
 0,60 x 0,60
 K7+072]]></description>
@@ -7556,7 +7325,6 @@ K7+072]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Kênh B8</name>
-						<visibility>0</visibility>
 						<description><![CDATA[100m kênh xây<br>đất 588 m]]></description>
 						<styleUrl>#msn_ylw-pushpin30</styleUrl>
 						<LineString>
@@ -7568,7 +7336,6 @@ K7+072]]></description>
 					</Placemark>
 					<Placemark>
 						<name>n8-2</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300981_58edd91956214f9c84e9568b2f3d357a_1.jpg">
 phi 0,3
 K0+032]]></description>
@@ -7590,10 +7357,8 @@ K0+032]]></description>
 				</Folder>
 				<Folder>
 					<name>Kênh VB9-3</name>
-					<visibility>0</visibility>
 					<Placemark>
 						<name>kênh VB9-3</name>
-						<visibility>0</visibility>
 						<description>380 xây</description>
 						<styleUrl>#msn_ylw-pushpin30</styleUrl>
 						<LineString>
@@ -7605,7 +7370,6 @@ K0+032]]></description>
 					</Placemark>
 					<Placemark>
 						<name>Cống VB 9-3</name>
-						<visibility>0</visibility>
 						<description><![CDATA[<img style="max-width:500px;" src="z6813567300945_05f4ec78e4c2291b58004275224c6e92_1.jpg">
 0,50x0,50
 K7+188]]></description>
@@ -7619,10 +7383,8 @@ K7+188]]></description>
 		</Folder>
 		<Folder>
 			<name>Kênh Lách Gara - Trần Thị Mến</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>Cống Ngã 3 Kênh</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="ngã 3 lách_1.jpg">
 0.80x1.50
 K0+520]]></description>
@@ -7643,7 +7405,6 @@ K0+520]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cuối Sông Vai Cầy</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="cuối kênh lách_1.jpg">
 1x1.2
 K1+000]]></description>
@@ -7664,7 +7425,6 @@ K1+000]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Trần Thị Mến</name>
-				<visibility>0</visibility>
 				<description>Người phụ trách: 	Trần Thị Mến
 Chức vụ: 	Đội Phó
 Đơn vị quản lý: 	Đội Công Trình
@@ -7682,7 +7442,6 @@ Chiều dài (m) 	480
 			</Placemark>
 			<Placemark>
 				<name>Cống Vai Cầy</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="vai_1.jpg">
 1 cống phi 0.4
 K1+000]]></description>
@@ -7704,10 +7463,8 @@ K1+000]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm Đại Áng</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>Cống Tự chảy TB Đại Áng</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814018660029_e1a464be74f626c812d1e5def430a23d_1.jpg">1.5x1.65
 K2+512]]></description>
 				<LookAt>
@@ -7727,7 +7484,6 @@ K2+512]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống xả tưới</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814045177568_5119dca671f5cfcf62da205c1f52d18f_1.jpg">
 1.00x1.45
 K2+512]]></description>
@@ -7748,7 +7504,6 @@ K2+512]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống xả tiêu</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814006106405_e6b9ea2b63a153fd855643bcbc50637a_1.jpg">K2+512
 1.80x1.50]]></description>
 				<LookAt>
@@ -7768,7 +7523,6 @@ K2+512]]></description>
 			</Placemark>
 			<Placemark>
 				<name>TB Đại Áng (tiêu)</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814048677605_45efcf503173cee221ef79b1ac9bc7e1_1.jpg">
 Tổ máy bơm công suất: 4 x 4000, 1x1950 m3<br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
@@ -7799,10 +7553,8 @@ Tổ máy bơm công suất: 4 x 4000, 1x1950 m3<br>Kiểu máy: Trục đứng<
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Hữu Thảo</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Nguyễn Hữu Thảo</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Hữu Thảo
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công trình
@@ -7820,7 +7572,6 @@ Chiều dài (m) 	945,00
 				</Placemark>
 				<Placemark>
 					<name>Đường sắt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6814251321705_09441cb07ec11967d8ed21b802bc458b_1.jpg">
 2 cửa phi 1,3
 K0+893]]></description>
@@ -7841,7 +7592,6 @@ K0+893]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Đồng Nhân Hoà</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812500873335_6d5316b992a0ebe7099c024e3f3affba_1.jpg">1 cửa 0.9x1 máy đóng mở V1
 k1+745]]></description>
 					<LookAt>
@@ -7862,10 +7612,8 @@ k1+745]]></description>
 			</Folder>
 			<Folder>
 				<name>Đỗ Khắc Thân</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Cống Đùn</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812425451949_cdd8491484aa04e8991418b85e0f41b1_1.jpg">1.3x1.5
 K0+850]]></description>
 					<LookAt>
@@ -7885,7 +7633,6 @@ K0+850]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Giữa sông Vai Cầy</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812425471697_11cee39f1b458be5be896bb4e42cc853_1.jpg">1 cống phi 0.8
 K0+600]]></description>
 					<LookAt>
@@ -7905,7 +7652,6 @@ K0+600]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Đỗ Khắc Thân</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Đỗ Khắc Thân
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -7923,7 +7669,6 @@ Chiều dài (m) 	 1.096
 				</Placemark>
 				<Placemark>
 					<name>Giữa đồng láng Tó</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812425429554_6669a6e689a562e6a34c25b1f4e236a9_1.jpg">2 cửa 1.20x1.60
 máy đóng mở V2
 K1+835]]></description>
@@ -7944,7 +7689,6 @@ K1+835]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống sông Vai Cầy</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812425476769_26e48a6967704e1c8462b44e9af52977_1.jpg">1.2x1.4
 K0+350]]></description>
 					<LookAt>
@@ -7965,10 +7709,8 @@ K0+350]]></description>
 			</Folder>
 			<Folder>
 				<name>Đỗ Văn Thịnh</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Đường dẫn không có tiêu đề</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Đỗ Văn Thịnh
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Đội Công trình
@@ -7986,7 +7728,6 @@ Chiều dài (m) 	889
 				</Placemark>
 				<Placemark>
 					<name>Cống kênh xả TB HB-VT</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812595508701_e65d8abaa26d9f5dfa47df4b4cb42434_1.jpg">2 cửa1.6x1.8
  máy đóng mở V3
 K4+691]]></description>
@@ -8007,7 +7748,6 @@ K4+691]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống vào đồng 80 Vĩnh Trung</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812595502967_31ba326e468e77d25c2cb6ac2187ad95_1.jpg">
 2 cửa1.6x1.8
  K4+871
@@ -8030,10 +7770,8 @@ K4+691]]></description>
 			</Folder>
 			<Folder>
 				<name>Nguyễn Đắc Huy</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>NGuyễn ĐẮc Huy</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Đắc Huy
 Chức vụ: Công nhân
 Đơn vị quản lý: Đội Công trình
@@ -8051,7 +7789,6 @@ Chiều dài (m) 1469
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Đắc Huy</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Đắc Huy
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công trình
@@ -8069,7 +7806,6 @@ Chiều dài (m) 	1469
 				</Placemark>
 				<Placemark>
 					<name>Cống trường Mầm Non Quỳnh Đô</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812574426833_d4d9adcd672d523a2215c07cd2957c44_1.jpg">1 cửa 1,7x1,5 máy đóng mở V1
 k0+320]]></description>
 					<LookAt>
@@ -8089,7 +7825,6 @@ k0+320]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống nghĩa trang</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812574398706_aa38a12a0527a2e411be344ec9d93155_1.jpg">1 cửa 1,1x1,2 máy đóng mở V1
 
 K1+100]]></description>
@@ -8110,7 +7845,6 @@ K1+100]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cửa Miếu</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812574412494_3f3f603ad718bf3676d8768ce3770952_1.jpg">1 cửa 2.85x2.3 máy đóng mở V2
 K1+470]]></description>
 					<LookAt>
@@ -8132,10 +7866,8 @@ K1+470]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm Liên Ninh</name>
-			<visibility>0</visibility>
 			<Placemark>
 				<name>TB Liên Ninh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813056764377_a6aeb043eefee1b7e9102f8ea4475631_1.jpg">
 Tổ máy bơm công suất: 3 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Đông<br>mô tả:
@@ -8164,10 +7896,8 @@ Tổ máy bơm công suất: 3 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hìn
 			</Placemark>
 			<Folder>
 				<name>Vũ Văn Khánh</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Sau cầu vượt (nhà A.Khánh)</name>
-					<visibility>0</visibility>
 					<description>2 cửa 3,10x2,00
 K5+900</description>
 					<LookAt>
@@ -8187,7 +7917,6 @@ K5+900</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống vào Làng Om</name>
-					<visibility>0</visibility>
 					<description>1 cửa 1,00x2,00
 K6+300</description>
 					<LookAt>
@@ -8207,7 +7936,6 @@ K6+300</description>
 				</Placemark>
 				<Placemark>
 					<name>Vũ Văn Khánh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Vũ Văn Khánh
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Đông
@@ -8226,10 +7954,8 @@ Chiều dài (m) 	 550
 			</Folder>
 			<Folder>
 				<name>Nguyễn Thị Thu Trang</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Tiêu TB Liên Ninh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812282425541_26219268e745864c1e1aeb9e48b90bba_1.jpg">1 cửa 1.55x1.60
  máy đóng mở V2
 K1+280]]></description>
@@ -8250,7 +7976,6 @@ K1+280]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Kênh Liên Ninh (TRang)</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Thị Thu Trang
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -8268,7 +7993,6 @@ Chiều dài (m) 	1280
 				</Placemark>
 				<Placemark>
 					<name>Cống Đùn</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="đùn_1.jpg">
 1 cửa   phi 800
 K0+350]]></description>
@@ -8289,7 +8013,6 @@ K0+350]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Giáp khu công nghiệp Ngọc Hồi</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6813018249396_940f8c55e50f252c9b7566895c088c5b_1.jpg">
 2 cửa 2,00x2,00
 K0+000]]></description>
@@ -8312,11 +8035,9 @@ K0+000]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm Hòa Bình Tiêu</name>
-			<visibility>0</visibility>
 			<open>1</open>
 			<Placemark>
 				<name>Bể xả trạm bơm Hoà Bình tiêu</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814189610672_01d17273dd7a89378ca8b10b9dae3be2_1.jpg">
 3 cửa 1.75x1.4 máy đóng mở V2
 K5+600]]></description>
@@ -8337,7 +8058,6 @@ K5+600]]></description>
 			</Placemark>
 			<Placemark>
 				<name>6 cửa Hoà Bình</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="6 cửa_1.jpg">
 6 cửa 1.45x2 máy đóng mở V5
 K5+600]]></description>
@@ -8358,7 +8078,6 @@ K5+600]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Hòa Bình tiêu</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<description><![CDATA[<img style="max-width:500px;" src="z6814189605912_6cb54b9cc8cbca4e07022bc9db3a038f_1.jpg">
 Tổ máy bơm công suất: 14 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hình thức phục vụ: Tiêu<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
@@ -8390,11 +8109,9 @@ Tổ máy bơm công suất: 14 x 2.500 m3<br>Kiểu máy: Trục đứng<br>Hì
 			</Placemark>
 			<Folder>
 				<name>Trần Văn thuyết</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Trần Văn thuyết</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Trần Văn Thuyết
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công trình
@@ -8412,7 +8129,6 @@ Chiều dài (m) 	863,00
 				</Placemark>
 				<Placemark>
 					<name>Cống đồng siêu quần</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6814170895217_4e2e8d945a94c9b9d876d14369e86e38_1.jpg">
 1 cửa 1.1x1.2máy đóng mở V2
 K2+150]]></description>
@@ -8433,7 +8149,6 @@ K2+150]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Xuân Hương</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6814164598595_5cabd11f7a8f3cc1e4e93d0bbcd31d4a_1.jpg">
 1 cửa 1.75x1.85
  máy đóng mở V2
@@ -8456,11 +8171,9 @@ K2+150]]></description>
 			</Folder>
 			<Folder>
 				<name>Nguyễn Thị Bích Hạnh</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Cầu Trắng</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812562120276_8ffacbff3738b443fdc7386f56c03e69_1.jpg">
 3 cửa  1.00x1.70
 máy đóng mở V2
@@ -8482,7 +8195,6 @@ K1+139]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống Cứa Đình, VĨnh Trung</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812562142598_99ca45f78e0c3feab30b7114eb2ad599_1.jpg">
 1 cửa 1.3x1.5 máy đóng mở V2
 K0+621]]></description>
@@ -8503,7 +8215,6 @@ K0+621]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Cống tiêu Chuôm Cà</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812562146825_81e05cf43315f8c11beb47ddb8138b13_1.jpg">
 1 cửa 1.3x0.8
  máy đóng mở V0
@@ -8525,7 +8236,6 @@ K0+602]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Vĩnh Thịnh</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812562133700_1ea09bfd94f372b16e2e5c0d9353a7cb_1.jpg">
 1 cửa 1.2x1.8 Máy đóng mở V3
 k0+113]]></description>
@@ -8546,7 +8256,6 @@ k0+113]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Nguyễn Thị Bích Hạnh</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Thị Bích Hạnh
 Chức vụ: Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -8565,10 +8274,8 @@ Chiều dài (m) 	: 1.146
 			</Folder>
 			<Folder>
 				<name>Đỗ Văn Hậu</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Đỗ Văn Hậu</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Đỗ Văn Hậu
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Cụm Nam
@@ -8587,11 +8294,9 @@ Chiều dài (m) 	600
 			</Folder>
 			<Folder>
 				<name>Đỗ Thị Tú</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Đỗ Thị Tú</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Đỗ Thị Tú
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -8609,7 +8314,6 @@ Chiều dài (m) 	 600,0
 				</Placemark>
 				<Placemark>
 					<name>Cống sông Bãi</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812555791388_c5b30c07a3e1911a40096bc698bf13af_1.jpg">
 2 cửa 4,0x2,6 máy đóng mở V3
 K4+121]]></description>
@@ -8631,11 +8335,9 @@ K4+121]]></description>
 			</Folder>
 			<Folder>
 				<name>Nguyễn Quang Tuấn</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Quang Tuấn</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: Nguyễn Quang Tuấn
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Cụm Nam
@@ -8653,7 +8355,6 @@ Chiều dài (m) 	675
 				</Placemark>
 				<Placemark>
 					<name>Cống kênh T^6</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812424222021_33c6bbc7374a8df783538fd942528917_1.jpg">1 cửa 1.2x1.5
  máy đóng mở V2
 K3+264]]></description>
@@ -8674,7 +8375,6 @@ K3+264]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Qua đường sắt</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6811034543940_75542972244b0db29d524c0b3785b3c2_1.jpg">
 2 cửa 1.7x2.5
  máy đóng mở V5
@@ -8698,11 +8398,9 @@ K3+482]]></description>
 		</Folder>
 		<Folder>
 			<name>Trạm Hòa Bình Vĩnh Trung</name>
-			<visibility>0</visibility>
 			<open>1</open>
 			<Placemark>
 				<name>TB Hòa Bình ( Vĩnh Trung) (41)</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="11111_1.PNG">
 Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình thức phục vụ: TTKH<br>Cụm: Cụm thủy nông Miền Nam<br>mô tả:
 <br>Nguyễn Học Tuấn - Trạm Trưởng
@@ -8726,7 +8424,6 @@ Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình t
 			</Placemark>
 			<Placemark>
 				<name>Xả trạm bơm Hòa Bình (Vĩnh Trung)</name>
-				<visibility>0</visibility>
 				<description>1 cửa 1,5x3 máy đóng mở V1</description>
 				<LookAt>
 					<longitude>105.81130060638</longitude>
@@ -8745,7 +8442,6 @@ Tổ máy bơm công suất: 3 x 1120 m3<br>Kiểu máy: Trục ngang<br>Hình t
 			</Placemark>
 			<Placemark>
 				<name>Vào bể hút trạm bơm Hòa Bình (Vĩnh Trung)</name>
-				<visibility>0</visibility>
 				<description><![CDATA[<img style="max-width:500px;" src="z6813990126096_e0888447de70df17dce977205e0984f6_1.jpg">
 1 cửa 1.60x1.60
 máy đóng mở V2]]></description>
@@ -8766,7 +8462,6 @@ máy đóng mở V2]]></description>
 			</Placemark>
 			<Placemark>
 				<name>Cống Bể xả 2 cánh</name>
-				<visibility>0</visibility>
 				<LookAt>
 					<longitude>105.8115150132698</longitude>
 					<latitude>20.9164334094024</latitude>
@@ -8784,11 +8479,9 @@ máy đóng mở V2]]></description>
 			</Placemark>
 			<Folder>
 				<name>Nguyễn Văn Chung</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Văn Chung</name>
-					<visibility>0</visibility>
 					<description>Nguyễn Văn Chung
 Công nhân
 Đội Công trình
@@ -8806,7 +8499,6 @@ Ngọc Hồi, Nam Phù</description>
 				</Placemark>
 				<Placemark>
 					<name>Cống vào khu rau Ích Vinh</name>
-					<visibility>0</visibility>
 					<description>1 cống phi 1,2m
 k2+511</description>
 					<LookAt>
@@ -8827,11 +8519,9 @@ k2+511</description>
 			</Folder>
 			<Folder>
 				<name>Tống Thị Hằng</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Tả Thanh Oai</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="z6812994068041_c528884764d73999b61629d9e19de271_1.jpg">1 cửa 1.4x1.7
  máy đóng mở V3
 K2+670]]></description>
@@ -8852,7 +8542,6 @@ K2+670]]></description>
 				</Placemark>
 				<Placemark>
 					<name>Tống Thị Hằng</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Tống Thị Hằng
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công Trình
@@ -8871,10 +8560,8 @@ Chiều dài (m) 	 1.000,0
 			</Folder>
 			<Folder>
 				<name>Lưu Mạnh Thuật</name>
-				<visibility>0</visibility>
 				<Placemark>
 					<name>Lưu Mạnh Thuật</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	 + Lưu Mạnh Thuật
 Chức vụ: 	Công nhân
 Đơn vị quản lý: 	Đội Công trình
@@ -8893,11 +8580,9 @@ Chiều dài (m) 	626
 			</Folder>
 			<Folder>
 				<name>Nguyễn Học Tuấn</name>
-				<visibility>0</visibility>
 				<open>1</open>
 				<Placemark>
 					<name>Nguyễn Học Tuấn</name>
-					<visibility>0</visibility>
 					<description>Người phụ trách: 	Nguyễn Học Tuấn
 Chức vụ: 	Trạm trưởng
 Đơn vị quản lý: 	Đội Công Trình
@@ -8915,7 +8600,6 @@ Chiều dài (m) 	 1,658.0
 				</Placemark>
 				<Placemark>
 					<name>Cống sau Uỷ Ban</name>
-					<visibility>0</visibility>
 					<description><![CDATA[<img style="max-width:500px;" src="1_1.jpg">1.10x1.20
 K0+830]]></description>
 					<LookAt>
