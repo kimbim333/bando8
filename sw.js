@@ -1,0 +1,38 @@
+// Service Worker — Thủy lợi Nhật Tựu PWA
+const CACHE = 'thuy-loi-v2';
+const ASSETS = [
+  './',
+  './index.html',
+  './bien-ban.html',
+  './manifest.json'
+];
+
+self.addEventListener('install', e=>{
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(()=> self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e=>{
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))
+    ).then(()=> self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e=>{
+  // Network-first cho mọi thứ (app shell lẫn KML/Excel) — luôn lấy bản mới nhất khi có
+  // mạng, chỉ dùng bản cache cũ khi mất mạng. Trước đây app shell (.html) dùng
+  // cache-first nên mỗi lần cập nhật code, người dùng đã cài PWA vẫn bị kẹt ở bản cũ
+  // cho tới khi tự xoá cache — giờ chỉ cần có mạng là luôn thấy bản mới nhất.
+  e.respondWith(
+    fetch(e.request).then(res=>{
+      if(res.ok){
+        const clone = res.clone();
+        caches.open(CACHE).then(c=>c.put(e.request,clone));
+      }
+      return res;
+    }).catch(()=> caches.match(e.request))
+  );
+});
