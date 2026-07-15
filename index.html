@@ -772,6 +772,13 @@ window.addEventListener('DOMContentLoaded',()=>{
       <button id="btn-measure-done-fab" class="measure-fab measure-fab-secondary">✓ Xong</button>
       <button id="btn-measure-add-fab" class="measure-fab measure-fab-primary">＋ Thêm điểm</button>
     </div>
+    <div id="draw-crosshair" class="measure-crosshair">⌖</div>
+    <div id="draw-fab-row" class="measure-fab-row">
+      <button id="btn-draw-undo-fab" class="measure-fab measure-fab-secondary" title="Hoàn tác điểm cuối">↩</button>
+      <button id="btn-draw-cancel-fab" class="measure-fab measure-fab-secondary">✕ Hủy</button>
+      <button id="btn-draw-finish-fab" class="measure-fab measure-fab-secondary">✓ Xong</button>
+      <button id="btn-draw-add-fab" class="measure-fab measure-fab-primary">＋ Thêm điểm</button>
+    </div>
   </div>
 
   <!-- Feature info form: appears after user finishes drawing a line/point -->
@@ -2438,6 +2445,12 @@ window.addEventListener('DOMContentLoaded',()=>{
   const drawListEl    = document.getElementById('draw-list');
   const drawPopup     = document.getElementById('draw-popup');
   const githubDialog  = document.getElementById('github-dialog');
+  const drawCrosshair = document.getElementById('draw-crosshair');
+  const drawFabRow    = document.getElementById('draw-fab-row');
+  const btnDrawAddFab    = document.getElementById('btn-draw-add-fab');
+  const btnDrawFinishFab = document.getElementById('btn-draw-finish-fab');
+  const btnDrawCancelFab = document.getElementById('btn-draw-cancel-fab');
+  const btnDrawUndoFab   = document.getElementById('btn-draw-undo-fab');
 
   function setDrawMode(mode){
     if(drawMode === mode){ stopDraw(); return; }
@@ -2447,8 +2460,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnDrawPoint.classList.toggle('active', mode==='point');
     btnDrawLine.classList.toggle('active', mode==='line');
     map.getContainer().style.cursor = 'crosshair';
-    if(mode === 'point') drawStatus.textContent = 'Click lên bản đồ để đặt điểm. Esc để hủy.';
-    if(mode === 'line')  drawStatus.textContent = 'Click các điểm dọc theo đường. Double-click hoặc Enter để kết thúc. Esc để hủy.';
+    if(mode === 'point') drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng vị trí cần đặt điểm rồi bấm "Thêm điểm". Esc để hủy.';
+    if(mode === 'line')  drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng từng điểm dọc theo đường rồi bấm "Thêm điểm". Xong bấm "✓ Xong". Esc để hủy.';
+    drawCrosshair.classList.add('show');
+    drawFabRow.classList.add('show');
+    btnDrawFinishFab.style.display = mode === 'line' ? '' : 'none';
+    btnDrawUndoFab.style.display   = mode === 'line' ? '' : 'none';
+    if(isMobileLayout()) closeDrawer();
   }
 
   function stopDraw(){
@@ -2459,57 +2477,64 @@ window.addEventListener('DOMContentLoaded',()=>{
     map.getContainer().style.cursor = '';
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
     drawStatus.textContent = '';
+    drawCrosshair.classList.remove('show');
+    drawFabRow.classList.remove('show');
   }
 
   btnDrawPoint.addEventListener('click', ()=> setDrawMode('point'));
   btnDrawLine.addEventListener('click',  ()=> setDrawMode('line'));
 
-  // Map click while drawing
-  map.on('click', (e)=>{
-    if(!drawMode) return;
-    if(drawMode === 'point'){
-      pendingDrawData = { type:'point', latlng: e.latlng };
-      document.getElementById('draw-popup-title').textContent = 'Thêm thông tin điểm';
-      document.getElementById('draw-type').value = 'Cống';
-      openDrawPopup();
-    } else if(drawMode === 'line'){
-      drawPoints.push(e.latlng);
-      if(drawPreviewLine) map.removeLayer(drawPreviewLine);
-      if(drawPoints.length >= 2){
-        drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
-      }
-    }
-  });
-
-  // Rubber-band preview for line
-  map.on('mousemove', (e)=>{
-    if(drawMode !== 'line' || drawPoints.length === 0) return;
-    if(drawPreviewLine) map.removeLayer(drawPreviewLine);
-    drawPreviewLine = L.polyline([...drawPoints, e.latlng], { color:'#e85d75', weight:2, dashArray:'4,5', opacity:.6 }).addTo(map);
-  });
-
-  map.on('dblclick', (e)=>{
-    if(drawMode !== 'line') return;
+  function openPointPopupAt(latlng){
+    pendingDrawData = { type:'point', latlng };
+    document.getElementById('draw-popup-title').textContent = 'Thêm thông tin điểm';
+    document.getElementById('draw-type').value = 'Cống';
+    openDrawPopup();
+  }
+  function finishLineDraw(){
     if(drawPoints.length < 2){ stopDraw(); return; }
     pendingDrawData = { type:'line', latlngs: [...drawPoints] };
     document.getElementById('draw-popup-title').textContent = 'Thêm thông tin đường';
     document.getElementById('draw-type').value = 'Kênh';
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
     openDrawPopup();
+  }
+
+  // NOTE: adding vertices used to happen on direct map click/dblclick, but on some
+  // mobile browsers Leaflet's click-vs-drag detection misfires during a slow drag
+  // (each tiny movement gets miscounted as a separate tap), spamming extra vertices
+  // all along the drag path — same root cause fixed for the measure tool above.
+  // Point/vertex placement now goes exclusively through the "＋ Thêm điểm" button —
+  // drag the map to line up the ⌖ crosshair, then tap the button.
+  btnDrawAddFab.addEventListener('click', ()=>{
+    if(!drawMode) return;
+    const center = map.getCenter();
+    if(drawMode === 'point'){
+      openPointPopupAt(center);
+    } else if(drawMode === 'line'){
+      drawPoints.push(center);
+      if(drawPreviewLine) map.removeLayer(drawPreviewLine);
+      if(drawPoints.length >= 2){
+        drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
+      }
+    }
+  });
+  btnDrawFinishFab.addEventListener('click', ()=>{
+    if(drawMode === 'line') finishLineDraw();
+  });
+  btnDrawCancelFab.addEventListener('click', ()=> stopDraw());
+  btnDrawUndoFab.addEventListener('click', ()=>{
+    if(drawMode !== 'line' || !drawPoints.length) return;
+    drawPoints.pop();
+    if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
+    if(drawPoints.length >= 2){
+      drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
+    }
   });
 
   document.addEventListener('keydown', (e)=>{
     if(drawMode){
       if(e.key === 'Escape'){ stopDraw(); }
-      else if(e.key === 'Enter' && drawMode === 'line'){
-        if(drawPoints.length >= 2){
-          pendingDrawData = { type:'line', latlngs: [...drawPoints] };
-          document.getElementById('draw-popup-title').textContent = 'Thêm thông tin đường';
-          document.getElementById('draw-type').value = 'Kênh';
-          if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
-          openDrawPopup();
-        }
-      }
+      else if(e.key === 'Enter' && drawMode === 'line'){ finishLineDraw(); }
     }
   });
 
