@@ -127,6 +127,53 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 }
 
 @media (max-width:600px){.row{flex-direction:column;gap:6px;}}
+
+/* ===== Phụ lục I picker ===== */
+.btn-phuluc{
+  background:#eaf2ff;color:#1a5276;border:1px solid #1a527633;border-radius:6px;
+  padding:4px 9px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+.pl-chip{ margin-top:6px; }
+.pl-chip .chip{
+  display:inline-block;background:#eaf7f2;color:#1a7a4c;border:1px solid #1a7a4c33;
+  border-radius:14px;padding:4px 10px;font-size:11px;line-height:1.5;max-width:100%;
+}
+#phuluc-overlay{
+  display:none;position:fixed;inset:0;z-index:5000;background:rgba(10,20,25,.6);
+}
+#phuluc-overlay.open{ display:flex; align-items:flex-end; justify-content:center; }
+#phuluc-panel{
+  background:#fff;width:100%;max-width:640px;max-height:88vh;border-radius:16px 16px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#phuluc-panel .pl-head{
+  padding:14px 16px 10px;border-bottom:1px solid #eee;flex:none;
+}
+#phuluc-panel .pl-head h3{ margin:0 0 8px; font-size:16px; color:#1a5276; }
+#phuluc-search{
+  width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;
+}
+.pl-table-toggle{ display:flex; gap:6px; margin-top:8px; font-size:11.5px; flex-wrap:wrap; }
+.pl-table-toggle button{
+  flex:1; padding:6px 8px; border-radius:6px; border:1px solid #ccc; background:#f5f5f5;
+  cursor:pointer; font-size:11px;
+}
+.pl-table-toggle button.active{ background:#1a5276; color:#fff; border-color:#1a5276; }
+#phuluc-list{ flex:1; overflow-y:auto; padding:6px 10px 16px; }
+.pl-group-title{
+  position:sticky; top:0; background:#f4f7f9; padding:6px 8px; font-weight:700;
+  font-size:12.5px; color:#1a5276; border-radius:6px; margin-top:8px;
+}
+.pl-row{
+  padding:10px 8px; border-bottom:1px solid #f0f0f0; cursor:pointer;
+}
+.pl-row:active{ background:#eaf2ff; }
+.pl-row .hv-text{ font-size:13px; color:#222; line-height:1.4; }
+.pl-row .hv-meta{ font-size:11px; color:#888; margin-top:3px; }
+#phuluc-close{
+  align-self:flex-end; background:#eee; border:none; border-radius:6px;
+  padding:6px 10px; font-size:12px; cursor:pointer; margin-bottom:6px;
+}
 </style>
 </head>
 <body>
@@ -270,19 +317,48 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="card">
     <div class="card-head">📝 Mô tả hành vi vi phạm</div>
     <div class="card-body">
-      <div class="f"><label>Hành vi 1</label>
-        <textarea id="hv1" placeholder="VD: Xây trụ cổng, láng mặt bê tông làm lối đi trên mái đê phía đồng..."></textarea></div>
+      <div class="f">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Hành vi 1</span>
+          <button type="button" class="btn-phuluc" onclick="openPhuLuc('hv1')">📖 Chọn từ Phụ lục</button>
+        </label>
+        <textarea id="hv1" placeholder="VD: Xây trụ cổng, láng mặt bê tông làm lối đi trên mái đê phía đồng..."></textarea>
+        <div class="pl-chip" id="pl-chip-hv1"></div>
+        <input type="hidden" id="cc1"/>
+      </div>
       <div class="row" style="margin-top:8px;">
         <div class="f">
           <label>Kích thước vi phạm</label>
           <input id="kt" placeholder="VD: 2 trụ 0,4x0,4x2,5m; Láng BT 3x2=6m²; Rãnh 3x2m"/>
         </div>
       </div>
-      <div class="f" style="margin-top:8px"><label>Hành vi 2 (nếu có)</label><textarea id="hv2"></textarea></div>
-      <div class="f" style="margin-top:8px"><label>Hành vi 3 (nếu có)</label><textarea id="hv3"></textarea></div>
-      <div class="f" style="margin-top:8px"><label>Hành vi 4 (nếu có)</label><textarea id="hv4"></textarea></div>
-      <div class="f" style="margin-top:8px"><label>Căn cứ pháp lý (áp dụng chung)</label>
-        <input id="cancupl" value="Nghị định số 03/2022/NĐ-CP được sửa đổi theo nghị định 183/2026/NĐ-CP"/></div>
+      <div class="f" style="margin-top:8px">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Hành vi 2 (nếu có)</span>
+          <button type="button" class="btn-phuluc" onclick="openPhuLuc('hv2')">📖 Chọn từ Phụ lục</button>
+        </label>
+        <textarea id="hv2"></textarea>
+        <div class="pl-chip" id="pl-chip-hv2"></div>
+        <input type="hidden" id="cc2"/>
+      </div>
+      <div class="f" style="margin-top:8px">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Hành vi 3 (nếu có)</span>
+          <button type="button" class="btn-phuluc" onclick="openPhuLuc('hv3')">📖 Chọn từ Phụ lục</button>
+        </label>
+        <textarea id="hv3"></textarea>
+        <div class="pl-chip" id="pl-chip-hv3"></div>
+        <input type="hidden" id="cc3"/>
+      </div>
+      <div class="f" style="margin-top:8px">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Hành vi 4 (nếu có)</span>
+          <button type="button" class="btn-phuluc" onclick="openPhuLuc('hv4')">📖 Chọn từ Phụ lục</button>
+        </label>
+        <textarea id="hv4"></textarea>
+        <div class="pl-chip" id="pl-chip-hv4"></div>
+        <input type="hidden" id="cc4"/>
+      </div>
       <div class="row" style="margin-top:10px">
         <div class="f"><label>Yêu cầu khắc phục trước ngày</label><input id="khp" type="date"/></div>
       </div>
@@ -408,6 +484,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 
 <!-- ===== PRINT DOCUMENT ===== -->
+<div id="phuluc-overlay">
+  <div id="phuluc-panel">
+    <div class="pl-head">
+      <button id="phuluc-close" onclick="closePhuLuc()">✕ Đóng</button>
+      <h3>📖 Phụ lục I — Chọn hành vi vi phạm</h3>
+      <input id="phuluc-search" placeholder="Gõ từ khóa: đổ rác, lấn chiếm, xây dựng, giấy phép..."/>
+      <div class="pl-table-toggle" id="phuluc-table-toggle">
+        <button data-t="new" onclick="setPhuLucTable('new')">Từ 10/7/2026 (NĐ 03 sửa đổi 183/2026)</button>
+        <button data-t="old" onclick="setPhuLucTable('old')">Trước 10/7/2026 (NĐ 03 gốc)</button>
+      </div>
+    </div>
+    <div id="phuluc-list"></div>
+  </div>
+</div>
+
 <div id="print-area" style="display:none;">
 </div>
 
@@ -438,8 +529,114 @@ window.onload=()=>{
   initSk(); renderList(); toggleVpLoai();
 };
 
+// Phụ lục I — Phân nhóm hành vi vi phạm hành chính trong phạm vi bảo vệ công trình
+// thủy lợi (kèm theo Hướng dẫn Sở NN&MT Hà Nội). "old" = NĐ 03/2022 gốc (áp dụng đến
+// 09/7/2026), "new" = NĐ 03/2022 sửa đổi bởi NĐ 183/2026 (áp dụng từ 10/7/2026),
+// "muc3" = xả nước thải theo NĐ 45/2022 (không phụ thuộc mốc ngày trên).
+const PHU_LUC_1 = {"old": [{"nhom": "Cản trở", "hv": "Trồng rau, cắm đăng đó, chất chà và các hình thức đánh bắt khác gây cản trở dòng chảy", "dieu": "Khoản 1 Điều 19", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Cản trở", "hv": "Ngâm tre, luồng, nứa, lá, gỗ hoặc tạo các vật cản khác gây cản trở dòng chảy", "dieu": "Khoản 2 Điều 19", "phat": "500.000 - 1.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng dưới 0,5 m3", "dieu": "Điểm a khoản 1 Điều 20", "phat": "Phạt cảnh cáo", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 0,5 m3 đến dưới 1 m3", "dieu": "Điểm b khoản 1 Điều 20", "phat": "300.000 - 500.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 01 m3 đến dưới 03 m3", "dieu": "Điểm c khoản 1 Điều 20", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 03 m3 đến dưới 05 m3", "dieu": "Điểm d khoản 1 Điều 20", "phat": "2.000.000 - 4.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 05 m3 trở lên", "dieu": "Điểm đ khoản 1 Điều 20", "phat": "4.000.000 - 8.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành công trình thủy lợi đã được cơ quan có thẩm quyền phê duyệt (trừ hồ chứa)", "dieu": "Điểm a khoản 1 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có nhiệm vụ mà tự ý vận hành công trình thủy lợi", "dieu": "Điểm b khoản 1 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi nhỏ theo quy định", "dieu": "Điểm a khoản 2 Điều 21", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi vừa theo quy định", "dieu": "Điểm b khoản 2 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi lớn hoặc quan trọng đặc biệt theo quy định", "dieu": "Điểm c khoản 2 Điều 21", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi nhỏ mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 1 Điều 22", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi vừa đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 2 Điều 22", "phat": "50.000.000 - 70.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi lớn đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 3 Điều 22", "phat": "70.000.000 - 90.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi quan trọng đặc biệt đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 4 Điều 22", "phat": "90.000.000 - 100.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Sử dụng máy móc, thiết bị thuộc công trình thủy lợi sai mục đích sử dụng", "dieu": "Điều 23", "phat": "3.000.000 - 5.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không gửi báo cáo hiện trạng an toàn đập, hồ chứa thủy lợi theo nội dung và thời gian quy định", "dieu": "Điểm a khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện kiểm tra đập, hồ chứa thủy lợi theo nội dung và chế độ quy định", "dieu": "Điểm b khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không tổ chức thực hiện phương án ứng phó thiên tai cho công trình, vùng hạ du đập trong quá trình thi công", "dieu": "Điểm c khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện kiểm định an toàn đập, hồ chứa thủy lợi theo quy định", "dieu": "Điểm d khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện cắm mốc chỉ giới phạm vi bảo vệ đập, hồ chứa thủy lợi", "dieu": "Điểm đ khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không thực hiện phương án bảo vệ đập, hồ chứa thủy lợi đã được phê duyệt", "dieu": "Điểm e khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không rà soát, điều chỉnh, bổ sung hằng năm hoặc không thực hiện phương án ứng phó với tình huống khẩn cấp đập, hồ chứa thủy lợi đã được phê duyệt", "dieu": "Điểm g khoản 3 Điều 17", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Làm lều, quán, tường; xây dựng các công trình tạm trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 1 Điều 24", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Đào, cuốc, xới, đánh vầng cỏ, gieo trồng các loại cây hoa màu trên bờ, mái kênh, mái đập đất", "dieu": "Điểm b khoản 1 Điều 24", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng lò gạch, lò vôi, công trình phụ, chuồng trại để chăn nuôi gia súc, gia cầm không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Nuôi trồng thủy sản không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm b khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Phá dỡ, xê dịch mốc chỉ giới, biển báo của công trình thủy lợi hoặc tự ý đấu nối kênh, đường ống dẫn nước", "dieu": "Điểm c khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Hoạt động nghiên cứu khoa học, trồng cây lâu năm không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm d khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Đào đắp ao, hồ trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm đ khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Neo, đậu tàu, thuyền vào công trình thủy lợi khi có biển cấm", "dieu": "Điểm e khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Sử dụng phương tiện thủy nội địa, phương tiện cơ giới trong phạm vi bảo vệ công trình thủy lợi không có giấy phép hoạt động (trừ xe mô tô, xe gắn máy, phương tiện thủy nội địa thô sơ)", "dieu": "Điểm g khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, cơi nới, lấn chiếm làm tăng diện tích công trình dưới 10 m2", "dieu": "Điểm a khoản 4 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, cơi nới, lấn chiếm làm tăng diện tích công trình từ 10 m2 đến dưới 30 m2", "dieu": "Điểm b khoản 4 Điều 24", "phat": "10.000.000 - 15.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, cơi nới, lấn chiếm làm tăng diện tích công trình trên 30 m2", "dieu": "Điểm c khoản 4 Điều 24", "phat": "15.000.000 - 20.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Thay đổi kết cấu công trình hiện có trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Khoản 5 Điều 24", "phat": "20.000.000 - 25.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng công trình ngầm không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm a khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khoan, đào khảo sát địa chất; khoan, đào thăm dò, thi công công trình, khai thác nước dưới đất không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm b khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Tổ chức các hoạt động du lịch, thể thao không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm c khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khai thác nước trái phép từ công trình thủy lợi", "dieu": "Điểm d khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc nộp lại số lợi bất hợp pháp", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khai thác khoáng sản trong phạm vi bảo vệ công trình thủy lợi nhưng không có giấy phép hoạt động", "dieu": "Điểm đ khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc nộp lại số lợi bất hợp pháp", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Tự ý dỡ bỏ hoặc lấp công trình thủy lợi", "dieu": "Điểm a khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng nhà ở, cầu, kè, nơi sản xuất và các công trình kiên cố khác không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm b khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Ngăn, lấp, đào, nạo vét, hút bùn, cát, sỏi trên sông, kênh, mương, rạch, hồ, ao trái phép mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm c khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Lập bến bãi, tập kết nguyên liệu, nhiên liệu, vật liệu, vật tư, phương tiện trái phép trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm d khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "An toàn", "hv": "Nổ mìn và các hoạt động gây nổ khác không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 8 Điều 24", "phat": "80.000.000 - 100.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Phương tiện", "hv": "Điều khiển xe cơ giới vượt tải trọng cho phép đi trên công trình thủy lợi", "dieu": "Khoản 1 Điều 25", "phat": "3.000.000 - 5.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu nếu làm hư hỏng công trình", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Phương tiện", "hv": "Sử dụng xe cơ giới, phương tiện thủy nội địa lưu thông trong công trình thủy lợi khi có biển cấm (trừ xe/phương tiện ưu tiên)", "dieu": "Khoản 2 Điều 25", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu nếu làm hư hỏng công trình", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép trồng cây lâu năm", "dieu": "Điểm a khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nuôi trồng thủy sản", "dieu": "Điểm b khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nghiên cứu khoa học", "dieu": "Điểm c khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép hoạt động của phương tiện thủy nội địa, phương tiện cơ giới", "dieu": "Điểm d khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép khoan, đào khảo sát địa chất; thăm dò, khai thác khoáng sản, vật liệu xây dựng, khai thác nước dưới đất", "dieu": "Điểm a khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép lập bến, bãi tập kết nguyên liệu, nhiên liệu, vật liệu, vật tư, phương tiện", "dieu": "Điểm b khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép xây dựng công trình ngầm", "dieu": "Điểm c khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép hoạt động du lịch, thể thao, kinh doanh, dịch vụ", "dieu": "Điểm d khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép xây dựng công trình mới trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 3 Điều 26", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nổ mìn và các hoạt động gây nổ khác", "dieu": "Điểm b khoản 3 Điều 26", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP"}], "new": [{"nhom": "Cản trở", "hv": "Trồng rau, cắm đăng đó, chất chà và các hình thức đánh bắt khác gây cản trở dòng chảy", "dieu": "Khoản 1 Điều 19", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Cản trở", "hv": "Ngâm tre, luồng, nứa, lá, gỗ hoặc tạo các vật cản khác gây cản trở dòng chảy", "dieu": "Khoản 2 Điều 19", "phat": "500.000 - 1.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng dưới 0,5 m3", "dieu": "Điểm a khoản 1 Điều 20", "phat": "Phạt cảnh cáo", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 0,5 m3 đến dưới 1 m3", "dieu": "Điểm b khoản 1 Điều 20", "phat": "300.000 - 500.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 01 m3 đến dưới 03 m3", "dieu": "Điểm c khoản 1 Điều 20", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 03 m3 đến dưới 05 m3", "dieu": "Điểm d khoản 1 Điều 20", "phat": "2.000.000 - 4.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Đổ thải", "hv": "Đổ rác thải, chất thải trong phạm vi bảo vệ công trình thủy lợi với khối lượng từ 05 m3 trở lên", "dieu": "Điểm đ khoản 1 Điều 20", "phat": "4.000.000 - 8.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành công trình thủy lợi đã được cơ quan có thẩm quyền phê duyệt (trừ hồ chứa)", "dieu": "Điểm a khoản 1 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có nhiệm vụ mà tự ý vận hành công trình thủy lợi", "dieu": "Điểm b khoản 1 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi nhỏ theo quy định", "dieu": "Điểm a khoản 2 Điều 21", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi vừa theo quy định", "dieu": "Điểm b khoản 2 Điều 21", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có quy trình vận hành công trình thủy lợi lớn hoặc quan trọng đặc biệt theo quy định", "dieu": "Điểm c khoản 2 Điều 21", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi nhỏ mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 1 Điều 22", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi vừa đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 2 Điều 22", "phat": "50.000.000 - 70.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi lớn đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 3 Điều 22", "phat": "70.000.000 - 90.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Thực hiện không đúng quy định trong quy trình vận hành hồ chứa thủy lợi quan trọng đặc biệt đã được phê duyệt mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 4 Điều 22", "phat": "90.000.000 - 100.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Sử dụng máy móc, thiết bị thuộc công trình thủy lợi sai mục đích sử dụng", "dieu": "Điều 23", "phat": "3.000.000 - 5.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không gửi báo cáo hiện trạng an toàn đập, hồ chứa thủy lợi theo nội dung và thời gian quy định", "dieu": "Điểm a khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện kiểm tra đập, hồ chứa thủy lợi theo nội dung và chế độ quy định", "dieu": "Điểm b khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không tổ chức thực hiện phương án ứng phó thiên tai cho công trình, vùng hạ du đập trong quá trình thi công", "dieu": "Điểm c khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện kiểm định an toàn đập, hồ chứa thủy lợi theo quy định", "dieu": "Điểm d khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không thực hiện cắm mốc chỉ giới phạm vi bảo vệ đập, hồ chứa thủy lợi", "dieu": "Điểm đ khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không thực hiện phương án bảo vệ đập, hồ chứa thủy lợi đã được phê duyệt", "dieu": "Điểm e khoản 3 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Vận hành", "hv": "Không có hoặc không rà soát, điều chỉnh, bổ sung hằng năm hoặc không thực hiện phương án ứng phó với tình huống khẩn cấp đập, hồ chứa thủy lợi đã được phê duyệt", "dieu": "Điểm g khoản 3 Điều 17", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Làm lều, quán; các công trình tạm trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 1 Điều 24", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Đào, cuốc, xới, đánh vầng cỏ, gieo trồng các loại cây hoa màu trên bờ, mái kênh, mái đập đất", "dieu": "Điểm b khoản 1 Điều 24", "phat": "100.000 - 300.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng lò gạch, lò vôi, công trình phụ, chuồng trại để chăn nuôi gia súc, gia cầm không có giấy phép hoạt động", "dieu": "Điểm a khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Nuôi trồng thủy sản không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm b khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Phá dỡ, xê dịch mốc chỉ giới, biển báo của công trình thủy lợi hoặc tự ý đấu nối kênh, đường ống dẫn nước", "dieu": "Điểm c khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Hoạt động nghiên cứu khoa học, trồng cây lâu năm không có giấy phép hoạt động", "dieu": "Điểm d khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Đào đắp ao, hồ trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm đ khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Neo, đậu tàu, thuyền vào công trình thủy lợi khi có biển cấm", "dieu": "Điểm e khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Sử dụng phương tiện thủy nội địa, phương tiện cơ giới trong phạm vi bảo vệ công trình thủy lợi không có giấy phép hoạt động (trừ xe mô tô, xe gắn máy, phương tiện thủy nội địa thô sơ)", "dieu": "Điểm g khoản 2 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình dưới 05 m2 hoặc tăng chiều dài dưới 10 m đối với công trình dạng tuyến, tường", "dieu": "Điểm a khoản 4 Điều 24", "phat": "2.000.000 - 5.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình từ 05 m2 đến dưới 10 m2 hoặc tăng chiều dài từ 10 m đến dưới 20 m đối với công trình dạng tuyến, tường", "dieu": "Điểm b khoản 4 Điều 24", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình từ 10 m2 đến dưới 20 m2 hoặc tăng chiều dài từ 20 m đến dưới 40 m đối với công trình dạng tuyến, tường", "dieu": "Điểm c khoản 4 Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình từ 20 m2 đến dưới 30 m2 hoặc tăng chiều dài từ 40 m đến dưới 60 m đối với công trình dạng tuyến, tường", "dieu": "Điểm d khoản 4 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình từ 30 m2 đến dưới 50 m2 hoặc tăng chiều dài từ 60 m đến dưới 80 m đối với công trình dạng tuyến, tường", "dieu": "Điểm đ khoản 4 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng, mở rộng, lấn chiếm làm tăng diện tích công trình từ 50 m2 trở lên hoặc tăng chiều dài từ 80 m trở lên đối với công trình dạng tuyến, tường", "dieu": "Điểm e khoản 4 Điều 24", "phat": "50.000.000 - 100.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Thay đổi kết cấu công trình hiện có trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Khoản 5 Điều 24", "phat": "20.000.000 - 25.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Xây dựng công trình ngầm không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm a khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khoan, đào khảo sát địa chất; khoan, đào thăm dò, thi công công trình, khai thác nước dưới đất không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm b khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Tổ chức các hoạt động du lịch, thể thao không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm c khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu; buộc nộp lại số lợi bất hợp pháp", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khai thác nước trái phép từ công trình thủy lợi", "dieu": "Điểm d khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc nộp lại số lợi bất hợp pháp", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Khai thác khoáng sản trong phạm vi bảo vệ công trình thủy lợi nhưng không có giấy phép hoạt động", "dieu": "Điểm đ khoản 6 Điều 24", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc nộp lại số lợi bất hợp pháp", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Tự ý dỡ bỏ hoặc lấp công trình thủy lợi", "dieu": "Điểm a khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Ngăn, lấp, đào, nạo vét, hút bùn, cát, sỏi trên sông, kênh, mương, rạch, hồ, ao trái phép mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Điểm c khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Lập bến bãi, tập kết nguyên liệu, nhiên liệu, vật liệu, vật tư, phương tiện trái phép trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm d khoản 7 Điều 24", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "An toàn", "hv": "Nổ mìn và các hoạt động gây nổ khác không có giấy phép hoạt động mà chưa đến mức truy cứu trách nhiệm hình sự", "dieu": "Khoản 8 Điều 24", "phat": "80.000.000 - 100.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu; buộc nộp lại số tiền bằng giá trị tang vật, phương tiện đã bị tiêu thụ, tẩu tán, tiêu hủy", "bosung": "Tịch thu tang vật, phương tiện vi phạm", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Phương tiện", "hv": "Điều khiển xe cơ giới vượt tải trọng cho phép đi trên công trình thủy lợi", "dieu": "Khoản 1 Điều 25", "phat": "3.000.000 - 5.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu nếu làm hư hỏng công trình", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Phương tiện", "hv": "Sử dụng xe cơ giới, phương tiện thủy nội địa lưu thông trong công trình thủy lợi khi có biển cấm (trừ xe/phương tiện ưu tiên)", "dieu": "Khoản 2 Điều 25", "phat": "5.000.000 - 10.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu nếu làm hư hỏng công trình", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng công trình nhà ở, nơi sản xuất, công trình kiên cố khác (trừ cầu) diện tích dưới 10 m2 không có giấy phép hoạt động", "dieu": "Điểm a khoản 7a Điều 24", "phat": "10.000.000 - 20.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng công trình nhà ở, nơi sản xuất, công trình kiên cố khác (trừ cầu) diện tích từ 10 m2 đến dưới 20 m2 không có giấy phép hoạt động", "dieu": "Điểm b khoản 7a Điều 24", "phat": "20.000.000 - 40.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng công trình nhà ở, nơi sản xuất, công trình kiên cố khác (trừ cầu) diện tích từ 20 m2 đến dưới 40 m2 không có giấy phép hoạt động", "dieu": "Điểm c khoản 7a Điều 24", "phat": "40.000.000 - 80.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng công trình nhà ở, nơi sản xuất, công trình kiên cố khác (trừ cầu) diện tích từ 40 m2 đến dưới 50 m2 không có giấy phép hoạt động", "dieu": "Điểm d khoản 7a Điều 24", "phat": "80.000.000 - 100.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng công trình nhà ở, nơi sản xuất, công trình kiên cố khác (trừ cầu) diện tích từ 50 m2 trở lên không có giấy phép hoạt động", "dieu": "Điểm đ khoản 7a Điều 24", "phat": "100.000.000 - 200.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu tạm dân sinh không có giấy phép hoạt động trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 7b Điều 24", "phat": "3.000.000 - 5.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài dưới 05 m không có giấy phép hoạt động", "dieu": "Điểm b khoản 7b Điều 24", "phat": "5.000.000 - 15.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài từ 05 m đến dưới 07 m không có giấy phép hoạt động", "dieu": "Điểm c khoản 7b Điều 24", "phat": "15.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài từ 07 m đến dưới 10 m không có giấy phép hoạt động", "dieu": "Điểm d khoản 7b Điều 24", "phat": "30.000.000 - 60.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài từ 10 m đến dưới 15 m không có giấy phép hoạt động", "dieu": "Điểm đ khoản 7b Điều 24", "phat": "60.000.000 - 110.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài từ 15 m đến dưới 20 m không có giấy phép hoạt động", "dieu": "Điểm e khoản 7b Điều 24", "phat": "110.000.000 - 180.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Xây dựng cầu kiên cố chiều dài từ 20 m trở lên không có giấy phép hoạt động", "dieu": "Điểm g khoản 7b Điều 24", "phat": "180.000.000 - 250.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép trồng cây lâu năm", "dieu": "Điểm a khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nuôi trồng thủy sản", "dieu": "Điểm b khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nghiên cứu khoa học", "dieu": "Điểm c khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép hoạt động của phương tiện thủy nội địa, phương tiện cơ giới", "dieu": "Điểm d khoản 1 Điều 26", "phat": "1.000.000 - 2.000.000 đồng", "khacphuc": "", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép khoan, đào khảo sát địa chất; thăm dò, khai thác khoáng sản, vật liệu xây dựng", "dieu": "Điểm a khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép lập bến, bãi tập kết nguyên liệu, nhiên liệu, vật liệu, vật tư, phương tiện", "dieu": "Điểm b khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép xây dựng công trình ngầm", "dieu": "Điểm c khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép hoạt động du lịch, thể thao, kinh doanh, dịch vụ", "dieu": "Điểm d khoản 2 Điều 26", "phat": "20.000.000 - 30.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép xây dựng công trình mới trong phạm vi bảo vệ công trình thủy lợi", "dieu": "Điểm a khoản 3 Điều 26", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}, {"nhom": "Giấy phép", "hv": "Hoạt động không đúng quy định trong giấy phép nổ mìn và các hoạt động gây nổ khác", "dieu": "Điểm b khoản 3 Điều 26", "phat": "30.000.000 - 50.000.000 đồng", "khacphuc": "Buộc khôi phục lại tình trạng ban đầu; buộc nộp lại số tiền bằng giá trị tang vật, phương tiện đã bị tiêu thụ, tẩu tán, tiêu hủy", "bosung": "Tước quyền sử dụng giấy phép 01-03 tháng; tịch thu tang vật, phương tiện vi phạm", "nd": "Nghị định số 03/2022/NĐ-CP được sửa đổi theo Nghị định số 183/2026/NĐ-CP"}], "muc3": [{"nhom": "Xả nước thải", "hv": "Xả nước thải vào công trình thủy lợi (thông số môi trường thông thường)", "dieu": "Điều 18 NĐ 45/2022", "phat": "Theo NĐ 45/2022/NĐ-CP", "khacphuc": "Ghi nhận sự việc, chuyển UBND cấp xã xử lý theo quy định", "bosung": "", "nd": "Nghị định số 45/2022/NĐ-CP"}, {"nhom": "Xả nước thải", "hv": "Xả nước thải vào công trình thủy lợi (thông số môi trường nguy hại hoặc vượt quy chuẩn pH)", "dieu": "Điều 19 NĐ 45/2022", "phat": "Theo NĐ 45/2022/NĐ-CP", "khacphuc": "Ghi nhận sự việc, chuyển UBND cấp xã xử lý theo quy định", "bosung": "", "nd": "Nghị định số 45/2022/NĐ-CP"}]};
+
 function g(id){return document.getElementById(id);}
 function v(id){return g(id)?g(id).value.trim():'';}
+
+// ===== PHỤ LỤC I PICKER =====
+let phuLucTarget = null;   // 'hv1'|'hv2'|'hv3'|'hv4' — which field we're filling
+let phuLucTable = 'new';   // 'old' | 'new'
+
+function autoDetectPhuLucTable(){
+  // NĐ 03/2022 sửa đổi bởi NĐ 183/2026 áp dụng từ 10/7/2026 — chọn bảng theo
+  // đúng Ngày lập biên bản đang điền, không phải theo ngày hệ thống.
+  const ngay = v('ngay');
+  if(!ngay) return 'new';
+  return ngay >= '2026-07-10' ? 'new' : 'old';
+}
+
+function openPhuLuc(targetId){
+  phuLucTarget = targetId;
+  phuLucTable = autoDetectPhuLucTable();
+  g('phuluc-search').value = '';
+  updatePhuLucToggleUI();
+  renderPhuLucList('');
+  document.getElementById('phuluc-overlay').classList.add('open');
+  setTimeout(()=> g('phuluc-search').focus(), 100);
+}
+function closePhuLuc(){
+  document.getElementById('phuluc-overlay').classList.remove('open');
+  phuLucTarget = null;
+}
+function setPhuLucTable(t){
+  phuLucTable = t;
+  updatePhuLucToggleUI();
+  renderPhuLucList(v('phuluc-search') ? g('phuluc-search').value : '');
+}
+function updatePhuLucToggleUI(){
+  document.querySelectorAll('#phuluc-table-toggle button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.t === phuLucTable);
+  });
+}
+
+function refreshPhuLucChips(){
+  ['1','2','3','4'].forEach(idx=>{
+    const chipEl = g('pl-chip-hv'+idx);
+    const cc = v('cc'+idx);
+    if(!chipEl) return;
+    chipEl.innerHTML = cc ? `<span class="chip">📖 ${cc.split('.')[0]}.</span>` : '';
+  });
+}
+
+function pickPhuLuc(entry){
+  if(!phuLucTarget) return;
+  const idx = phuLucTarget.replace('hv','');
+  g(phuLucTarget).value = entry.hv;
+  // Câu in vào biên bản PDF: chỉ nêu điều khoản + tên nghị định áp dụng — không
+  // kèm mức phạt/biện pháp khắc phục (những cái đó chỉ để cán bộ tham khảo lúc
+  // chọn, không phải nội dung cần ghi trong biên bản làm việc).
+  const citation = `Quy định tại ${entry.dieu}, ${entry.nd}.`;
+  g('cc'+idx).value = citation;
+  const chipEl = g('pl-chip-hv'+idx);
+  if(chipEl) chipEl.innerHTML = `<span class="chip">📖 ${entry.dieu} — ${entry.phat}</span>`;
+  closePhuLuc();
+}
+
+function renderPhuLucList(keyword){
+  const kw = (keyword||'').trim().toLowerCase();
+  const rows = phuLucTable === 'old' ? PHU_LUC_1.old : PHU_LUC_1.new;
+  const matches = e => !kw || (e.hv+' '+e.nhom+' '+e.dieu).toLowerCase().includes(kw);
+
+  const groups = {};
+  rows.filter(matches).forEach(e=>{
+    (groups[e.nhom] = groups[e.nhom] || []).push(e);
+  });
+
+  let html = '';
+  Object.keys(groups).forEach(nhom=>{
+    html += `<div class="pl-group-title">${nhom}</div>`;
+    groups[nhom].forEach(e=>{
+      html += `<div class="pl-row" onclick='pickPhuLuc(${JSON.stringify(e).replace(/'/g,"&apos;")})'>
+        <div class="hv-text">${e.hv}</div>
+        <div class="hv-meta">${e.dieu} — ${e.phat}</div>
+      </div>`;
+    });
+  });
+
+  // Mục III (xả nước thải) luôn hiển thị riêng, không phụ thuộc mốc ngày
+  const muc3Matches = PHU_LUC_1.muc3.filter(matches);
+  if(muc3Matches.length){
+    html += `<div class="pl-group-title">Xả nước thải (NĐ 45/2022)</div>`;
+    muc3Matches.forEach(e=>{
+      html += `<div class="pl-row" onclick='pickPhuLuc(${JSON.stringify(e).replace(/'/g,"&apos;")})'>
+        <div class="hv-text">${e.hv}</div>
+        <div class="hv-meta">${e.dieu}</div>
+      </div>`;
+    });
+  }
+
+  g('phuluc-list').innerHTML = html || `<div style="padding:20px;text-align:center;color:#999;font-size:13px;">Không tìm thấy hành vi phù hợp.</div>`;
+}
+
+g('phuluc-search').addEventListener('input', ()=> renderPhuLucList(g('phuluc-search').value));
+document.getElementById('phuluc-overlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'phuluc-overlay') closePhuLuc();
+});
 
 // ===== TABS =====
 function go(id,btn){
@@ -901,7 +1098,8 @@ function collect(){
     to_daidien_gt:v('to_daidien_gt'),to_daidien_cv:v('to_daidien_cv'),
     ct:v('ct'),px:v('px'),bo:v('bo'),song:v('song'),
     tu_km:v('tu_km'),den_km:v('den_km'),x1:v('x1'),y1:v('y1'),x2:v('x2'),y2:v('y2'),
-    hv1:v('hv1'),hv2:v('hv2'),hv3:v('hv3'),hv4:v('hv4'),cancupl:v('cancupl'),
+    hv1:v('hv1'),hv2:v('hv2'),hv3:v('hv3'),hv4:v('hv4'),
+    cc1:v('cc1'),cc2:v('cc2'),cc3:v('cc3'),cc4:v('cc4'),
     kt:v('kt'),khp:v('khp'),tv:v('tv'),yk_vp:v('yk_vp'),yk_cx:v('yk_cx'),lydokk:v('lydokk'),
     photos:photos.map(p=>({id:p.id,src:p.src,nm:p.nm})),
     sketch:sk?sk.toDataURL('image/png'):null,
@@ -929,14 +1127,14 @@ function newBB(){
   ['so','ngay','gio','dd','n1','cv1','n2','cv2','cx_dc','vp_ten','vp_ns','vp_qt','vp_nn','vp_noo',
    'vp_gtloai','vp_gtso','vp_gtngay','vp_gtnoi','to_ten','to_dc','to_gtloai','to_gtso',
    'to_gtngay','to_gtnoi','to_daidien','to_daidien_cv','ct','px','bo',
-   'song','tu_km','den_km','x1','y1','x2','y2','hv1','hv2','hv3','hv4','kt','khp','tv',
+   'song','tu_km','den_km','x1','y1','x2','y2','hv1','hv2','hv3','hv4','cc1','cc2','cc3','cc4','kt','khp','tv',
    'yk_vp','yk_cx','lydokk'].forEach(id=>{
     if(g(id))g(id).value=id==='so'?'1':id==='dv'?'Xí nghiệp Thủy lợi Thanh Trì':
       id==='vp_qt'?'Việt Nam':id==='ngay'?new Date().toISOString().slice(0,10):'';
   });
-  if(g('cancupl')) g('cancupl').value='Nghị định số 03/2022/NĐ-CP được sửa đổi theo nghị định 183/2026/NĐ-CP';
   if(g('vp_loai')) g('vp_loai').value='ca_nhan';
   toggleVpLoai();
+  refreshPhuLucChips();
   renderPhotos();
   document.querySelectorAll('.tab')[0].click();
 }
@@ -978,10 +1176,11 @@ function loadBB(id){
     'to_daidien_gt':'to_daidien_gt','to_daidien_cv':'to_daidien_cv',
     'ct':'ct','px':'px','bo':'bo','song':'song','tu_km':'tu_km','den_km':'den_km',
     'x1':'x1','y1':'y1','x2':'x2','y2':'y2','hv1':'hv1','hv2':'hv2',
-    'hv3':'hv3','hv4':'hv4','cancupl':'cancupl','kt':'kt','khp':'khp','tv':'tv',
+    'hv3':'hv3','hv4':'hv4','cc1':'cc1','cc2':'cc2','cc3':'cc3','cc4':'cc4','kt':'kt','khp':'khp','tv':'tv',
     'yk_vp':'yk_vp','yk_cx':'yk_cx','lydokk':'lydokk'};
   Object.entries(map).forEach(([k,el])=>{if(g(el)&&d[k]!==undefined)g(el).value=d[k];});
   toggleVpLoai();
+  refreshPhuLucChips();
   photos=d.photos||[];renderPhotos();
   restoreSketch(d.sketch);
   document.querySelectorAll('.tab')[0].click();
@@ -1096,8 +1295,8 @@ ${d.vp_loai==='to_chuc' ? `
 
 <p class="bold" style="margin-top:10px;">Tiến hành lập biên bản làm việc đối với chủ thể vi phạm nêu trên đã có hành vi vi phạm trong phạm vi bảo vệ công trình thủy lợi:</p>
 <p class="bold" style="margin-top:6px;">1. Thời gian:</p>
-<p>- Phát sinh vi phạm: ${fd2(d.ngay)} / ${yn(d.ngay)}</p>
-<p>- Phát hiện hành vi vi phạm: ${fd2(d.ngay)} / ${yn(d.ngay)}</p>
+<p>- Phát sinh vi phạm: ${fd2(d.ngay)}</p>
+<p>- Phát hiện hành vi vi phạm: ${fd2(d.ngay)}</p>
 <p class="bold" style="margin-top:6px;">2. Địa điểm, vị trí phát sinh hành vi vi phạm:</p>
 <p>- Tên công trình: ${dot(d.ct)}, Thuộc địa bàn: ${dot(d.dd)}, ${dot(d.px)}, Thành phố Hà Nội.</p>
 <p>- Phạm vi: Bờ ${dot(d.bo)} Sông ${dot(d.song)}</p>
@@ -1107,10 +1306,13 @@ ${d.x2?`<p>- Tọa độ Gmaps điểm cuối: X = ${d.x2}, Y = ${d.y2||'...'}</
 <p class="bold" style="margin-top:6px;">3. Mô tả các hành vi vi phạm:</p>
 ${d.hv1?`<p>a) Hành vi 1: ${nl(d.hv1)}</p>`:'<p>a) Hành vi 1: ................................................................................................</p>'}
 ${d.kt?`<p style="margin-left:16px;">- Kích thước vi phạm: ${nl(d.kt)}</p>`:''}
+${d.cc1?`<p style="margin-left:16px;font-style:italic;">${d.cc1}</p>`:''}
 ${d.hv2?`<p>b) Hành vi 2: ${nl(d.hv2)}</p>`:''}
+${d.cc2?`<p style="margin-left:16px;font-style:italic;">${d.cc2}</p>`:''}
 ${d.hv3?`<p>c) Hành vi 3: ${nl(d.hv3)}</p>`:''}
+${d.cc3?`<p style="margin-left:16px;font-style:italic;">${d.cc3}</p>`:''}
 ${d.hv4?`<p>d) Hành vi 4: ${nl(d.hv4)}</p>`:''}
-<p style="margin-top:4px;font-style:italic;">Quy định tại: ${dot(d.cancupl)}.</p>
+${d.cc4?`<p style="margin-left:16px;font-style:italic;">${d.cc4}</p>`:''}
 ${d.khp?`<p style="margin-top:6px;">- Yêu cầu khắc phục trước ngày ${fd2(d.khp)}.</p>`:''}
 <p style="margin-top:6px;">4. Ý kiến trình bày của đối tượng thực hiện hành vi vi phạm: ${nl(d.yk_vp)||'.....................................................................'}</p>
 <p style="margin-top:6px;">5. Ý kiến trình bày của người chứng kiến (nếu có): ${nl(d.yk_cx)||'.....................................................................'}</p>
