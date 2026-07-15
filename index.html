@@ -479,7 +479,35 @@ window.addEventListener('DOMContentLoaded',()=>{
   .dd-btn-cancel{flex:none;background:var(--bg-2);border:1px solid var(--line);color:var(--text-1);padding:10px 18px;border-radius:7px;cursor:pointer;font-size:13px;}
 
   /* ---------- map ---------- */
-  #map{flex:1;background:#0a0f13;}
+  #map{flex:1;background:#0a0f13;position:relative;}
+
+  /* ---------- Google-Maps-style measuring overlay ---------- */
+  .measure-crosshair{
+    display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:34px; line-height:1; color:#e85d75; text-shadow:0 0 3px #000,0 0 6px #000;
+    pointer-events:none; z-index:900;
+  }
+  .measure-crosshair.show{ display:block; }
+  .measure-float-result{
+    display:none; position:absolute; left:14px; bottom:18px; z-index:900;
+    background:rgba(15,25,33,.92); color:#fff; border:1px solid var(--line);
+    border-radius:10px; padding:10px 14px; font-size:15px; font-weight:700;
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+  .measure-float-result.show{ display:block; }
+  .measure-float-result .mfr-label{ font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:2px; }
+  .measure-fab-row{
+    display:none; position:absolute; right:14px; bottom:18px; z-index:900;
+    flex-direction:column; align-items:flex-end; gap:8px;
+  }
+  .measure-fab-row.show{ display:flex; }
+  .measure-fab{
+    border:none; border-radius:24px; padding:12px 18px; font-size:14px; font-weight:700;
+    cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.35); white-space:nowrap;
+  }
+  .measure-fab-primary{ background:var(--accent); color:#04262b; padding:14px 22px; font-size:15px; }
+  .measure-fab-secondary{ background:rgba(15,25,33,.92); color:#fff; border:1px solid var(--line); }
+  #btn-measure-undo-fab{ padding:10px 14px; font-size:16px; }
   .leaflet-popup-content-wrapper{background:var(--bg-1);color:var(--text-0);}
   .leaflet-popup-tip{background:var(--bg-1);}
   .leaflet-control-layers{background:var(--bg-1)!important;color:var(--text-0);}
@@ -731,7 +759,20 @@ window.addEventListener('DOMContentLoaded',()=>{
     </div>
   </div>
 
-  <div id="map"></div>
+  <div id="map">
+    <!-- Google-Maps-style measuring overlay: crosshair stays fixed at screen center;
+         user pans the map underneath it, then taps "Thêm điểm" to place a vertex
+         exactly there. Much more precise on a phone than tapping with a finger,
+         especially zoomed in on a narrow bờ kênh. -->
+    <div id="measure-crosshair" class="measure-crosshair">⌖</div>
+    <div id="measure-float-result" class="measure-float-result"></div>
+    <div id="measure-fab-row" class="measure-fab-row">
+      <button id="btn-measure-undo-fab" class="measure-fab measure-fab-secondary" title="Hoàn tác điểm cuối">↩</button>
+      <button id="btn-measure-cancel-fab" class="measure-fab measure-fab-secondary">✕ Hủy</button>
+      <button id="btn-measure-done-fab" class="measure-fab measure-fab-secondary">✓ Xong</button>
+      <button id="btn-measure-add-fab" class="measure-fab measure-fab-primary">＋ Thêm điểm</button>
+    </div>
+  </div>
 
   <!-- Feature info form: appears after user finishes drawing a line/point -->
   <div id="draw-form-overlay">
@@ -1058,6 +1099,27 @@ window.addEventListener('DOMContentLoaded',()=>{
   const btnClear = document.getElementById('btn-measure-clear');
   const measureStatus = document.getElementById('measure-status');
   const measureResultEl = document.getElementById('measure-result');
+  const measureCrosshair = document.getElementById('measure-crosshair');
+  const measureFloatResult = document.getElementById('measure-float-result');
+  const measureFabRow = document.getElementById('measure-fab-row');
+  const btnMeasureAddFab = document.getElementById('btn-measure-add-fab');
+  const btnMeasureDoneFab = document.getElementById('btn-measure-done-fab');
+  const btnMeasureCancelFab = document.getElementById('btn-measure-cancel-fab');
+  const btnMeasureUndoFab = document.getElementById('btn-measure-undo-fab');
+
+  function updateMeasureFloatResult(){
+    if(!measureMode || measurePoints.length === 0){ measureFloatResult.classList.remove('show'); return; }
+    measureFloatResult.classList.add('show');
+    if(measureMode === 'distance'){
+      measureFloatResult.innerHTML = `<div class="mfr-label">Khoảng cách (${measurePoints.length} điểm)</div>${formatDistance(totalDistanceOf(measurePoints))}`;
+    } else {
+      if(measurePoints.length < 3){
+        measureFloatResult.innerHTML = `<div class="mfr-label">Diện tích</div>Cần thêm điểm (tối thiểu 3)`;
+      } else {
+        measureFloatResult.innerHTML = `<div class="mfr-label">Diện tích (${measurePoints.length} điểm)</div>${formatArea(polygonAreaOf(measurePoints))}`;
+      }
+    }
+  }
 
   function setMeasureMode(mode){
     // toggle off if clicking the active one again
@@ -1069,8 +1131,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnArea.classList.toggle('active', mode==='area');
     map.getContainer().style.cursor = 'crosshair';
     measureStatus.textContent = mode === 'distance'
-      ? 'Click các điểm dọc theo đoạn cần đo. Click đúp hoặc Enter để kết thúc, Esc để hủy.'
-      : 'Click các điểm quanh khu vực cần đo (≥3 điểm). Click đúp hoặc Enter để kết thúc, Esc để hủy.';
+      ? 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (hoặc click thẳng lên bản đồ). Xong bấm "✓ Xong".'
+      : 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (hoặc click thẳng lên bản đồ, ≥3 điểm). Xong bấm "✓ Xong".';
+    measureCrosshair.classList.add('show');
+    measureFabRow.classList.add('show');
+    updateMeasureFloatResult();
+    if(isMobileLayout()) closeDrawer();
   }
 
   btnDistance.addEventListener('click', ()=> setMeasureMode('distance'));
@@ -1098,6 +1164,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnArea.classList.remove('active');
     map.getContainer().style.cursor = '';
     clearMeasureVertexLayers();
+    measureCrosshair.classList.remove('show');
+    measureFabRow.classList.remove('show');
+    measureFloatResult.classList.remove('show');
     if(cancel){
       if(measureLayer){ map.removeLayer(measureLayer); measureLayer = null; }
       measurePoints = [];
@@ -1110,6 +1179,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const v = L.circleMarker(latlng, { radius:4, color:'#fff', weight:1.5, fillColor:'#e85d75', fillOpacity:1 }).addTo(map);
     measureMarkers.push(v);
     redrawMeasureShape();
+    updateMeasureFloatResult();
   }
 
   function redrawMeasureShape(){
@@ -1187,8 +1257,34 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnArea.classList.remove('active');
     map.getContainer().style.cursor = '';
     clearMeasureVertexLayers();
+    measureCrosshair.classList.remove('show');
+    measureFabRow.classList.remove('show');
+    measureFloatResult.classList.remove('show');
     measureStatus.textContent = 'Đo xong. Bấm lại một công cụ để đo tiếp (sẽ thay kết quả cũ).';
   }
+
+  function undoLastMeasurePoint(){
+    if(!measureMode || !measurePoints.length) return;
+    measurePoints.pop();
+    const lastMarker = measureMarkers.pop();
+    if(lastMarker) map.removeLayer(lastMarker);
+    redrawMeasureShape();
+    updateMeasureFloatResult();
+  }
+
+  btnMeasureAddFab.addEventListener('click', ()=>{
+    if(!measureMode) return;
+    addMeasurePoint(map.getCenter());
+  });
+  btnMeasureDoneFab.addEventListener('click', ()=>{
+    if(!measureMode) return;
+    finishMeasuring();
+  });
+  btnMeasureCancelFab.addEventListener('click', ()=>{
+    if(!measureMode) return;
+    stopMeasuring(true);
+  });
+  btnMeasureUndoFab.addEventListener('click', undoLastMeasurePoint);
 
   map.on('click', (e)=>{
     if(!measureMode) return;
