@@ -694,7 +694,7 @@ function getGPS(){
 // Cho phép mở thẳng bien-ban.html (không qua index.html trước) — ví dụ từ shortcut
 // PWA — mà vẫn tự tính được K-cọc/xã-phường/người phụ trách khi đứng tại hiện trường
 // bấm GPS, giống hệt như khi bấm vào kênh trên bản đồ.
-const GPS_CANAL_MAX_DIST_M = 20;
+const GPS_CANAL_MAX_DIST_M = 30;
 let bbCanals = [];      // [{name, latlngs:[{lat,lng}], totalLength}]
 let bbAdminAreas = [];  // [{name, latlngs}] — ranh giới xã/phường
 let bbPersonSegments = {}; // strippedTenKenh -> [{from_m,to_m,person,desc}]
