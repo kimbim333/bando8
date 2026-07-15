@@ -1012,6 +1012,39 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(userMarker){ map.removeLayer(userMarker); userMarker = null; }
     if(userAccuracyCircle){ map.removeLayer(userAccuracyCircle); userAccuracyCircle = null; }
     gpsStationActive = false;
+    gpsFixBuffer = [];
+  }
+
+  // ----- GPS smoothing: phones report a new (slightly different) fix every second
+  // even standing still, because consumer GPS itself has ~3-10m noise. Feeding each
+  // raw fix straight into the K-cọc projection makes the projected point visibly
+  // jump around by a few meters. Instead, keep a short rolling buffer of recent
+  // fixes and use an accuracy-weighted average (a fix with better — smaller —
+  // "accuracy" counts more) as the position actually used for the projection. The
+  // blue dot/accuracy circle on the map still shows the raw live fix (honest about
+  // current GPS precision); only the K-cọc calculation itself is smoothed. -----
+  let gpsFixBuffer = [];
+  const GPS_SMOOTH_WINDOW_MS = 8000; // only average fixes from the last 8s
+  const GPS_SMOOTH_MAX_SAMPLES = 8;
+
+  function pushGpsFix(lat, lng, accuracy){
+    const now = Date.now();
+    // Clamp accuracy floor so a suspiciously "perfect" 0-1m reading doesn't get an
+    // absurd weight and dominate the average on its own.
+    gpsFixBuffer.push({ lat, lng, accuracy: Math.max(accuracy||15, 3), t: now });
+    gpsFixBuffer = gpsFixBuffer
+      .filter(f => now - f.t <= GPS_SMOOTH_WINDOW_MS)
+      .slice(-GPS_SMOOTH_MAX_SAMPLES);
+  }
+
+  function getSmoothedGpsFix(){
+    if(!gpsFixBuffer.length) return null;
+    let wSum=0, latSum=0, lngSum=0;
+    for(const f of gpsFixBuffer){
+      const w = 1/(f.accuracy*f.accuracy); // inverse-variance weighting
+      wSum += w; latSum += f.lat*w; lngSum += f.lng*w;
+    }
+    return { lat: latSum/wSum, lng: lngSum/wSum };
   }
 
   function onLocateSuccess(pos){
@@ -1035,7 +1068,9 @@ window.addEventListener('DOMContentLoaded',()=>{
       map.setView(latlng, 17);
       hasCenteredOnUser = true;
     }
-    handleGpsStationUpdate({ lat: latitude, lng: longitude }, firstFixOfSession);
+    pushGpsFix(latitude, longitude, accuracy);
+    const smoothed = getSmoothedGpsFix() || { lat: latitude, lng: longitude };
+    handleGpsStationUpdate(smoothed, firstFixOfSession);
   }
 
   // Finds the kênh nearest to a GPS fix (within GPS_CANAL_MAX_DIST_M) and returns

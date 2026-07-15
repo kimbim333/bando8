@@ -650,15 +650,44 @@ function go(id,btn){
 function getGPS(){
   if(!navigator.geolocation){alert('Thiết bị không hỗ trợ GPS');return;}
   const st = document.getElementById('gps-status');
-  if(st) st.textContent = '📍 Đang định vị…';
-  navigator.geolocation.getCurrentPosition(
+  // GPS điện thoại luôn dao động vài mét dù đứng yên. Thay vì chốt ngay theo 1 lần
+  // đọc, quan sát vị trí trong ~4 giây, gom nhiều lần đọc rồi lấy trung bình có
+  // trọng số theo độ chính xác (đọc nào chính xác hơn thì có trọng số cao hơn) —
+  // giúp tọa độ (và K-cọc chiếu theo đó) ổn định hơn hẳn, đỡ nhảy lung tung.
+  const STABILIZE_MS = 4000;
+  const samples = [];
+  let done = false;
+  if(st) st.textContent = '📍 Đang ổn định định vị… (0/4s)';
+  let secs = 0;
+  const tick = setInterval(()=>{
+    secs++;
+    if(st && !done) st.textContent = `📍 Đang ổn định định vị… (${secs}/4s, đã đọc ${samples.length} lần)`;
+  }, 1000);
+
+  const watchId = navigator.geolocation.watchPosition(
     pos=>{
-      g('x1').value=pos.coords.latitude.toFixed(6);
-      g('y1').value=pos.coords.longitude.toFixed(6);
-      autofillFromCoords(pos.coords.latitude, pos.coords.longitude);
+      samples.push({ lat:pos.coords.latitude, lng:pos.coords.longitude, acc:Math.max(pos.coords.accuracy||15,3) });
     },
-    e=>{ if(st) st.textContent=''; alert('Lỗi GPS: '+e.message); },
-    {enableHighAccuracy:true,timeout:10000});
+    e=>{ /* ignore transient errors during the stabilizing window */ },
+    {enableHighAccuracy:true, maximumAge:0}
+  );
+
+  setTimeout(()=>{
+    done = true;
+    clearInterval(tick);
+    navigator.geolocation.clearWatch(watchId);
+    if(!samples.length){
+      if(st) st.textContent = '';
+      alert('Không lấy được GPS, thử lại (đứng ra chỗ thoáng hơn nếu đang trong nhà/dưới tán cây).');
+      return;
+    }
+    let wSum=0, latSum=0, lngSum=0;
+    for(const s of samples){ const w=1/(s.acc*s.acc); wSum+=w; latSum+=s.lat*w; lngSum+=s.lng*w; }
+    const lat = latSum/wSum, lng = lngSum/wSum;
+    g('x1').value = lat.toFixed(6);
+    g('y1').value = lng.toFixed(6);
+    autofillFromCoords(lat, lng);
+  }, STABILIZE_MS);
 }
 
 // ===== AUTO K-CỌC: đọc trực tiếp du-lieu.kml + nguoi-phu-trach.xlsx =====
