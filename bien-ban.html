@@ -134,7 +134,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="app-bar">
   <div>
     <h1>⚠️ Biên bản vi phạm thủy lợi</h1>
-    <div style="font-size:10.5px;opacity:.8;">Xí nghiệp Thủy lợi Nhật Tựu</div>
+    <div style="font-size:10.5px;opacity:.8;">Xí nghiệp Thủy lợi Thanh Trì</div>
   </div>
   <a href="index.html">🗺 Bản đồ</a>
 </div>
@@ -157,7 +157,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <div class="f"><label>Ngày lập</label><input id="ngay" type="date"/></div>
         <div class="f"><label>Giờ</label><input id="gio" type="time"/></div>
       </div>
-      <div class="f"><label>Địa điểm lập biên bản</label><input id="dd" placeholder="TDP Thọ Lão, P. Kim Thanh, Ninh Bình"/></div>
+      <div class="f"><label>Địa điểm lập biên bản</label><input id="dd" placeholder="Thôn 3, Xã Ngọc Hồi, TP. Hà Nội"/></div>
     </div>
   </div>
 
@@ -165,14 +165,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="card-head">👮 Người lập biên bản</div>
     <div class="card-body">
       <div class="row">
-        <div class="f"><label>Họ tên (1)</label><input id="n1" placeholder="VD: Lê Trọng Tuần"/></div>
+        <div class="f"><label>Họ tên</label><input id="n1" placeholder="VD: Lê Trọng Tuần"/></div>
         <div class="f"><label>Chức vụ</label><input id="cv1" placeholder="Cán bộ KT"/></div>
       </div>
+      <div class="f" style="margin-top:10px"><label>Đơn vị công tác</label><input id="dv" value="Xí nghiệp Thủy lợi Thanh Trì"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">👁 Người chứng kiến (nếu có)</div>
+    <div class="card-body">
       <div class="row">
-        <div class="f"><label>Họ tên (2)</label><input id="n2"/></div>
-        <div class="f"><label>Chức vụ</label><input id="cv2"/></div>
+        <div class="f"><label>Họ tên</label><input id="n2" placeholder="Để trống nếu không có"/></div>
+        <div class="f"><label>Chức vụ/nghề nghiệp</label><input id="cv2"/></div>
       </div>
-      <div class="f" style="margin-top:10px"><label>Đơn vị</label><input id="dv" value="Xí nghiệp Thủy lợi Nhật Tựu"/></div>
+      <div class="f" style="margin-top:10px"><label>Nơi công tác/địa chỉ</label><input id="cx_dc"/></div>
     </div>
   </div>
 
@@ -180,16 +187,56 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="card-head">⚠️ Chủ thể vi phạm</div>
     <div class="card-body">
       <div class="row">
-        <div class="f"><label>Họ tên người vi phạm</label><input id="vp_ten" placeholder="VD: Vũ Thị Dắc"/></div>
-        <div class="f"><label>Giới tính</label>
-          <select id="vp_gt"><option>Nữ</option><option>Nam</option></select></div>
+        <div class="f"><label>Loại chủ thể</label>
+          <select id="vp_loai" onchange="toggleVpLoai()">
+            <option value="ca_nhan">Cá nhân</option>
+            <option value="to_chuc">Tổ chức</option>
+          </select></div>
       </div>
-      <div class="row">
-        <div class="f"><label>Quốc tịch</label><input id="vp_qt" value="Việt Nam"/></div>
-        <div class="f"><label>Nghề nghiệp</label><input id="vp_nn"/></div>
+
+      <div id="vp-ca-nhan">
+        <div class="row" style="margin-top:8px;">
+          <div class="f"><label>Họ tên người vi phạm</label><input id="vp_ten" placeholder="VD: Vũ Thị Dắc"/></div>
+          <div class="f"><label>Giới tính</label>
+            <select id="vp_gt"><option>Nữ</option><option>Nam</option></select></div>
+        </div>
+        <div class="row">
+          <div class="f"><label>Ngày sinh</label><input id="vp_ns" type="date"/></div>
+          <div class="f"><label>Quốc tịch</label><input id="vp_qt" value="Việt Nam"/></div>
+        </div>
+        <div class="row">
+          <div class="f"><label>Nghề nghiệp</label><input id="vp_nn"/></div>
+        </div>
+        <div class="f" style="margin-top:10px"><label>Nơi ở hiện tại</label>
+          <input id="vp_noo" placeholder="Thôn 3, Xã Ngọc Hồi, TP. Hà Nội"/></div>
+        <div class="row" style="margin-top:10px;">
+          <div class="f"><label>Loại giấy tờ xác thực</label><input id="vp_gtloai" placeholder="CCCD"/></div>
+          <div class="f"><label>Số giấy tờ</label><input id="vp_gtso"/></div>
+        </div>
+        <div class="row">
+          <div class="f"><label>Ngày cấp</label><input id="vp_gtngay" type="date"/></div>
+          <div class="f"><label>Nơi cấp</label><input id="vp_gtnoi"/></div>
+        </div>
       </div>
-      <div class="f" style="margin-top:10px"><label>Nơi ở hiện tại</label>
-        <input id="vp_noo" placeholder="TDP Thọ Lão 2, P. Kim Thanh, Ninh Bình"/></div>
+
+      <div id="vp-to-chuc" style="display:none;">
+        <div class="f" style="margin-top:8px;"><label>Tên tổ chức</label><input id="to_ten"/></div>
+        <div class="f" style="margin-top:8px;"><label>Địa chỉ trụ sở chính</label><input id="to_dc"/></div>
+        <div class="row" style="margin-top:8px;">
+          <div class="f"><label>Loại giấy tờ xác thực tổ chức</label><input id="to_gtloai" placeholder="Giấy phép ĐKKD"/></div>
+          <div class="f"><label>Số giấy tờ</label><input id="to_gtso"/></div>
+        </div>
+        <div class="row">
+          <div class="f"><label>Ngày cấp</label><input id="to_gtngay" type="date"/></div>
+          <div class="f"><label>Nơi cấp</label><input id="to_gtnoi"/></div>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <div class="f"><label>Người đại diện</label><input id="to_daidien"/></div>
+          <div class="f"><label>Giới tính</label>
+            <select id="to_daidien_gt"><option>Nam</option><option>Nữ</option></select></div>
+        </div>
+        <div class="f" style="margin-top:8px;"><label>Chức danh</label><input id="to_daidien_cv"/></div>
+      </div>
     </div>
   </div>
 
@@ -199,7 +246,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <div class="f" style="margin-bottom:10px"><label>Tên công trình</label>
         <input id="ct" placeholder="VD: Đê sông Nhuệ"/></div>
       <div class="row">
-        <div class="f"><label>Phường/xã</label><input id="px" placeholder="Kim Thanh"/></div>
+        <div class="f"><label>Phường/xã</label><input id="px" placeholder="Xã Ngọc Hồi"/></div>
         <div class="f"><label>Bờ</label><input id="bo" placeholder="Hữu"/></div>
       </div>
       <div class="row">
@@ -233,10 +280,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       </div>
       <div class="f" style="margin-top:8px"><label>Hành vi 2 (nếu có)</label><textarea id="hv2"></textarea></div>
       <div class="f" style="margin-top:8px"><label>Hành vi 3 (nếu có)</label><textarea id="hv3"></textarea></div>
+      <div class="f" style="margin-top:8px"><label>Hành vi 4 (nếu có)</label><textarea id="hv4"></textarea></div>
+      <div class="f" style="margin-top:8px"><label>Căn cứ pháp lý (áp dụng chung)</label>
+        <input id="cancupl" value="Nghị định số 03/2022/NĐ-CP được sửa đổi theo nghị định 183/2026/NĐ-CP"/></div>
       <div class="row" style="margin-top:10px">
         <div class="f"><label>Yêu cầu khắc phục trước ngày</label><input id="khp" type="date"/></div>
       </div>
+      <div class="f" style="margin-top:8px"><label>Tang vật/phương tiện liên quan (nếu có)</label><textarea id="tv" placeholder="Để trống nếu không có"></textarea></div>
       <div class="f" style="margin-top:8px"><label>Ý kiến người vi phạm</label><textarea id="yk_vp"></textarea></div>
+      <div class="f" style="margin-top:8px"><label>Ý kiến người chứng kiến (nếu có)</label><textarea id="yk_cx"></textarea></div>
+      <div class="f" style="margin-top:8px"><label>Lý do không ký biên bản (nếu có)</label><input id="lydokk" placeholder="Để trống nếu người vi phạm đồng ý ký"/></div>
     </div>
   </div>
   <div class="gap"></div>
@@ -276,7 +329,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.7;">
         <div style="font-weight:700;color:#1a5276;margin-bottom:4px;">📌 Thông tin sẽ in lên ảnh:</div>
         <div id="sp-time" style="color:#555;">⏰ Ngày giờ: tự động khi chụp</div>
-        <div id="sp-gps"  style="color:#555;">📍 Tọa độ: tự lấy khi chụp</div>
+        <div id="sp-gps"  style="color:#555;">📍 Tọa độ: lấy từ ô "Tọa độ X/Y" ở mục Vị trí vi phạm</div>
         <div id="sp-loc"  style="color:#555;">📍 Vị trí: <span id="sp-loc-val">—</span></div>
         <div id="sp-ho"   style="color:#555;">👤 Hộ vi phạm: <span id="sp-ho-val">—</span></div>
         <div id="sp-hv"   style="color:#c0392b;">⚠️ Hành vi: <span id="sp-hv-val">—</span></div>
@@ -381,7 +434,8 @@ window.onload=()=>{
   if(p.get('px'))  g('px').value=p.get('px');
   if(p.get('nguoiPT')) g('n1').value=p.get('nguoiPT');
   if(p.get('song')) g('song').value=p.get('song');
-  initSk(); renderList();
+  if(p.get('dd'))   g('dd').value=p.get('dd');
+  initSk(); renderList(); toggleVpLoai();
 };
 
 function g(id){return document.getElementById(id);}
@@ -513,7 +567,7 @@ async function bbLoadKml(text){
         const coordEl = outer.getElementsByTagName('coordinates')[0];
         if(coordEl){
           const latlngs = bbParseCoordString(coordEl.textContent);
-          if(latlngs.length>=3) bbAdminAreas.push({ name: adminMatch[1].trim(), latlngs });
+          if(latlngs.length>=3) bbAdminAreas.push({ name: name.trim(), latlngs });
         }
       }
     }
@@ -603,6 +657,7 @@ function autofillFromCoords(lat, lng){
   if(!g('ct').value) g('ct').value = best.canal.name;
   if(!g('song').value) g('song').value = best.canal.name;
   if(px && !g('px').value) g('px').value = px;
+  if(px && !g('dd').value) g('dd').value = px;
   if(person && !g('n1').value) g('n1').value = person;
 
   if(st) st.textContent = `📍 ${best.canal.name} — ${station}` + (person?` — Phụ trách: ${person}`:'') + (px?` — Xã/phường: ${px}`:'');
@@ -666,18 +721,26 @@ function clearSk(){if(confirm('Xóa sơ họa?')){skCtx.fillStyle='#fff';skCtx.f
 let stampGPS = null;
 
 function updateStampPreview(){
-  const kCoc=v('tu_km'),bo=v('bo'),ct=v('ct'),hv1=v('hv1'),kt=v('kt'),ho=v('vp_ten');
+  const kCoc=v('tu_km'),bo=v('bo'),ct=v('ct'),hv1=v('hv1'),kt=v('kt');
+  const ho = v('vp_loai')==='to_chuc' ? v('to_ten') : v('vp_ten');
   const set=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt||'—';};
   set('sp-loc-val',[kCoc&&`K cọc ${kCoc}`,bo&&`Bờ ${bo}`,ct&&`Tuyến ${ct}`].filter(Boolean).join('  |  '));
   set('sp-ho-val', ho  || '(chưa điền)');
   set('sp-hv-val', hv1 ? hv1.slice(0,80)+(hv1.length>80?'...':'') : '(chưa điền)');
   set('sp-kt-val', kt  || '(chưa điền)');
+  const x1=parseFloat(v('x1')), y1=parseFloat(v('y1'));
+  const gpsEl = document.getElementById('sp-gps');
+  if(gpsEl){
+    gpsEl.textContent = (!isNaN(x1)&&!isNaN(y1))
+      ? `📍 ${x1.toFixed(6)}, ${y1.toFixed(6)} (lấy từ ô Tọa độ X/Y ở trên)`
+      : '📍 Chưa có tọa độ — điền/bấm GPS ở mục "Vị trí vi phạm" phía trên trước khi chụp';
+  }
 }
 
 // Auto-update preview when user types in form fields
-['tu_km','bo','ct','hv1','kt','vp_ten'].forEach(id=>{
+['tu_km','bo','ct','hv1','kt','vp_ten','to_ten','vp_loai','x1','y1'].forEach(id=>{
   const el = document.getElementById(id);
-  if(el) el.addEventListener('input', updateStampPreview);
+  if(el){ el.addEventListener('input', updateStampPreview); el.addEventListener('change', updateStampPreview); }
 });
 
 function fmtDateTime(d){
@@ -695,50 +758,38 @@ function stampPhoto(inp){
   const timeEl = document.getElementById('sp-time');
   if(timeEl) timeEl.textContent = '⏰ ' + fmtDateTime(now);
 
-  // Get GPS then process photos
-  const processPhotos = (gpsInfo)=>{
-    files.forEach(file=>{
-      const reader = new FileReader();
-      reader.onload = e=>{
-        const img = new Image();
-        img.onload = ()=>{
-          const canvas = document.getElementById('stamp-canvas');
-          canvas.width  = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img,0,0);
-          drawWatermark(ctx, img.naturalWidth, img.naturalHeight, gpsInfo);
-          const stamped = canvas.toDataURL('image/jpeg', 0.92);
-          photos.push({id:Date.now()+'s'+Math.random().toString(36).slice(2), src:stamped, nm:'stamped_'+file.name});
-          renderPhotos();
-          showPhotoPreview(stamped);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  // Try GPS (3s timeout so camera doesn't feel slow)
+  // Tọa độ lấy thẳng từ ô Tọa độ X/Y đã điền sẵn trong biên bản (không xin GPS riêng
+  // mỗi lần chụp nữa — tránh chờ/đứng nhiều lần, và đảm bảo mọi ảnh cùng 1 vụ đều
+  // đóng dấu đúng cùng 1 tọa độ với biên bản, không lệch nhau giữa các lần chụp).
+  const x1 = parseFloat(v('x1')), y1 = parseFloat(v('y1'));
+  const gpsInfo = (!isNaN(x1) && !isNaN(y1)) ? {lat:x1, lng:y1, time:now} : {time:now};
   const gpsEl = document.getElementById('sp-gps');
-  if(navigator.geolocation){
-    if(gpsEl) gpsEl.textContent = '📍 Đang lấy tọa độ...';
-    let done=false;
-    const timer = setTimeout(()=>{ if(!done){done=true; processPhotos({time:now});} }, 3000);
-    navigator.geolocation.getCurrentPosition(pos=>{
-      if(done) return; done=true; clearTimeout(timer);
-      const lat=pos.coords.latitude, lng=pos.coords.longitude;
-      stampGPS = {lat,lng,acc:Math.round(pos.coords.accuracy),time:now};
-      if(gpsEl) gpsEl.textContent = `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      processPhotos(stampGPS);
-    }, ()=>{
-      if(done) return; done=true; clearTimeout(timer);
-      if(gpsEl) gpsEl.textContent = '📍 Không lấy được GPS — ảnh vẫn được đóng dấu thông tin khác';
-      processPhotos({time:now});
-    }, {enableHighAccuracy:true, timeout:3000, maximumAge:60000});
-  } else {
-    processPhotos({time:now});
+  if(gpsEl){
+    gpsEl.textContent = (!isNaN(x1) && !isNaN(y1))
+      ? `📍 ${x1.toFixed(6)}, ${y1.toFixed(6)} (lấy từ ô Tọa độ X/Y ở trên)`
+      : '📍 Chưa có tọa độ — điền/bấm GPS ở mục "Vị trí vi phạm" phía trên trước khi chụp';
   }
+
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.getElementById('stamp-canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0);
+        drawWatermark(ctx, img.naturalWidth, img.naturalHeight, gpsInfo);
+        const stamped = canvas.toDataURL('image/jpeg', 0.92);
+        photos.push({id:Date.now()+'s'+Math.random().toString(36).slice(2), src:stamped, nm:'stamped_'+file.name});
+        renderPhotos();
+        showPhotoPreview(stamped);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
   inp.value='';
 }
 
@@ -750,7 +801,7 @@ function drawWatermark(ctx, W, H, gps){
   const now   = gps.time || new Date();
 
   const kCoc = v('tu_km'), bo = v('bo'), ct = v('ct'), hv1 = v('hv1');
-  const kt   = v('kt'),    ho = v('vp_ten');
+  const kt   = v('kt'),    ho = v('vp_loai')==='to_chuc' ? v('to_ten') : v('vp_ten');
 
   const lines = [
     fmtDateTime(now),
@@ -800,7 +851,7 @@ function drawWatermark(ctx, W, H, gps){
 
   // Top-right badge
   ctx.font=`bold ${Math.round(fSize*0.75)}px Arial`;
-  const badge='  Thủy lợi Nhật Tựu ✓  ';
+  const badge='  Thủy lợi Thanh Trì ✓  ';
   const bw=ctx.measureText(badge).width+pad;
   ctx.fillStyle='rgba(0,0,0,0.55)';
   ctx.fillRect(W-bw-pad,0,bw+pad,lineH*1.4);
@@ -841,14 +892,26 @@ document.getElementById('photo-modal')?.addEventListener('click', e=>{
 // ===== COLLECT =====
 function collect(){
   return{id:cid||Date.now().toString(),so:v('so'),ngay:v('ngay'),gio:v('gio'),dd:v('dd'),
-    n1:v('n1'),cv1:v('cv1'),n2:v('n2'),cv2:v('cv2'),dv:v('dv'),
-    vp_ten:v('vp_ten'),vp_gt:v('vp_gt'),vp_qt:v('vp_qt'),vp_nn:v('vp_nn'),vp_noo:v('vp_noo'),
+    n1:v('n1'),cv1:v('cv1'),n2:v('n2'),cv2:v('cv2'),cx_dc:v('cx_dc'),dv:v('dv'),
+    vp_loai:v('vp_loai'),
+    vp_ten:v('vp_ten'),vp_gt:v('vp_gt'),vp_ns:v('vp_ns'),vp_qt:v('vp_qt'),vp_nn:v('vp_nn'),vp_noo:v('vp_noo'),
+    vp_gtloai:v('vp_gtloai'),vp_gtso:v('vp_gtso'),vp_gtngay:v('vp_gtngay'),vp_gtnoi:v('vp_gtnoi'),
+    to_ten:v('to_ten'),to_dc:v('to_dc'),to_gtloai:v('to_gtloai'),to_gtso:v('to_gtso'),
+    to_gtngay:v('to_gtngay'),to_gtnoi:v('to_gtnoi'),to_daidien:v('to_daidien'),
+    to_daidien_gt:v('to_daidien_gt'),to_daidien_cv:v('to_daidien_cv'),
     ct:v('ct'),px:v('px'),bo:v('bo'),song:v('song'),
     tu_km:v('tu_km'),den_km:v('den_km'),x1:v('x1'),y1:v('y1'),x2:v('x2'),y2:v('y2'),
-    hv1:v('hv1'),hv2:v('hv2'),hv3:v('hv3'),kt:v('kt'),khp:v('khp'),yk_vp:v('yk_vp'),
+    hv1:v('hv1'),hv2:v('hv2'),hv3:v('hv3'),hv4:v('hv4'),cancupl:v('cancupl'),
+    kt:v('kt'),khp:v('khp'),tv:v('tv'),yk_vp:v('yk_vp'),yk_cx:v('yk_cx'),lydokk:v('lydokk'),
     photos:photos.map(p=>({id:p.id,src:p.src,nm:p.nm})),
     sketch:sk?sk.toDataURL('image/png'):null,
     ts:new Date().toISOString()};
+}
+
+function toggleVpLoai(){
+  const isTC = v('vp_loai')==='to_chuc';
+  document.getElementById('vp-ca-nhan').style.display = isTC?'none':'';
+  document.getElementById('vp-to-chuc').style.display = isTC?'':'none';
 }
 
 // ===== SAVE =====
@@ -863,11 +926,17 @@ function save(){
 function newBB(){
   cid=null;photos=[];
   restoreSketch(null);
-  ['so','ngay','gio','dd','n1','cv1','n2','cv2','vp_ten','vp_noo','ct','px','bo',
-   'song','tu_km','den_km','x1','y1','x2','y2','hv1','hv2','hv3','khp','yk_vp'].forEach(id=>{
-    if(g(id))g(id).value=id==='so'?'1':id==='dv'?'Xí nghiệp Thủy lợi Nhật Tựu':
+  ['so','ngay','gio','dd','n1','cv1','n2','cv2','cx_dc','vp_ten','vp_ns','vp_qt','vp_nn','vp_noo',
+   'vp_gtloai','vp_gtso','vp_gtngay','vp_gtnoi','to_ten','to_dc','to_gtloai','to_gtso',
+   'to_gtngay','to_gtnoi','to_daidien','to_daidien_cv','ct','px','bo',
+   'song','tu_km','den_km','x1','y1','x2','y2','hv1','hv2','hv3','hv4','kt','khp','tv',
+   'yk_vp','yk_cx','lydokk'].forEach(id=>{
+    if(g(id))g(id).value=id==='so'?'1':id==='dv'?'Xí nghiệp Thủy lợi Thanh Trì':
       id==='vp_qt'?'Việt Nam':id==='ngay'?new Date().toISOString().slice(0,10):'';
   });
+  if(g('cancupl')) g('cancupl').value='Nghị định số 03/2022/NĐ-CP được sửa đổi theo nghị định 183/2026/NĐ-CP';
+  if(g('vp_loai')) g('vp_loai').value='ca_nhan';
+  toggleVpLoai();
   renderPhotos();
   document.querySelectorAll('.tab')[0].click();
 }
@@ -879,7 +948,7 @@ function renderList(){
   if(!vlist.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#999;font-size:13px;">Chưa có biên bản nào.</div>';return;}
   el.innerHTML=vlist.map(d=>`
     <div class="vp">
-      <div class="vp-h">⚠️ BB lần ${d.so||1} — ${d.vp_ten||'(chưa có tên)'}
+      <div class="vp-h">⚠️ BB lần ${d.so||1} — ${(d.vp_loai==='to_chuc'?d.to_ten:d.vp_ten)||'(chưa có tên)'}
         <span style="margin-left:auto;background:#eaf2ff;color:#1a5276;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;white-space:nowrap;">${d.ts?new Date(d.ts).toLocaleDateString('vi-VN'):''}</span>
       </div>
       <div class="vp-b">
@@ -900,12 +969,19 @@ function loadBB(id){
   const d=vlist.find(x=>x.id===id);if(!d)return;
   cid=id;
   const map={'so':'so','ngay':'ngay','gio':'gio','dd':'dd','n1':'n1','cv1':'cv1',
-    'n2':'n2','cv2':'cv2','dv':'dv','vp_ten':'vp_ten','vp_gt':'vp_gt',
-    'vp_qt':'vp_qt','vp_nn':'vp_nn','vp_noo':'vp_noo','ct':'ct','px':'px',
-    'bo':'bo','song':'song','tu_km':'tu_km','den_km':'den_km',
+    'n2':'n2','cv2':'cv2','cx_dc':'cx_dc','dv':'dv','vp_loai':'vp_loai',
+    'vp_ten':'vp_ten','vp_gt':'vp_gt','vp_ns':'vp_ns',
+    'vp_qt':'vp_qt','vp_nn':'vp_nn','vp_noo':'vp_noo',
+    'vp_gtloai':'vp_gtloai','vp_gtso':'vp_gtso','vp_gtngay':'vp_gtngay','vp_gtnoi':'vp_gtnoi',
+    'to_ten':'to_ten','to_dc':'to_dc','to_gtloai':'to_gtloai','to_gtso':'to_gtso',
+    'to_gtngay':'to_gtngay','to_gtnoi':'to_gtnoi','to_daidien':'to_daidien',
+    'to_daidien_gt':'to_daidien_gt','to_daidien_cv':'to_daidien_cv',
+    'ct':'ct','px':'px','bo':'bo','song':'song','tu_km':'tu_km','den_km':'den_km',
     'x1':'x1','y1':'y1','x2':'x2','y2':'y2','hv1':'hv1','hv2':'hv2',
-    'hv3':'hv3','kt':'kt','khp':'khp','yk_vp':'yk_vp'};
+    'hv3':'hv3','hv4':'hv4','cancupl':'cancupl','kt':'kt','khp':'khp','tv':'tv',
+    'yk_vp':'yk_vp','yk_cx':'yk_cx','lydokk':'lydokk'};
   Object.entries(map).forEach(([k,el])=>{if(g(el)&&d[k]!==undefined)g(el).value=d[k];});
+  toggleVpLoai();
   photos=d.photos||[];renderPhotos();
   restoreSketch(d.sketch);
   document.querySelectorAll('.tab')[0].click();
@@ -943,6 +1019,7 @@ function buildPrintHtml(d){
   const dd2=s=>s?new Date(s).getDate():'...';
   const nl=s=>(s||'').replace(/\n/g,'<br>');
   const dot=s=>s||'................................';
+  const vpName=d=>d.vp_loai==='to_chuc' ? (d.to_ten||'') : (d.vp_ten||'');
 
   const phHtml=d.photos&&d.photos.length
     ? d.photos.map(p=>`<img src="${p.src}" style="max-width:48%;margin:4px;border:1px solid #ccc;">`).join('')
@@ -977,35 +1054,52 @@ th{background:#f0f0f0;font-weight:bold;text-align:center;}
 <div style="display:flex;justify-content:space-between;font-size:9pt;margin-bottom:8px;">
   <div style="text-align:center;width:45%;font-weight:bold;font-size:9pt;">
     CÔNG TY TNHH MỘT THÀNH VIÊN<br>ĐẦU TƯ PHÁT TRIỂN THUỶ LỢI SÔNG NHUỆ<br>
-    <b>XÍ NGHIỆP THUỶ LỢI NHẬT TỰU</b>
+    <b>XÍ NGHIỆP THUỶ LỢI THANH TRÌ</b>
   </div>
   <div style="text-align:center;width:50%;">
     CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
     <b><u>Độc lập - Tự do - Hạnh phúc</u></b><br>
-    <i>Ninh Bình, ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)}</i>
+    <i>Thanh Trì, ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)}</i>
   </div>
 </div>
 <h2>Biên bản làm việc</h2>
 <h3>(lần ${d.so||1}....)</h3>
 <p style="margin:8px 0;">Hôm nay, vào hồi ${d.gio||'...'} giờ ..... phút, ngày ${fd2(d.ngay)},
-tại ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
+tại ${dot(d.dd)}, ${dot(d.px)}, Thành phố Hà Nội.</p>
 <p class="bold">Chúng tôi gồm:</p>
-<p class="bold" style="margin-top:6px;">1. Người có thẩm quyền lập biên bản:</p>
-<p>- Họ và tên ${dot(d.n1)}&nbsp;&nbsp;&nbsp; Chức vụ ${dot(d.cv1)}</p>
-<p>- Họ và tên ${dot(d.n2)}&nbsp;&nbsp;&nbsp; Chức vụ ${dot(d.cv2)}</p>
-<p>Đơn vị công tác: ${d.dv||'Xí nghiệp Thủy lợi Nhật Tựu'}</p>
-<p class="bold" style="margin-top:6px;">3. Chủ thể vi phạm:</p>
-<p>a) Người vi phạm:</p>
-<p>- Họ và tên ${dot(d.vp_ten)}&nbsp;&nbsp; Giới tính: ${d.vp_gt||'Nữ'}</p>
-<p>- Quốc tịch: ${dot(d.vp_qt)}&nbsp;&nbsp; Nghề nghiệp: ${dot(d.vp_nn)}</p>
+<p class="bold" style="margin-top:6px;">1. Người có thẩm quyền lập biên bản</p>
+<p>- Họ và tên: ${dot(d.n1)}</p>
+<p>- Chức vụ: ${dot(d.cv1)}</p>
+<p>- Đơn vị công tác: ${d.dv||'Xí nghiệp Thủy lợi Thanh Trì'}</p>
+<p class="bold" style="margin-top:6px;">2. Người chứng kiến (nếu có)</p>
+<p>- Họ và tên: ${dot(d.n2)}</p>
+<p>- Nơi công tác/địa chỉ: ${dot(d.cx_dc)}</p>
+<p>- Chức vụ/nghề nghiệp: ${dot(d.cv2)}</p>
+<p class="bold" style="margin-top:6px;">3. Đối tượng thực hiện hành vi vi phạm</p>
+${d.vp_loai==='to_chuc' ? `
+<p>b) Là tổ chức</p>
+<p>- Tên tổ chức: ${dot(d.to_ten)}</p>
+<p>- Địa chỉ trụ sở chính: ${dot(d.to_dc)}</p>
+<p>- Loại giấy tờ xác thực tổ chức: ${dot(d.to_gtloai)}</p>
+<p>- Số giấy tờ xác thực tổ chức: ${dot(d.to_gtso)}, Ngày cấp: ${d.to_gtngay?fd2(d.to_gtngay):'...'}, nơi cấp: ${dot(d.to_gtnoi)}</p>
+<p>- Người đại diện: ${dot(d.to_daidien)}&nbsp;&nbsp; Giới tính: ${d.to_daidien_gt||'Nam'}</p>
+<p>- Chức danh: ${dot(d.to_daidien_cv)}</p>
+` : `
+<p>a) Là cá nhân</p>
+<p>- Họ và tên: ${dot(d.vp_ten)}&nbsp;&nbsp; Giới tính: ${d.vp_gt||'Nữ'}</p>
+<p>- Ngày, tháng, năm sinh: ${d.vp_ns?fd2(d.vp_ns):'...'}&nbsp;&nbsp; Quốc tịch: ${dot(d.vp_qt)}</p>
+<p>- Nghề nghiệp: ${dot(d.vp_nn)}</p>
 <p>- Nơi ở hiện tại: ${dot(d.vp_noo)}</p>
+<p>- Loại giấy tờ xác thực nhân thân: ${dot(d.vp_gtloai)}</p>
+<p>- Số giấy tờ xác thực nhân thân: ${dot(d.vp_gtso)}, Ngày cấp: ${d.vp_gtngay?fd2(d.vp_gtngay):'...'}, nơi cấp: ${dot(d.vp_gtnoi)}</p>
+`}
 
 <p class="bold" style="margin-top:10px;">Tiến hành lập biên bản làm việc đối với chủ thể vi phạm nêu trên đã có hành vi vi phạm trong phạm vi bảo vệ công trình thủy lợi:</p>
 <p class="bold" style="margin-top:6px;">1. Thời gian:</p>
 <p>- Phát sinh vi phạm: ${fd2(d.ngay)} / ${yn(d.ngay)}</p>
 <p>- Phát hiện hành vi vi phạm: ${fd2(d.ngay)} / ${yn(d.ngay)}</p>
 <p class="bold" style="margin-top:6px;">2. Địa điểm, vị trí phát sinh hành vi vi phạm:</p>
-<p>- Tên công trình: ${dot(d.ct)}, Thuộc địa bàn: ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
+<p>- Tên công trình: ${dot(d.ct)}, Thuộc địa bàn: ${dot(d.dd)}, ${dot(d.px)}, Thành phố Hà Nội.</p>
 <p>- Phạm vi: Bờ ${dot(d.bo)} Sông ${dot(d.song)}</p>
 <p>- Từ Km ${dot(d.tu_km)}, đến Km ${dot(d.den_km)}</p>
 <p>- Tọa độ Gmaps điểm đầu: X = ${dot(d.x1)}, Y = ${dot(d.y1)}</p>
@@ -1015,36 +1109,41 @@ ${d.hv1?`<p>a) Hành vi 1: ${nl(d.hv1)}</p>`:'<p>a) Hành vi 1: ................
 ${d.kt?`<p style="margin-left:16px;">- Kích thước vi phạm: ${nl(d.kt)}</p>`:''}
 ${d.hv2?`<p>b) Hành vi 2: ${nl(d.hv2)}</p>`:''}
 ${d.hv3?`<p>c) Hành vi 3: ${nl(d.hv3)}</p>`:''}
+${d.hv4?`<p>d) Hành vi 4: ${nl(d.hv4)}</p>`:''}
+<p style="margin-top:4px;font-style:italic;">Quy định tại: ${dot(d.cancupl)}.</p>
 ${d.khp?`<p style="margin-top:6px;">- Yêu cầu khắc phục trước ngày ${fd2(d.khp)}.</p>`:''}
-<p style="margin-top:6px;">4. Ý kiến của người vi phạm: ${nl(d.yk_vp)||'.....................................................................'}</p>
-<p>6. Các biện pháp xử lý: Yêu cầu chủ thể vi phạm dừng hành vi vi phạm, tự thực hiện biện pháp khắc phục hậu quả, khôi phục tình trạng ban đầu của công trình thủy lợi trước khi phát sinh hành vi vi phạm trước ngày ${d.khp?fd2(d.khp):'...'} tháng ${d.khp?mm(d.khp):'...'} năm ${d.khp?yn(d.khp):'....'} và không được tái vi phạm.</p>
-<p>Biên bản lập xong hồi ${d.gio||'...'} giờ ..... phút cùng ngày, gồm 03 trang, được lập thành 03 bản có nội dung và giá trị như nhau.</p>
-<p>Lý do người vi phạm/đại diện tổ chức vi phạm không ký biên bản: ...................</p>
+<p style="margin-top:6px;">4. Ý kiến trình bày của đối tượng thực hiện hành vi vi phạm: ${nl(d.yk_vp)||'.....................................................................'}</p>
+<p style="margin-top:6px;">5. Ý kiến trình bày của người chứng kiến (nếu có): ${nl(d.yk_cx)||'.....................................................................'}</p>
+<p style="margin-top:6px;">6. Các biện pháp xử lý và ngăn chặn hậu quả: Yêu cầu chủ thể vi phạm dừng ngay hành vi, tự thực hiện biện pháp khắc phục hậu quả, khôi phục tình trạng ban đầu của công trình thủy lợi trước khi phát sinh hành vi; hoàn thành trước ngày ${d.khp?fd2(d.khp):'...'} tháng ${d.khp?mm(d.khp):'...'} năm ${d.khp?yn(d.khp):'....'} và không được tái vi phạm. Trong thời hạn 24 giờ kể từ thời điểm lập biên bản, nếu đối tượng không chấp hành đúng yêu cầu trên thì phải hoàn toàn chịu trách nhiệm trước pháp luật về hành vi vi phạm.</p>
+<p style="margin-top:6px;">7. Tang vật/phương tiện có liên quan đến hành vi (nếu có): ${nl(d.tv)||'Không có'}</p>
+<p style="margin-top:8px;">Biên bản lập xong hồi ${d.gio||'...'} giờ ..... phút cùng ngày, được lập thành 03 bản có nội dung và giá trị như nhau; đã đọc lại cho những người có tên trên cùng nghe, công nhận là đúng và cùng ký tên dưới đây; giao cho đối tượng thực hiện hành vi 01 bản, 01 bản lưu hồ sơ của Xí nghiệp, 01 bản gửi Chủ tịch UBND cấp xã để thực hiện trình tự xử phạt vi phạm hành chính trong lĩnh vực thủy lợi.</p>
+<p>Lý do đối tượng thực hiện hành vi không ký biên bản: ${dot(d.lydokk)}</p>
 <div class="sig">
   <div class="sig-box">
     <b>NGƯỜI CHỨNG KIẾN</b><br><i>(Ký, ghi rõ họ tên)</i>
     <div style="height:50px;"></div>
   </div>
   <div class="sig-box">
-    <b>NGƯỜI LẬP BIÊN BẢN</b><br><i>(Ký, ghi rõ họ tên, chức vụ)</i>
+    <b>NGƯỜI LẬP BIÊN BẢN</b><br><i>(Ký, ghi rõ chức vụ, họ tên)</i>
     <div style="height:50px;"></div>
     ${dot(d.n1)}
   </div>
 </div>
 <div style="text-align:center;margin-top:14px;">
-  <b>NGƯỜI VI PHẠM / ĐẠI DIỆN TỔ CHỨC VI PHẠM</b><br>
+  <b>ĐỐI TƯỢNG THỰC HIỆN HÀNH VI</b><br>
   <i>(Ký, ghi rõ họ tên)</i>
   <div style="height:50px;"></div>
-  ${dot(d.vp_ten)}
+  ${d.vp_loai==='to_chuc' ? dot(d.to_daidien) : dot(d.vp_ten)}
 </div>
 </div>
 
 <!-- ====== TRANG 2: SƠ HỌA MẶT BẰNG ====== -->
+
 <div class="page pb">
 <h2>Sơ họa mặt bằng hiện trạng vi phạm</h2>
 <p class="center"><i>(Kèm theo Biên bản làm việc ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)})</i></p>
-<p style="margin-top:10px;">- Họ và tên chủ hộ Ông (bà): ${dot(d.vp_ten)}</p>
-<p>- Địa điểm vi phạm: ${dot(d.dd)}, Phường ${dot(d.px)}, Tỉnh Ninh Bình.</p>
+<p style="margin-top:10px;">- Họ và tên chủ hộ/tổ chức: ${dot(vpName(d))}</p>
+<p>- Địa điểm vi phạm: ${dot(d.dd)}, ${dot(d.px)}, Thành phố Hà Nội.</p>
 <p>- Vị trí: K.${dot(d.tu_km)}, Bờ ${dot(d.bo)} Sông: ${dot(d.song)}</p>
 <div style="border:1px solid #000;padding:10px;margin:12px 0;min-height:280px;">
   ${skHtml}
@@ -1060,28 +1159,41 @@ ${d.khp?`<p style="margin-top:6px;">- Yêu cầu khắc phục trước ngày ${
 </div>
 </div>
 
-<!-- ====== TRANG 3: ẢNH + PHIẾU GIAO NHẬN ====== -->
+<!-- ====== TRANG 3: ẢNH ====== -->
 <div class="page pb">
 <h2>Ảnh chụp hiện trạng vi phạm</h2>
 <p class="center"><i>(Kèm theo Biên bản làm việc ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)})</i></p>
 <div style="margin-top:12px;">${phHtml}</div>
 </div>
 
+<!-- ====== TRANG 4: PHIẾU GIAO BIÊN BẢN ====== -->
+<div class="page pb">
+<h2>Phiếu giao biên bản</h2>
+<p style="margin-top:10px;text-align:justify;">Biên bản đã giao trực tiếp cho ông (bà) <b>${dot(vpName(d))}</b> là đối tượng/người đại diện cho tổ chức có hành vi vi phạm trong phạm vi bảo vệ công trình thủy lợi <b>${dot(d.ct)}</b> trên địa bàn ${dot(d.px)} vào hồi ${dot(d.gio)} giờ ..... phút, ngày ${fd2(d.ngay)}.</p>
+<div style="text-align:center;margin-top:40px;">
+  <b>NGƯỜI NHẬN BIÊN BẢN</b><br><i>(Ký, ghi rõ họ và tên)</i>
+  <div style="height:50px;"></div>
+  ${dot(vpName(d))}
+</div>
+</div>
+
+<!-- ====== TRANG 5: PHIẾU GIAO NHẬN ====== -->
+
 <div class="page pb">
 <div style="display:flex;justify-content:space-between;font-size:9pt;margin-bottom:8px;">
   <div style="text-align:center;width:45%;font-weight:bold;font-size:9pt;">
     CÔNG TY TNHH MỘT THÀNH VIÊN<br>ĐẦU TƯ PHÁT TRIỂN THUỶ LỢI SÔNG NHUỆ<br>
-    <b>XÍ NGHIỆP THUỶ LỢI NHẬT TỰU</b>
+    <b>XÍ NGHIỆP THUỶ LỢI THANH TRÌ</b>
   </div>
   <div style="text-align:center;width:50%;">
     CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
     <b><u>Độc lập - Tự do - Hạnh phúc</u></b><br>
-    <i>Ninh Bình, ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)}</i>
+    <i>Thanh Trì, ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)}</i>
   </div>
 </div>
 <h2>Phiếu giao nhận</h2>
 <h3>Hồ sơ vụ việc vi phạm trong phạm vi bảo vệ công trình thủy lợi</h3>
-<p style="margin-top:10px;text-align:justify;">Xí nghiệp Thuỷ lợi Nhật Tựu bàn giao hồ sơ vụ việc vi phạm trong phạm vi bảo vệ công trình thủy lợi, lập ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)} đối với chủ thể vi phạm <b>${dot(d.vp_ten)}</b> xây tại công trình thủy lợi <b>${dot(d.ct)}</b> trên địa bàn cho UBND xã/phường ${dot(d.px)}.</p>
+<p style="margin-top:10px;text-align:justify;">Xí nghiệp Thuỷ lợi Thanh Trì bàn giao hồ sơ vụ việc vi phạm trong phạm vi bảo vệ công trình thủy lợi, lập ngày ${dd2(d.ngay)} tháng ${mm(d.ngay)} năm ${yn(d.ngay)} đối với chủ thể vi phạm <b>${dot(vpName(d))}</b> xây tại công trình thủy lợi <b>${dot(d.ct)}</b> trên địa bàn cho UBND xã/phường ${dot(d.px)}.</p>
 <p style="margin-top:8px;"><b>1. Người giao:</b></p>
 <p>- Họ và tên ${dot(d.n1)}&nbsp;&nbsp; Chức vụ ${dot(d.cv1)}</p>
 <p><b>2. Người nhận:</b></p>
@@ -1135,7 +1247,7 @@ function previewPrint(d){
           color:#fff;padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;">
           ✕ Đóng
         </button>
-        <span style="flex:1;font-size:14px;font-weight:700;">Biên bản vi phạm — ${d.vp_ten||''}</span>
+        <span style="flex:1;font-size:14px;font-weight:700;">Biên bản vi phạm — ${(d.vp_loai==='to_chuc'?d.to_ten:d.vp_ten)||''}</span>
         <button onclick="window.print()"
           style="background:#e74c3c;border:none;color:#fff;padding:8px 16px;
           border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">
@@ -1251,7 +1363,7 @@ async function exportRealPdf(d){
       }
     }
 
-    const safeName = (d.vp_ten||'vuviec').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_');
+    const safeName = ((d.vp_loai==='to_chuc'?d.to_ten:d.vp_ten)||'vuviec').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_');
     const dateStr = (d.ngay||'').replace(/-/g,'') || new Date().toISOString().slice(0,10).replace(/-/g,'');
     pdf.save(`BienBan_${safeName}_${dateStr}.pdf`);
     if(/iPhone|iPad/i.test(navigator.userAgent)){

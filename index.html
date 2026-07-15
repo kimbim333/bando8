@@ -1595,7 +1595,7 @@ window.addEventListener('DOMContentLoaded',()=>{
           // auto-fill "Phường/xã" on the bien-ban handoff instead of the officer typing it.
           const adminMatch = name.match(/^(?:xã|phường|thị trấn)\s+(.+)$/i);
           if(adminMatch){
-            adminAreas.push({ name: adminMatch[1].trim(), latlngs });
+            adminAreas.push({ name: name.trim(), latlngs });
           }
 
           const fillColor = (kmlStyle && kmlStyle.polyColor) ? kmlStyle.polyColor.css :
@@ -2033,7 +2033,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     const responsiblePerson = (lookup && lookup.reason==='ok') ? lookup.person : '';
     const bbParams = new URLSearchParams({
       lat: near.point.lat.toFixed(6), lng: near.point.lng.toFixed(6),
-      ct: feature.name, km: station||'', px: px||'', nguoiPT: responsiblePerson, song: feature.name
+      ct: feature.name, km: station||'', px: px||'', nguoiPT: responsiblePerson, song: feature.name,
+      dd: px||''
     }).toString();
 
     panel.innerHTML=`
@@ -2064,7 +2065,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const px = findAdminArea(feature.latlng.lat, feature.latlng.lng);
     const bbParams = new URLSearchParams({
       lat: feature.latlng.lat.toFixed(6), lng: feature.latlng.lng.toFixed(6),
-      ct: feature.name, px: px||'', song: feature.name
+      ct: feature.name, px: px||'', song: feature.name, dd: px||''
     }).toString();
 
     panel.innerHTML=`
