@@ -1131,8 +1131,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnArea.classList.toggle('active', mode==='area');
     map.getContainer().style.cursor = 'crosshair';
     measureStatus.textContent = mode === 'distance'
-      ? 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (hoặc click thẳng lên bản đồ). Xong bấm "✓ Xong".'
-      : 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (hoặc click thẳng lên bản đồ, ≥3 điểm). Xong bấm "✓ Xong".';
+      ? 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm". Xong bấm "✓ Xong".'
+      : 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (≥3 điểm). Xong bấm "✓ Xong".';
     measureCrosshair.classList.add('show');
     measureFabRow.classList.add('show');
     updateMeasureFloatResult();
@@ -1286,10 +1286,12 @@ window.addEventListener('DOMContentLoaded',()=>{
   });
   btnMeasureUndoFab.addEventListener('click', undoLastMeasurePoint);
 
-  map.on('click', (e)=>{
-    if(!measureMode) return;
-    addMeasurePoint(e.latlng);
-  });
+  // NOTE: adding a point on direct map click used to also live here, but on some
+  // mobile browsers Leaflet's click-vs-drag detection misfires during a slow drag
+  // (each tiny movement gets miscounted as a separate tap), spamming points all
+  // along the drag path. Point placement now goes exclusively through the
+  // "＋ Thêm điểm" button (a normal DOM button click, immune to that touch quirk) —
+  // drag the map to line up the ⌖ crosshair, then tap the button.
   map.on('dblclick', (e)=>{
     if(!measureMode) return;
     finishMeasuring();
