@@ -1382,11 +1382,29 @@ window.addEventListener('DOMContentLoaded',()=>{
   const kmlStatus = document.getElementById('kml-status');
   const kmlLabel = document.getElementById('kml-label');
 
+  // Real icon images bundled inside a .kmz (Google Earth Pro exports custom point
+  // icons — trạm bơm, cống, mốc chỉ giới, etc — as actual PNG files in the archive's
+  // files/ folder). Keep them so markers can use the EXACT original image instead of
+  // an approximated generic SVG shape. Keyed by lowercase basename, accumulated across
+  // every KML/KMZ loaded this session (a later load can't accidentally erase icons an
+  // earlier load already registered).
+  let kmzImageMap = {};
+
   async function kmlOrKmzBufferToText(buf, filename){
     if(/\.kmz$/i.test(filename)){
       const zip = await JSZip.loadAsync(buf);
       const kmlEntry = Object.keys(zip.files).find(n=>/\.kml$/i.test(n));
       if(!kmlEntry) throw new Error('Không tìm thấy file .kml trong KMZ');
+      const imageEntries = Object.keys(zip.files).filter(n => /\.(png|jpg|jpeg|gif)$/i.test(n) && !zip.files[n].dir);
+      await Promise.all(imageEntries.map(async name=>{
+        try{
+          const ext = name.split('.').pop().toLowerCase();
+          const mime = ext==='png' ? 'image/png' : (ext==='gif' ? 'image/gif' : 'image/jpeg');
+          const base64 = await zip.files[name].async('base64');
+          const baseName = name.split('/').pop().toLowerCase();
+          kmzImageMap[baseName] = `data:${mime};base64,${base64}`;
+        }catch(e){ console.warn('Không đọc được ảnh trong KMZ:', name, e); }
+      }));
       return await zip.files[kmlEntry].async('text');
     }
     // plain .kml: buf may be ArrayBuffer (from fetch/file) — decode as UTF-8 text
@@ -1507,6 +1525,17 @@ window.addEventListener('DOMContentLoaded',()=>{
       if(!id) return; // inline styles (no id) are resolved per-Placemark instead
       stylesById[id] = readStyleBlock(styleEl);
     });
+    // Newer Google Earth Pro exports (the "managed style" format) wrap the actual
+    // <Style> inside <gx:CascadingStyle kml:id="..."> instead of using a plain
+    // <Style id="...">. Same content, different wrapper — without this, every
+    // Placemark using one of these (very common in current GE Pro exports) fell
+    // through to no-style-found and got a generic default icon.
+    Array.from(xml.getElementsByTagName('gx:CascadingStyle')).forEach(cascEl=>{
+      const id = cascEl.getAttribute('kml:id') || cascEl.getAttribute('id');
+      if(!id) return;
+      const innerStyle = cascEl.getElementsByTagName('Style')[0];
+      if(innerStyle) stylesById[id] = readStyleBlock(innerStyle);
+    });
     // StyleMap: map "normal" key to its referenced style (common in Google Earth exports)
     Array.from(xml.getElementsByTagName('StyleMap')).forEach(mapEl=>{
       const id = mapEl.getAttribute('id');
@@ -1533,6 +1562,28 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   // Map Google Earth KML <IconStyle><Icon><href> URL patterns → local SVG shape names
+  // Google Earth Pro sometimes exports custom point icons as small PNG files whose
+  // *filename* bakes in the RGB color directly (e.g. "kml_symbol_dot_custom_4_255_0_0_0.png"
+  // = red dot), instead of setting <IconStyle><color>. Since we can't fetch/inspect
+  // the actual PNG pixels, decode the color straight from the filename when present —
+  // this is what was making every merged mốc point render as a flat generic color:
+  // no <color> tag existed, and the href gave no shape keyword either.
+  function extractColorFromCustomIconFilename(href){
+    if(!href) return null;
+    const m = href.match(/dot_custom_\d+_(\d+)_(\d+)_(\d+)/i);
+    if(!m) return null;
+    const r = parseInt(m[1],10), g = parseInt(m[2],10), b = parseInt(m[3],10);
+    if([r,g,b].some(v=>isNaN(v)||v<0||v>255)) return null;
+    return `rgb(${r},${g},${b})`;
+  }
+  // "kml_symbol_no symbol_..." is Google Earth Pro's convention for a label-only point
+  // (no visible dot) — usually paired with a second Placemark at the same coordinates
+  // that carries the actual colored dot. Detect it so we don't draw a jarring generic
+  // circle stacked right on top of the real marker.
+  function isNoSymbolIconHref(href){
+    return !!href && /no[\s_]?symbol/i.test(href);
+  }
+
   function getIconShapeFromHref(href){
     if(!href) return 'circle';
     const h = href.toLowerCase();
@@ -1774,12 +1825,35 @@ window.addEventListener('DOMContentLoaded',()=>{
           const inferred = inferPointStyle(name);
           const iconHref  = (kmlStyle && kmlStyle.iconHref)  ? kmlStyle.iconHref  : '';
           const iconScale = (kmlStyle && kmlStyle.iconScale) ? kmlStyle.iconScale : 1;
-          const pointColor = (kmlStyle && kmlStyle.iconColor) ? kmlStyle.iconColor.css : inferred.color;
-          // Use href shape if KML provides one, otherwise fall back to name-inferred shape
+          const noSymbol = isNoSymbolIconHref(iconHref);
+          const pointColor = (kmlStyle && kmlStyle.iconColor) ? kmlStyle.iconColor.css
+                            : (extractColorFromCustomIconFilename(iconHref) || inferred.color);
           const iconShape = iconHref ? getIconShapeFromHref(iconHref) : inferred.iconShape;
 
+          // Prefer the ACTUAL icon image — either a live URL Google Earth points at
+          // directly (its newer web-icon service, e.g. "https://earth.google.com/earth/
+          // document/icon?color=...&id=...") which the browser can just fetch like any
+          // other <img>, or a file bundled inside a .kmz's files/ folder. This preserves
+          // the exact original look (trạm bơm, cống, mốc... each keep their real distinct
+          // icon) instead of approximating with one of 14 generic SVG shapes, which is
+          // what made every point start looking like a plain circle. Only falls back to
+          // the SVG-shape guesser when neither source has a usable image (e.g. a bare
+          // .kml was uploaded without its companion images).
+          const iconBaseName = iconHref ? iconHref.split('/').pop().toLowerCase() : '';
+          const realIconUrl = /^https?:\/\//i.test(iconHref) ? iconHref
+                             : (iconBaseName ? kmzImageMap[iconBaseName] : null);
+
+          let leafletIcon;
+          if(realIconUrl){
+            const sz = Math.round(28 * Math.max(0.5, Math.min(2.5, parseFloat(iconScale)||1)));
+            leafletIcon = L.icon({ iconUrl: realIconUrl, iconSize:[sz,sz], iconAnchor:[sz/2,sz/2] });
+          } else {
+            leafletIcon = makeSvgIcon(iconShape, noSymbol ? '#ffffff' : pointColor, noSymbol ? Math.max(0.5, iconScale*0.55) : iconScale);
+          }
+
           const marker = L.marker([p.lat,p.lng], {
-            icon: makeSvgIcon(iconShape, pointColor, iconScale)
+            icon: leafletIcon,
+            zIndexOffset: noSymbol ? 1000 : 0
           }).addTo(pointLayerGroup);
 
           const feature = { id: 'point-'+featureIdx, name, type:'point', layer: marker, latlng:p, ext, kindLabel: inferred.label, pointColor, visible:true, treeNodeId: node.id, parentFolder: parentFolderName||'' };
