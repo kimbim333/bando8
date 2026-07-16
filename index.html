@@ -1365,6 +1365,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   let adminAreas = [];
   // personSegments: { normalizedCanalName: [{from_m, to_m, person, raw_canal_name}], sorted asc by from_m }
   let personSegments = {};
+  let canalTypeMap = {}; // stripped canal name -> "Loại kênh" (from optional Excel column)
   let loadedSegmentKeys = new Set(); // dedup guard: canalKey|from_m|to_m|person, prevents double-counting if the same sheet/file is loaded twice
   let segmentWarnings = []; // text warnings about gaps/overlaps detected on last excel load
 
@@ -1691,7 +1692,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
     // Walk only the newly-added subtree (not the whole accumulated tree) so previously
     // loaded features are left untouched and don't get duplicated or re-styled.
-    function walkAndBuildFeatures(node){
+    function walkAndBuildFeatures(node, parentFolderName){
       if(node.type === 'placemark'){
         const pm = node.placemarkEl;
         const featureIdx = kmlLoadCount + '-' + (canalCount + pointCount);
@@ -1717,7 +1718,7 @@ window.addEventListener('DOMContentLoaded',()=>{
             color: lineColor, weight: lineWeight, opacity: 0.9
           }).addTo(canalLayerGroup);
 
-          const feature = { id: 'canal-'+featureIdx, name, type:'canal', layer: poly, latlngs, totalLength, ext, baseColor: lineColor, baseWeight: lineWeight, visible:true, treeNodeId: node.id };
+          const feature = { id: 'canal-'+featureIdx, name, type:'canal', layer: poly, latlngs, totalLength, ext, baseColor: lineColor, baseWeight: lineWeight, visible:true, treeNodeId: node.id, parentFolder: parentFolderName||'' };
           node.featureRef = feature;
           allFeatures.push(feature);
           canalCount++;
@@ -1781,7 +1782,7 @@ window.addEventListener('DOMContentLoaded',()=>{
             icon: makeSvgIcon(iconShape, pointColor, iconScale)
           }).addTo(pointLayerGroup);
 
-          const feature = { id: 'point-'+featureIdx, name, type:'point', layer: marker, latlng:p, ext, kindLabel: inferred.label, pointColor, visible:true, treeNodeId: node.id };
+          const feature = { id: 'point-'+featureIdx, name, type:'point', layer: marker, latlng:p, ext, kindLabel: inferred.label, pointColor, visible:true, treeNodeId: node.id, parentFolder: parentFolderName||'' };
           node.featureRef = feature;
           allFeatures.push(feature);
           pointCount++;
@@ -1790,10 +1791,10 @@ window.addEventListener('DOMContentLoaded',()=>{
           marker.on('click', ()=> handlePointClick(feature));
         }
       } else {
-        node.children.forEach(walkAndBuildFeatures);
+        node.children.forEach(c => walkAndBuildFeatures(c, node.name));
       }
     }
-    walkAndBuildFeatures(fileTree);
+    walkAndBuildFeatures(fileTree, fileTree.name);
 
     if(newBounds.length){
       let combined = newBounds[0];
@@ -1960,6 +1961,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const toKey = findKey(sample, ['kketthuc','denkketthuc','den','to','ketthuc'], [nameKey, fromKey]);
     const personKey = findKey(sample, ['nguoiphutrach','phutrach','nguoiquanly','person'], [nameKey, fromKey, toKey]);
     const descKey = findKey(sample, ['mota','ghichu','note','description'], [nameKey, fromKey, toKey, personKey]);
+    const typeKey = findKey(sample, ['loaikenh','loai','loaitb','kind','type'], [nameKey, fromKey, toKey, personKey, descKey]);
 
     if(!fromKey || !toKey || !personKey){
       xlsxStatus.textContent = `Không nhận diện đủ cột. Cần: K bắt đầu / K kết thúc / Người phụ trách (cột Tên kênh không bắt buộc nếu dùng tên sheet). Đã tìm thấy: ${fromKey||'?'} / ${toKey||'?'} / ${personKey||'?'}.`;
@@ -1979,9 +1981,11 @@ window.addEventListener('DOMContentLoaded',()=>{
       const toM = parseStationValue(row[toKey]);
       const person = String(row[personKey]||'').trim();
       const desc = descKey ? String(row[descKey]||'').trim() : '';
+      const loaiKenh = typeKey ? String(row[typeKey]||'').trim() : '';
       if(!canalNameRaw || fromM===null || toM===null || !person){ skipped++; return; }
       if(toM < fromM){ skipped++; return; }
       const key = stripDiacritics(canalNameRaw);
+      if(loaiKenh && !canalTypeMap[key]) canalTypeMap[key] = loaiKenh;
       const segDedupKey = key + '|' + fromM + '|' + toM + '|' + stripDiacritics(person);
       if(loadedSegmentKeys.has(segDedupKey)){ duplicates++; return; }
       loadedSegmentKeys.add(segDedupKey);
@@ -2039,13 +2043,49 @@ window.addEventListener('DOMContentLoaded',()=>{
     return null;
   }
 
+  // Geodesic distance on the WGS84 ellipsoid (Vincenty's inverse formula) — this is
+  // the same reference ellipsoid/method Google Earth Pro's own "Measurements" tab
+  // uses, so "Chiều dài" here now matches what GE Pro reports for the same line
+  // (previously used a simple mean-radius sphere formula, which is faster but
+  // systematically off by ~0.1-0.5% depending on latitude/bearing — exactly the
+  // kind of gap that showed up as "5,600m in GE Pro vs 5,620m in the app").
   function haversine(a, b){
-    const R = 6371000;
-    const toRad = d => d*Math.PI/180;
-    const dLat = toRad(b.lat-a.lat);
-    const dLon = toRad(b.lng-a.lng);
-    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
-    return 2*R*Math.asin(Math.sqrt(s));
+    const A = 6378137, B = 6356752.314245, F = 1/298.257223563; // WGS84 ellipsoid
+    const L = (b.lng - a.lng) * Math.PI/180;
+    const U1 = Math.atan((1-F) * Math.tan(a.lat*Math.PI/180));
+    const U2 = Math.atan((1-F) * Math.tan(b.lat*Math.PI/180));
+    const sinU1 = Math.sin(U1), cosU1 = Math.cos(U1);
+    const sinU2 = Math.sin(U2), cosU2 = Math.cos(U2);
+    let lambda = L, lambdaP, iterLimit = 100;
+    let sinSigma, cosSigma, sigma, sinAlpha, cosSqAlpha, cos2SigmaM;
+    do {
+      const sinLambda = Math.sin(lambda), cosLambda = Math.cos(lambda);
+      sinSigma = Math.sqrt((cosU2*sinLambda)*(cosU2*sinLambda) + (cosU1*sinU2-sinU1*cosU2*cosLambda)*(cosU1*sinU2-sinU1*cosU2*cosLambda));
+      if(sinSigma === 0) return 0; // coincident points
+      cosSigma = sinU1*sinU2 + cosU1*cosU2*cosLambda;
+      sigma = Math.atan2(sinSigma, cosSigma);
+      sinAlpha = cosU1*cosU2*sinLambda/sinSigma;
+      cosSqAlpha = 1 - sinAlpha*sinAlpha;
+      cos2SigmaM = cosSqAlpha!==0 ? (cosSigma - 2*sinU1*sinU2/cosSqAlpha) : 0;
+      const C = F/16*cosSqAlpha*(4+F*(4-3*cosSqAlpha));
+      lambdaP = lambda;
+      lambda = L + (1-C)*F*sinAlpha*(sigma + C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)));
+    } while(Math.abs(lambda-lambdaP) > 1e-12 && --iterLimit>0);
+
+    if(iterLimit===0){
+      // Formula failed to converge (only happens for near-antipodal points, which
+      // never occurs for kênh a few km long) — fall back to the old sphere formula.
+      const R=6371000, toRad=d=>d*Math.PI/180;
+      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+      const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s));
+    }
+
+    const uSq = cosSqAlpha*(A*A-B*B)/(B*B);
+    const a1 = 1+uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
+    const b1 = uSq/1024*(256+uSq*(-128+uSq*(74-47*uSq)));
+    const deltaSigma = b1*sinSigma*(cos2SigmaM+b1/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-b1/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
+    return B*a1*(sigma-deltaSigma);
   }
 
   function nearestPointOnLine(latlngs, click){

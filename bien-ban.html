@@ -709,10 +709,42 @@ function bbParseCoordString(s){
   }).filter(p=>!isNaN(p.lat)&&!isNaN(p.lng));
 }
 function bbHaversine(a,b){
-  const R=6371000, toRad=d=>d*Math.PI/180;
-  const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
-  const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
-  return 2*R*Math.asin(Math.sqrt(s));
+  // WGS84 ellipsoid geodesic distance (Vincenty's inverse formula) — matches
+  // Google Earth Pro's own length measurement and index.html's calculation
+  // (a plain sphere formula here was off by ~0.1-0.5% depending on latitude/bearing).
+  const A=6378137, B=6356752.314245, F=1/298.257223563;
+  const L=(b.lng-a.lng)*Math.PI/180;
+  const U1=Math.atan((1-F)*Math.tan(a.lat*Math.PI/180));
+  const U2=Math.atan((1-F)*Math.tan(b.lat*Math.PI/180));
+  const sinU1=Math.sin(U1), cosU1=Math.cos(U1), sinU2=Math.sin(U2), cosU2=Math.cos(U2);
+  let lambda=L, lambdaP, iterLimit=100;
+  let sinSigma, cosSigma, sigma, sinAlpha, cosSqAlpha, cos2SigmaM;
+  do{
+    const sinLambda=Math.sin(lambda), cosLambda=Math.cos(lambda);
+    sinSigma=Math.sqrt((cosU2*sinLambda)**2 + (cosU1*sinU2-sinU1*cosU2*cosLambda)**2);
+    if(sinSigma===0) return 0;
+    cosSigma=sinU1*sinU2+cosU1*cosU2*cosLambda;
+    sigma=Math.atan2(sinSigma,cosSigma);
+    sinAlpha=cosU1*cosU2*sinLambda/sinSigma;
+    cosSqAlpha=1-sinAlpha*sinAlpha;
+    cos2SigmaM=cosSqAlpha!==0 ? (cosSigma-2*sinU1*sinU2/cosSqAlpha) : 0;
+    const C=F/16*cosSqAlpha*(4+F*(4-3*cosSqAlpha));
+    lambdaP=lambda;
+    lambda=L+(1-C)*F*sinAlpha*(sigma+C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)));
+  } while(Math.abs(lambda-lambdaP)>1e-12 && --iterLimit>0);
+
+  if(iterLimit===0){
+    const R=6371000, toRad=d=>d*Math.PI/180;
+    const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+    const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  }
+
+  const uSq=cosSqAlpha*(A*A-B*B)/(B*B);
+  const a1=1+uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
+  const b1=uSq/1024*(256+uSq*(-128+uSq*(74-47*uSq)));
+  const deltaSigma=b1*sinSigma*(cos2SigmaM+b1/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-b1/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
+  return B*a1*(sigma-deltaSigma);
 }
 function bbLineLength(latlngs){
   let t=0; for(let i=0;i<latlngs.length-1;i++) t+=bbHaversine(latlngs[i],latlngs[i+1]); return t;
