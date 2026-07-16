@@ -1366,6 +1366,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   // personSegments: { normalizedCanalName: [{from_m, to_m, person, raw_canal_name}], sorted asc by from_m }
   let personSegments = {};
   let canalTypeMap = {}; // stripped canal name -> "Loại kênh" (from optional Excel column)
+  let canalSizeMap = {}; // stripped canal name -> "Kích thước mặt cắt" (from optional Excel column)
+  let canalFlowMap = {}; // stripped canal name -> "Lưu lượng" (from optional Excel column)
   let loadedSegmentKeys = new Set(); // dedup guard: canalKey|from_m|to_m|person, prevents double-counting if the same sheet/file is loaded twice
   let segmentWarnings = []; // text warnings about gaps/overlaps detected on last excel load
 
@@ -1606,6 +1608,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Fallback when KML Placemark has no style: guess shape+color from name
   function inferPointStyle(name){
     const n = stripDiacritics(name);
+    if(n.includes('be xa')) return { color:'#4fb6e8', label:'Cống',           iconShape:'diamond' };
     if(n.includes('tram')) return { color:'#e0a23a', label:'Trạm bơm',      iconShape:'paddle'  };
     if(n.includes('cong')) return { color:'#4fb6e8', label:'Cống',           iconShape:'diamond' };
     if(n.includes('moc'))  return { color:'#c4a3e8', label:'Mốc chỉ giới',   iconShape:'pushpin' };
@@ -1892,6 +1895,60 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Synthetic column key used when sheet name is injected as the canal name
   const INJECTED_CANAL_COL = '__sheetNameAsCanal__';
 
+  // Extra structured info for Trạm bơm / Cống points, loaded from optional "TramBom" /
+  // "Cong" sheets in the same Excel workbook as the kênh phụ trách data. Keyed by
+  // stripped-diacritics point name (same matching convention as personSegments).
+  let tramBomInfoMap = {};
+  let congInfoMap = {};
+
+  function loadTramBomSheet(rows){
+    const sample = rows[0];
+    const nameKey = findKey(sample, ['tentramborn','tentrambom','tram','name']);
+    const xaKey = findKey(sample, ['thuocxa','xa','phuongxa'], [nameKey]);
+    const somayKey = findKey(sample, ['somay','somayborn'], [nameKey, xaKey]);
+    const congsuatKey = findKey(sample, ['congsuat','cs'], [nameKey, xaKey, somayKey]);
+    const hinhthucKey = findKey(sample, ['hinhthucphucvu','hinhthuc','phucvu'], [nameKey, xaKey, somayKey, congsuatKey]);
+    const cumKey = findKey(sample, ['cumquanly','cum'], [nameKey, xaKey, somayKey, congsuatKey, hinhthucKey]);
+    if(!nameKey) return 0;
+    let loaded = 0;
+    rows.forEach(row=>{
+      const rawName = String(row[nameKey]||'').trim();
+      if(!rawName) return;
+      const key = stripDiacritics(rawName);
+      tramBomInfoMap[key] = {
+        xa: xaKey ? String(row[xaKey]||'').trim() : '',
+        somay: somayKey ? String(row[somayKey]||'').trim() : '',
+        congsuat: congsuatKey ? String(row[congsuatKey]||'').trim() : '',
+        hinhthuc: hinhthucKey ? String(row[hinhthucKey]||'').trim() : '',
+        cum: cumKey ? String(row[cumKey]||'').trim() : '',
+      };
+      loaded++;
+    });
+    return loaded;
+  }
+
+  function loadCongSheet(rows){
+    const sample = rows[0];
+    const nameKey = findKey(sample, ['tencong','cong','name']);
+    const kichthuocKey = findKey(sample, ['kichthuoc','kichco','size'], [nameKey]);
+    const loaiKey = findKey(sample, ['loaicong','loai'], [nameKey, kichthuocKey]);
+    const kieuKey = findKey(sample, ['kieucong','kieu'], [nameKey, kichthuocKey, loaiKey]);
+    if(!nameKey) return 0;
+    let loaded = 0;
+    rows.forEach(row=>{
+      const rawName = String(row[nameKey]||'').trim();
+      if(!rawName) return;
+      const key = stripDiacritics(rawName);
+      congInfoMap[key] = {
+        kichthuoc: kichthuocKey ? String(row[kichthuocKey]||'').trim() : '',
+        loai: loaiKey ? String(row[loaiKey]||'').trim() : '',
+        kieu: kieuKey ? String(row[kieuKey]||'').trim() : '',
+      };
+      loaded++;
+    });
+    return loaded;
+  }
+
   // Scan every sheet and return all that have from/to/person columns (Tên kênh is OPTIONAL).
   // When Tên kênh is absent, the sheet name itself becomes the canal name —
   // this is the user's format: one sheet per canal.
@@ -1941,8 +1998,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   function processXlsxBuffer(buf){
     const wb = XLSX.read(buf, { type: 'array' });
     const dataSheets = pickAllDataSheets(wb);
-    if(dataSheets.length === 0){
-      xlsxStatus.textContent = `Không tìm thấy sheet nào có đủ cột (K bắt đầu / K kết thúc / Người phụ trách) trong số ${wb.SheetNames.length} sheet: ${wb.SheetNames.join(', ')}.`;
+
+    // Also scan every sheet for the optional "TramBom" / "Cong" formats (separate
+    // from the kênh phụ trách sheets above — a sheet can only match one format).
+    let tramBomLoaded = 0, congLoaded = 0;
+    wb.SheetNames.forEach(sheetName=>{
+      if(dataSheets.some(s=>s.sheetName===sheetName)) return; // already claimed as a kênh sheet
+      const rows = findHeaderRow(wb.Sheets[sheetName]);
+      if(!rows.length) return;
+      const sample = rows[0];
+      const looksLikeTramBom = findKey(sample, ['somay','congsuat','hinhthucphucvu','cumquanly']);
+      const looksLikeCong = !looksLikeTramBom && findKey(sample, ['kichthuoc','loaicong','kieucong']);
+      if(looksLikeTramBom) tramBomLoaded += loadTramBomSheet(rows);
+      else if(looksLikeCong) congLoaded += loadCongSheet(rows);
+    });
+
+    if(dataSheets.length === 0 && tramBomLoaded===0 && congLoaded===0){
+      xlsxStatus.textContent = `Không tìm thấy sheet nào có đủ cột (K bắt đầu / K kết thúc / Người phụ trách, hoặc cột trạm bơm/cống) trong số ${wb.SheetNames.length} sheet: ${wb.SheetNames.join(', ')}.`;
       xlsxStatus.className = 'status-line err';
       return;
     }
@@ -1959,7 +2031,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     const sheetNamesNote = dataSheets.length > 1
       ? `${dataSheets.length} sheet (${dataSheets.map(s=>s.sheetName).join(', ')})`
       : (wb.SheetNames.length > 1 ? dataSheets[0].sheetName : null);
-    loadPersonData(mergedRows, sheetNamesNote);
+    if(mergedRows.length) loadPersonData(mergedRows, sheetNamesNote);
+    if(tramBomLoaded || congLoaded){
+      const extra = `Đã nạp thêm ${tramBomLoaded} trạm bơm, ${congLoaded} cống.`;
+      xlsxStatus.textContent = (xlsxStatus.textContent ? xlsxStatus.textContent + ' ' : '') + extra;
+      xlsxStatus.className = 'status-line ok';
+    }
   }
 
   xlsxInput.addEventListener('change', async (e)=>{
@@ -2036,6 +2113,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     const personKey = findKey(sample, ['nguoiphutrach','phutrach','nguoiquanly','person'], [nameKey, fromKey, toKey]);
     const descKey = findKey(sample, ['mota','ghichu','note','description'], [nameKey, fromKey, toKey, personKey]);
     const typeKey = findKey(sample, ['loaikenh','loai','loaitb','kind','type'], [nameKey, fromKey, toKey, personKey, descKey]);
+    const sizeKey = findKey(sample, ['kichthuocmatcat','mattatkenh','matcat','kichthuoc'], [nameKey, fromKey, toKey, personKey, descKey, typeKey]);
+    const flowKey = findKey(sample, ['luuluong','luuluongkenh','qmax','luuluongm3s'], [nameKey, fromKey, toKey, personKey, descKey, typeKey, sizeKey]);
 
     if(!fromKey || !toKey || !personKey){
       xlsxStatus.textContent = `Không nhận diện đủ cột. Cần: K bắt đầu / K kết thúc / Người phụ trách (cột Tên kênh không bắt buộc nếu dùng tên sheet). Đã tìm thấy: ${fromKey||'?'} / ${toKey||'?'} / ${personKey||'?'}.`;
@@ -2056,10 +2135,14 @@ window.addEventListener('DOMContentLoaded',()=>{
       const person = String(row[personKey]||'').trim();
       const desc = descKey ? String(row[descKey]||'').trim() : '';
       const loaiKenh = typeKey ? String(row[typeKey]||'').trim() : '';
+      const kichThuoc = sizeKey ? String(row[sizeKey]||'').trim() : '';
+      const luuLuong = flowKey ? String(row[flowKey]||'').trim() : '';
       if(!canalNameRaw || fromM===null || toM===null || !person){ skipped++; return; }
       if(toM < fromM){ skipped++; return; }
       const key = stripDiacritics(canalNameRaw);
       if(loaiKenh && !canalTypeMap[key]) canalTypeMap[key] = loaiKenh;
+      if(kichThuoc && !canalSizeMap[key]) canalSizeMap[key] = kichThuoc;
+      if(luuLuong && !canalFlowMap[key]) canalFlowMap[key] = luuLuong;
       const segDedupKey = key + '|' + fromM + '|' + toM + '|' + stripDiacritics(person);
       if(loadedSegmentKeys.has(segDedupKey)){ duplicates++; return; }
       loadedSegmentKeys.add(segDedupKey);
@@ -2296,11 +2379,21 @@ window.addEventListener('DOMContentLoaded',()=>{
       dd: px||''
     }).toString();
 
+    // Optional canal-level attributes loaded from the Excel (apply to the whole
+    // kênh regardless of which segment/person the click falls in).
+    const canalKey = stripDiacritics(feature.name);
+    const loaiKenh = canalTypeMap[canalKey];
+    const kichThuoc = canalSizeMap[canalKey];
+    const luuLuong = canalFlowMap[canalKey];
+
     panel.innerHTML=`
       <div class="info-card">
         <span class="tag canal">Kênh / tuyến</span>
         <h2>${escapeHtml(feature.name)}</h2>
         ${feature.totalLength>0?`<div class="info-row"><span class="k">Chiều dài</span><span class="v">${feature.totalLength.toFixed(0)} m</span></div>`:''}
+        ${loaiKenh?`<div class="info-row"><span class="k">Loại kênh</span><span class="v">${escapeHtml(loaiKenh)}</span></div>`:''}
+        ${kichThuoc?`<div class="info-row"><span class="k">Kích thước mặt cắt</span><span class="v">${escapeHtml(kichThuoc)}</span></div>`:''}
+        ${luuLuong?`<div class="info-row"><span class="k">Lưu lượng</span><span class="v">${escapeHtml(luuLuong)}</span></div>`:''}
         ${station?`<div class="info-row"><span class="k">Vị trí chọn</span><span class="v big">${station}</span></div>`:''}
         <div class="info-row"><span class="k">Tọa độ</span><span class="v">${near.point.lat.toFixed(6)}, ${near.point.lng.toFixed(6)}</span></div>
         ${px?`<div class="info-row"><span class="k">Xã/Phường</span><span class="v">${escapeHtml(px)}</span></div>`:''}
@@ -2322,9 +2415,42 @@ window.addEventListener('DOMContentLoaded',()=>{
       extHtml=`<div class="ext-data">`+feature.ext.map(e=>`<div class="ext-row"><b>${escapeHtml(e.k)}:</b> ${escapeHtml(e.v)}</div>`).join('')+`</div>`;
 
     const px = findAdminArea(feature.latlng.lat, feature.latlng.lng);
+
+    // Trạm bơm / Cống: pull in the structured extra info loaded from the optional
+    // "TramBom" / "Cong" Excel sheets, keyed by point name (same fuzzy match style
+    // as the kênh phụ trách lookup). Cống additionally gets its K-cọc auto-computed
+    // by projecting onto the nearest kênh — the officer never has to read it off a
+    // ruler, it's derived the same way GPS-based K-cọc is elsewhere in the app.
+    let structuredHtml = '';
+    let kCocForBB = '';
+    if(feature.kindLabel === 'Trạm bơm'){
+      const info = tramBomInfoMap[stripDiacritics(feature.name)];
+      if(info){
+        structuredHtml = [
+          info.xa && `<div class="info-row"><span class="k">Thuộc xã</span><span class="v">${escapeHtml(info.xa)}</span></div>`,
+          info.somay && `<div class="info-row"><span class="k">Số máy</span><span class="v">${escapeHtml(info.somay)}</span></div>`,
+          info.congsuat && `<div class="info-row"><span class="k">Công suất</span><span class="v">${escapeHtml(info.congsuat)}</span></div>`,
+          info.hinhthuc && `<div class="info-row"><span class="k">Hình thức phục vụ</span><span class="v">${escapeHtml(info.hinhthuc)}</span></div>`,
+          info.cum && `<div class="info-row"><span class="k">Cụm quản lý</span><span class="v">${escapeHtml(info.cum)}</span></div>`,
+        ].filter(Boolean).join('');
+      }
+    } else if(feature.kindLabel === 'Cống'){
+      const info = congInfoMap[stripDiacritics(feature.name)];
+      const nearHit = findNearestCanal(feature.latlng, 60);
+      const kCocRow = nearHit
+        ? `<div class="info-row"><span class="k">K-cọc kênh</span><span class="v big">${formatStation(nearHit.near.cumDist)} <span style="font-weight:400;font-size:11.5px;color:var(--text-2);">(${escapeHtml(nearHit.feature.name)})</span></span></div>`
+        : '';
+      kCocForBB = nearHit ? formatStation(nearHit.near.cumDist) : '';
+      structuredHtml = kCocRow + (info ? [
+        info.kichthuoc && `<div class="info-row"><span class="k">Kích thước</span><span class="v">${escapeHtml(info.kichthuoc)}</span></div>`,
+        info.loai && `<div class="info-row"><span class="k">Loại cống</span><span class="v">${escapeHtml(info.loai)}</span></div>`,
+        info.kieu && `<div class="info-row"><span class="k">Kiểu cống</span><span class="v">${escapeHtml(info.kieu)}</span></div>`,
+      ].filter(Boolean).join('') : '');
+    }
+
     const bbParams = new URLSearchParams({
       lat: feature.latlng.lat.toFixed(6), lng: feature.latlng.lng.toFixed(6),
-      ct: feature.name, px: px||'', song: feature.name, dd: px||''
+      ct: feature.name, px: px||'', song: feature.name, dd: px||'', km: kCocForBB
     }).toString();
 
     panel.innerHTML=`
@@ -2333,6 +2459,7 @@ window.addEventListener('DOMContentLoaded',()=>{
         <h2>${escapeHtml(feature.name)}</h2>
         <div class="info-row"><span class="k">Tọa độ</span><span class="v">${feature.latlng.lat.toFixed(6)}, ${feature.latlng.lng.toFixed(6)}</span></div>
         ${px?`<div class="info-row"><span class="k">Xã/Phường</span><span class="v">${escapeHtml(px)}</span></div>`:''}
+        ${structuredHtml}
         ${extHtml}
         ${(!feature.ext||!feature.ext.length)?`<div class="note-box">Bạn có thể thêm ghi chú vào thẻ &lt;description&gt; của Placemark này trong KML/KMZ — nội dung sẽ tự hiện ở đây.</div>`:''}
         <a href="bien-ban.html?${bbParams}"
