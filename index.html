@@ -1097,14 +1097,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(!hit) return; // not near any kênh — leave the info panel alone
     if(isFirstFix) gpsStationActive = true;
     if(!gpsStationActive) return; // user closed the panel — stop auto-refreshing
-    const station = formatStation(hit.near.cumDist);
+    const station = formatStation(getEffectiveDist(hit.feature, hit.near.cumDist));
     const key = stripDiacritics(hit.feature.name);
     let segments = personSegments[key];
     if(!segments){
       const subKey = Object.keys(personSegments).find(k => k.includes(key) || key.includes(k));
       if(subKey) segments = personSegments[subKey];
     }
-    const lookup = findResponsible(hit.near.cumDist, segments||[]);
+    const lookup = findResponsible(getEffectiveDist(hit.feature, hit.near.cumDist), segments||[]);
     if(highlightMarker) map.removeLayer(highlightMarker);
     highlightMarker = L.circleMarker([hit.near.point.lat, hit.near.point.lng], {
       radius:8, color:'#fff', weight:2, fillColor:'#e85d75', fillOpacity:1
@@ -1363,6 +1363,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   let canalTypeMap = {}; // stripped canal name -> "Loại kênh" (from optional Excel column)
   let canalSizeMap = {}; // stripped canal name -> "Kích thước mặt cắt" (from optional Excel column)
   let canalFlowMap = {}; // stripped canal name -> "Lưu lượng" (from optional Excel column)
+  // stripped canal name -> K offset in meters (added to every raw arc-length-from-
+  // line-start distance for that canal). Needed when a kênh's real K0 doesn't sit
+  // at the KML line's first vertex — e.g. Sông Nhuệ/Kênh Bắc continue numbering
+  // from an upstream xí nghiệp, so K0 in this app's line ≠ the real surveyed K0.
+  let canalOffsetMap = {};
   let loadedSegmentKeys = new Set(); // dedup guard: canalKey|from_m|to_m|person, prevents double-counting if the same sheet/file is loaded twice
   let segmentWarnings = []; // text warnings about gaps/overlaps detected on last excel load
 
@@ -1372,6 +1377,16 @@ window.addEventListener('DOMContentLoaded',()=>{
       .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/đ/g,'d')
       .trim();
+  }
+
+  // Stricter matching key for Trạm bơm / Cống Excel lookups: on top of stripping
+  // diacritics, also strip ALL whitespace and punctuation. Real-world KML vs Excel
+  // names often differ only in spacing/punctuation (e.g. "CT2(dẫn nước T4)" in the
+  // KML vs "CT2 (dẫn nước T4)" in Excel) — those should still match. This is
+  // intentionally NOT used for kênh/xã name matching elsewhere, only for the point
+  // Excel lookups added here, to avoid changing behavior that's already working.
+  function normalizeForMatch(str){
+    return stripDiacritics(str).replace(/[^a-z0-9]/g, '');
   }
 
   /* ===================== KML / KMZ PARSING ===================== */
@@ -1909,7 +1924,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     rows.forEach(row=>{
       const rawName = String(row[nameKey]||'').trim();
       if(!rawName) return;
-      const key = stripDiacritics(rawName);
+      const key = normalizeForMatch(rawName);
       tramBomInfoMap[key] = {
         xa: xaKey ? String(row[xaKey]||'').trim() : '',
         somay: somayKey ? String(row[somayKey]||'').trim() : '',
@@ -1933,7 +1948,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     rows.forEach(row=>{
       const rawName = String(row[nameKey]||'').trim();
       if(!rawName) return;
-      const key = stripDiacritics(rawName);
+      const key = normalizeForMatch(rawName);
       congInfoMap[key] = {
         kichthuoc: kichthuocKey ? String(row[kichthuocKey]||'').trim() : '',
         loai: loaiKey ? String(row[loaiKey]||'').trim() : '',
@@ -2110,6 +2125,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const typeKey = findKey(sample, ['loaikenh','loai','loaitb','kind','type'], [nameKey, fromKey, toKey, personKey, descKey]);
     const sizeKey = findKey(sample, ['kichthuocmatcat','mattatkenh','matcat','kichthuoc'], [nameKey, fromKey, toKey, personKey, descKey, typeKey]);
     const flowKey = findKey(sample, ['luuluong','luuluongkenh','qmax','luuluongm3s'], [nameKey, fromKey, toKey, personKey, descKey, typeKey, sizeKey]);
+    const offsetKey = findKey(sample, ['kgoctuyen','kgoc','koffset','kbatdautuyen'], [nameKey, fromKey, toKey, personKey, descKey, typeKey, sizeKey, flowKey]);
 
     if(!fromKey || !toKey || !personKey){
       xlsxStatus.textContent = `Không nhận diện đủ cột. Cần: K bắt đầu / K kết thúc / Người phụ trách (cột Tên kênh không bắt buộc nếu dùng tên sheet). Đã tìm thấy: ${fromKey||'?'} / ${toKey||'?'} / ${personKey||'?'}.`;
@@ -2132,12 +2148,24 @@ window.addEventListener('DOMContentLoaded',()=>{
       const loaiKenh = typeKey ? String(row[typeKey]||'').trim() : '';
       const kichThuoc = sizeKey ? String(row[sizeKey]||'').trim() : '';
       const luuLuong = flowKey ? String(row[flowKey]||'').trim() : '';
+      const offsetRaw = offsetKey ? row[offsetKey] : null;
+      // Canal-level attributes (loại/kích thước/lưu lượng/K gốc) apply to the whole
+      // kênh and should be picked up even on a row that has no valid phụ trách
+      // segment yet (e.g. a newly-added reference line with no assigned person),
+      // so this reads them BEFORE the mandatory-fields gate below.
+      if(canalNameRaw){
+        const key0 = stripDiacritics(canalNameRaw);
+        if(loaiKenh && !canalTypeMap[key0]) canalTypeMap[key0] = loaiKenh;
+        if(kichThuoc && !canalSizeMap[key0]) canalSizeMap[key0] = kichThuoc;
+        if(luuLuong && !canalFlowMap[key0]) canalFlowMap[key0] = luuLuong;
+        if(offsetRaw!==null && offsetRaw!=='' && !(key0 in canalOffsetMap)){
+          const offsetM0 = parseStationValue(offsetRaw);
+          if(offsetM0!==null) canalOffsetMap[key0] = offsetM0;
+        }
+      }
       if(!canalNameRaw || fromM===null || toM===null || !person){ skipped++; return; }
       if(toM < fromM){ skipped++; return; }
       const key = stripDiacritics(canalNameRaw);
-      if(loaiKenh && !canalTypeMap[key]) canalTypeMap[key] = loaiKenh;
-      if(kichThuoc && !canalSizeMap[key]) canalSizeMap[key] = kichThuoc;
-      if(luuLuong && !canalFlowMap[key]) canalFlowMap[key] = luuLuong;
       const segDedupKey = key + '|' + fromM + '|' + toM + '|' + stripDiacritics(person);
       if(loadedSegmentKeys.has(segDedupKey)){ duplicates++; return; }
       loadedSegmentKeys.add(segDedupKey);
@@ -2276,6 +2304,16 @@ window.addEventListener('DOMContentLoaded',()=>{
     return `K${km}+${String(rem).padStart(3,'0')}`;
   }
 
+  // Adds the canal's "K gốc tuyến" offset (if any was set via Excel) to a raw
+  // arc-length-from-line-start distance, so K-cọc reflects the real surveyed
+  // station numbering instead of always starting at K0 at the KML line's first
+  // vertex — needed for kênh whose real K0 lies upstream in another xí nghiệp's
+  // jurisdiction (e.g. Sông Nhuệ, Kênh Bắc).
+  function getEffectiveDist(feature, rawMeters){
+    const offset = canalOffsetMap[stripDiacritics(feature.name)] || 0;
+    return rawMeters + offset;
+  }
+
   function findResponsible(stationM, segments){
     if(!segments || segments.length===0) return { person:null, reason:'no-data' };
     for(const s of segments){
@@ -2293,7 +2331,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     let station, near;
     if(feature.latlngs && feature.latlngs.length >= 2 && feature.totalLength > 0){
       near = nearestPointOnLine(feature.latlngs, clickLatLng);
-      station = formatStation(near.cumDist);
+      station = formatStation(getEffectiveDist(feature, near.cumDist));
     } else {
       // Polygon or zero-length — show center coords
       const bounds = feature.layer.getBounds ? feature.layer.getBounds() : null;
@@ -2318,7 +2356,7 @@ window.addEventListener('DOMContentLoaded',()=>{
                           .filter(x=>x.score>=2).sort((a,b)=>b.score-a.score)[0];
       if(best) segments = personSegments[best.k];
     }
-    const lookup = findResponsible(near.cumDist, segments||[]);
+    const lookup = findResponsible(getEffectiveDist(feature, near.cumDist), segments||[]);
 
     if(highlightMarker) map.removeLayer(highlightMarker);
     if(station){
@@ -2420,33 +2458,38 @@ window.addEventListener('DOMContentLoaded',()=>{
     // as the kênh phụ trách lookup). Cống additionally gets its K-cọc auto-computed
     // by projecting onto the nearest kênh — the officer never has to read it off a
     // ruler, it's derived the same way GPS-based K-cọc is elsewhere in the app.
+    //
+    // IMPORTANT: whether to show Trạm bơm / Cống fields is decided by whether the
+    // point's name actually has a matching row in the Excel — NOT by the icon-based
+    // kindLabel guess. Real-world naming (e.g. "CT2" for a cống) often doesn't
+    // contain the literal word "trạm"/"cống", so kindLabel alone was silently
+    // hiding correctly-entered Excel data for such points.
+    const matchKey = normalizeForMatch(feature.name);
+    const tramInfo = tramBomInfoMap[matchKey];
+    const congInfo = congInfoMap[matchKey];
     let structuredHtml = '';
     let kCocForBB = '';
     let hasExcelInfo = false;
-    if(feature.kindLabel === 'Trạm bơm'){
-      const info = tramBomInfoMap[stripDiacritics(feature.name)];
-      if(info){
-        hasExcelInfo = true;
-        structuredHtml = [
-          info.xa && `<div class="info-row"><span class="k">Thuộc xã</span><span class="v">${escapeHtml(info.xa)}</span></div>`,
-          info.somay && `<div class="info-row"><span class="k">Số máy</span><span class="v">${escapeHtml(info.somay)}</span></div>`,
-          info.congsuat && `<div class="info-row"><span class="k">Công suất</span><span class="v">${escapeHtml(info.congsuat)}</span></div>`,
-          info.hinhthuc && `<div class="info-row"><span class="k">Hình thức phục vụ</span><span class="v">${escapeHtml(info.hinhthuc)}</span></div>`,
-          info.cum && `<div class="info-row"><span class="k">Cụm quản lý</span><span class="v">${escapeHtml(info.cum)}</span></div>`,
-        ].filter(Boolean).join('');
-      }
-    } else if(feature.kindLabel === 'Cống'){
-      const info = congInfoMap[stripDiacritics(feature.name)];
-      if(info) hasExcelInfo = true;
+    if(tramInfo){
+      hasExcelInfo = true;
+      structuredHtml = [
+        tramInfo.xa && `<div class="info-row"><span class="k">Thuộc xã</span><span class="v">${escapeHtml(tramInfo.xa)}</span></div>`,
+        tramInfo.somay && `<div class="info-row"><span class="k">Số máy</span><span class="v">${escapeHtml(tramInfo.somay)}</span></div>`,
+        tramInfo.congsuat && `<div class="info-row"><span class="k">Công suất</span><span class="v">${escapeHtml(tramInfo.congsuat)}</span></div>`,
+        tramInfo.hinhthuc && `<div class="info-row"><span class="k">Hình thức phục vụ</span><span class="v">${escapeHtml(tramInfo.hinhthuc)}</span></div>`,
+        tramInfo.cum && `<div class="info-row"><span class="k">Cụm quản lý</span><span class="v">${escapeHtml(tramInfo.cum)}</span></div>`,
+      ].filter(Boolean).join('');
+    } else if(congInfo || feature.kindLabel === 'Cống'){
+      if(congInfo) hasExcelInfo = true;
       const nearHit = findNearestCanal(feature.latlng, 60);
       const kCocRow = nearHit
-        ? `<div class="info-row"><span class="k">K-cọc kênh</span><span class="v big">${formatStation(nearHit.near.cumDist)} <span style="font-weight:400;font-size:11.5px;color:var(--text-2);">(${escapeHtml(nearHit.feature.name)})</span></span></div>`
+        ? `<div class="info-row"><span class="k">K-cọc kênh</span><span class="v big">${formatStation(getEffectiveDist(nearHit.feature, nearHit.near.cumDist))} <span style="font-weight:400;font-size:11.5px;color:var(--text-2);">(${escapeHtml(nearHit.feature.name)})</span></span></div>`
         : '';
-      kCocForBB = nearHit ? formatStation(nearHit.near.cumDist) : '';
-      structuredHtml = kCocRow + (info ? [
-        info.kichthuoc && `<div class="info-row"><span class="k">Kích thước</span><span class="v">${escapeHtml(info.kichthuoc)}</span></div>`,
-        info.loai && `<div class="info-row"><span class="k">Loại cống</span><span class="v">${escapeHtml(info.loai)}</span></div>`,
-        info.kieu && `<div class="info-row"><span class="k">Kiểu cống</span><span class="v">${escapeHtml(info.kieu)}</span></div>`,
+      kCocForBB = nearHit ? formatStation(getEffectiveDist(nearHit.feature, nearHit.near.cumDist)) : '';
+      structuredHtml = kCocRow + (congInfo ? [
+        congInfo.kichthuoc && `<div class="info-row"><span class="k">Kích thước</span><span class="v">${escapeHtml(congInfo.kichthuoc)}</span></div>`,
+        congInfo.loai && `<div class="info-row"><span class="k">Loại cống</span><span class="v">${escapeHtml(congInfo.loai)}</span></div>`,
+        congInfo.kieu && `<div class="info-row"><span class="k">Kiểu cống</span><span class="v">${escapeHtml(congInfo.kieu)}</span></div>`,
       ].filter(Boolean).join('') : '');
     }
 
