@@ -690,11 +690,6 @@ window.addEventListener('DOMContentLoaded',()=>{
           <span class="ic">⊕</span>Vẽ điểm
         </button>
       </div>
-      <div class="measure-row" style="margin-top:8px;">
-        <button class="measure-btn" id="btn-draw-centerline" style="flex:1;">
-          <span class="ic">🧭</span>Vẽ tim kênh (từ 2 bờ)
-        </button>
-      </div>
       <div class="status-line" id="draw-status"></div>
       <div id="draw-list" style="margin-top:8px;max-height:160px;overflow-y:auto;"></div>
       <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
@@ -2364,6 +2359,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     let extHtml = '';
     if(feature.ext && feature.ext.length)
       extHtml = `<div class="ext-data">`+feature.ext.map(e=>`<div class="ext-row"><b>${escapeHtml(e.k)}:</b> ${escapeHtml(e.v)}</div>`).join('')+`</div>`;
+    // Same "Excel is the single source of truth" rule as for points: once this
+    // kênh has a matched phụ trách segment from the Excel, hide any leftover raw
+    // <description> text from the KML instead of showing both.
+    if(lookup.reason==='ok') extHtml = '';
     const relevantWarnings=(segmentWarnings||[]).filter(w=>w.startsWith(feature.name+':'));
     const warningHtml = relevantWarnings.length
       ? `<div class="note-box" style="background:#e0a23a22;border-color:#e0a23a44;color:var(--warn);">⚠ ${relevantWarnings.map(w=>escapeHtml(w)).join('<br>')}</div>` : '';
@@ -2423,9 +2422,11 @@ window.addEventListener('DOMContentLoaded',()=>{
     // ruler, it's derived the same way GPS-based K-cọc is elsewhere in the app.
     let structuredHtml = '';
     let kCocForBB = '';
+    let hasExcelInfo = false;
     if(feature.kindLabel === 'Trạm bơm'){
       const info = tramBomInfoMap[stripDiacritics(feature.name)];
       if(info){
+        hasExcelInfo = true;
         structuredHtml = [
           info.xa && `<div class="info-row"><span class="k">Thuộc xã</span><span class="v">${escapeHtml(info.xa)}</span></div>`,
           info.somay && `<div class="info-row"><span class="k">Số máy</span><span class="v">${escapeHtml(info.somay)}</span></div>`,
@@ -2436,6 +2437,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
     } else if(feature.kindLabel === 'Cống'){
       const info = congInfoMap[stripDiacritics(feature.name)];
+      if(info) hasExcelInfo = true;
       const nearHit = findNearestCanal(feature.latlng, 60);
       const kCocRow = nearHit
         ? `<div class="info-row"><span class="k">K-cọc kênh</span><span class="v big">${formatStation(nearHit.near.cumDist)} <span style="font-weight:400;font-size:11.5px;color:var(--text-2);">(${escapeHtml(nearHit.feature.name)})</span></span></div>`
@@ -2447,6 +2449,15 @@ window.addEventListener('DOMContentLoaded',()=>{
         info.kieu && `<div class="info-row"><span class="k">Kiểu cống</span><span class="v">${escapeHtml(info.kieu)}</span></div>`,
       ].filter(Boolean).join('') : '');
     }
+
+    // Once a point has structured data from the Excel (nguoi-phu-trach.xlsx), that
+    // becomes the single source of truth for it — the old raw <description> text
+    // in the KML (if any was left over from before the Excel workflow) is hidden
+    // instead of showing both side by side, which used to look duplicated/out of
+    // sync. Points with no matching Excel row still show their KML description as
+    // before, so nothing is silently lost — it's suppressed only where Excel data
+    // has actually taken over.
+    if(hasExcelInfo) extHtml = '';
 
     const bbParams = new URLSearchParams({
       lat: feature.latlng.lat.toFixed(6), lng: feature.latlng.lng.toFixed(6),
@@ -2461,7 +2472,7 @@ window.addEventListener('DOMContentLoaded',()=>{
         ${px?`<div class="info-row"><span class="k">Xã/Phường</span><span class="v">${escapeHtml(px)}</span></div>`:''}
         ${structuredHtml}
         ${extHtml}
-        ${(!feature.ext||!feature.ext.length)?`<div class="note-box">Bạn có thể thêm ghi chú vào thẻ &lt;description&gt; của Placemark này trong KML/KMZ — nội dung sẽ tự hiện ở đây.</div>`:''}
+        ${(!hasExcelInfo && (!feature.ext||!feature.ext.length))?`<div class="note-box">Bạn có thể thêm ghi chú vào thẻ &lt;description&gt; của Placemark này trong KML/KMZ — nội dung sẽ tự hiện ở đây.</div>`:''}
         <a href="bien-ban.html?${bbParams}"
            style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;
            background:#c0392b;color:#fff;padding:12px;border-radius:8px;
@@ -2719,7 +2730,6 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   const btnDrawPoint  = document.getElementById('btn-draw-point');
   const btnDrawLine   = document.getElementById('btn-draw-line');
-  const btnDrawCenterline = document.getElementById('btn-draw-centerline');
   const btnDrawClear  = document.getElementById('btn-draw-clear');
   const btnExportKml  = document.getElementById('btn-export-kml');
   const btnSaveGithub = document.getElementById('btn-save-github');
@@ -2733,90 +2743,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const btnDrawFinishFab = document.getElementById('btn-draw-finish-fab');
   const btnDrawCancelFab = document.getElementById('btn-draw-cancel-fab');
   const btnDrawUndoFab   = document.getElementById('btn-draw-undo-fab');
-
-  // ----- "Vẽ tim kênh (từ 2 bờ)" -----
-  // Trace each bank of the kênh separately (bank1 then bank2, same overall
-  // direction), then compute the actual centerline by resampling both banks at
-  // even arc-length fractions and averaging matching points — much more accurate
-  // than eyeballing the middle while tracing a single line, especially on wide
-  // kênh where "which bank the KML line follows" causes a real offset (not GPS
-  // noise) when projecting a GPS fix onto it later.
-  let centerlineStage = null; // null | 'bank1' | 'bank2'
-  let centerlineBank1 = [];
-  let centerlineBank2 = [];
-  let centerlineBank1Line = null;
-  let centerlineBank2Line = null;
-
-  function resampleLineByFraction(latlngs, n){
-    const cum = [0];
-    for(let i=1;i<latlngs.length;i++) cum.push(cum[i-1] + haversine(latlngs[i-1], latlngs[i]));
-    const total = cum[cum.length-1] || 1e-9;
-    const out = [];
-    for(let k=0;k<=n;k++){
-      const target = total * k/n;
-      let i=0; while(i<cum.length-2 && cum[i+1]<target) i++;
-      const segLen = (cum[i+1]-cum[i]) || 1e-9;
-      const t = Math.max(0, Math.min(1, (target - cum[i]) / segLen));
-      const a = latlngs[i], b = latlngs[Math.min(i+1, latlngs.length-1)];
-      out.push({ lat: a.lat + t*(b.lat-a.lat), lng: a.lng + t*(b.lng-a.lng) });
-    }
-    return out;
-  }
-  function computeCenterline(bank1, bank2, n){
-    n = n || 24;
-    const r1 = resampleLineByFraction(bank1, n);
-    const r2 = resampleLineByFraction(bank2, n);
-    return r1.map((p,i)=>({ lat:(p.lat+r2[i].lat)/2, lng:(p.lng+r2[i].lng)/2 }));
-  }
-
-  function startCenterline(){
-    if(centerlineStage){ stopCenterline(); return; }
-    stopMeasuring(true);
-    stopDraw();
-    stopCenterline();
-    centerlineStage = 'bank1';
-    centerlineBank1 = []; centerlineBank2 = [];
-    btnDrawCenterline.classList.add('active');
-    map.getContainer().style.cursor = 'crosshair';
-    drawStatus.textContent = 'Bước 1/2 — Kéo bản đồ, bấm "Thêm điểm" dọc theo BỜ THỨ NHẤT của kênh (đi từ đầu tới cuối). Xong bấm "✓ Xong bờ 1".';
-    drawCrosshair.classList.add('show');
-    drawFabRow.classList.add('show');
-    btnDrawFinishFab.style.display = '';
-    btnDrawUndoFab.style.display = '';
-    btnDrawFinishFab.textContent = '✓ Xong bờ 1';
-    if(isMobileLayout()) closeDrawer();
-  }
-
-  function stopCenterline(){
-    centerlineStage = null;
-    centerlineBank1 = []; centerlineBank2 = [];
-    btnDrawCenterline.classList.remove('active');
-    btnDrawFinishFab.textContent = '✓ Xong';
-    if(centerlineBank1Line){ map.removeLayer(centerlineBank1Line); centerlineBank1Line = null; }
-    if(centerlineBank2Line){ map.removeLayer(centerlineBank2Line); centerlineBank2Line = null; }
-    if(!drawMode){ drawCrosshair.classList.remove('show'); drawFabRow.classList.remove('show'); drawStatus.textContent=''; map.getContainer().style.cursor=''; }
-  }
-
-  function finishCenterlineBank1(){
-    if(centerlineBank1.length < 2){ alert('Cần ít nhất 2 điểm cho bờ thứ nhất.'); return; }
-    centerlineStage = 'bank2';
-    if(centerlineBank1Line) map.removeLayer(centerlineBank1Line);
-    centerlineBank1Line = L.polyline(centerlineBank1, { color:'#3fb6e8', weight:3, dashArray:'2,6' }).addTo(map);
-    drawStatus.textContent = 'Bước 2/2 — Giờ vẽ BỜ THỨ HAI, đi CÙNG HƯỚNG với bờ 1 vừa vẽ (VD cả hai cùng từ thượng lưu xuống hạ lưu). Xong bấm "✓ Tính tim kênh".';
-    btnDrawFinishFab.textContent = '✓ Tính tim kênh';
-  }
-
-  function finishCenterlineBank2(){
-    if(centerlineBank2.length < 2){ alert('Cần ít nhất 2 điểm cho bờ thứ hai.'); return; }
-    const centerline = computeCenterline(centerlineBank1, centerlineBank2);
-    stopCenterline();
-    pendingDrawData = { type:'line', latlngs: centerline };
-    document.getElementById('draw-popup-title').textContent = 'Thêm thông tin tim kênh';
-    document.getElementById('draw-type').value = 'Kênh';
-    openDrawPopup();
-  }
-
-  btnDrawCenterline.addEventListener('click', startCenterline);
 
   function setDrawMode(mode){
     if(drawMode === mode){ stopDraw(); return; }
@@ -2873,22 +2799,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   // drag the map to line up the ⌖ crosshair, then tap the button.
   btnDrawAddFab.addEventListener('click', ()=>{
     const center = map.getCenter();
-    if(centerlineStage === 'bank1'){
-      centerlineBank1.push(center);
-      if(centerlineBank1Line) map.removeLayer(centerlineBank1Line);
-      if(centerlineBank1.length >= 2){
-        centerlineBank1Line = L.polyline(centerlineBank1, { color:'#3fb6e8', weight:3, dashArray:'6,5' }).addTo(map);
-      }
-      return;
-    }
-    if(centerlineStage === 'bank2'){
-      centerlineBank2.push(center);
-      if(centerlineBank2Line) map.removeLayer(centerlineBank2Line);
-      if(centerlineBank2.length >= 2){
-        centerlineBank2Line = L.polyline(centerlineBank2, { color:'#ffd166', weight:3, dashArray:'6,5' }).addTo(map);
-      }
-      return;
-    }
     if(!drawMode) return;
     if(drawMode === 'point'){
       openPointPopupAt(center);
@@ -2901,27 +2811,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
   });
   btnDrawFinishFab.addEventListener('click', ()=>{
-    if(centerlineStage === 'bank1'){ finishCenterlineBank1(); return; }
-    if(centerlineStage === 'bank2'){ finishCenterlineBank2(); return; }
     if(drawMode === 'line') finishLineDraw();
   });
   btnDrawCancelFab.addEventListener('click', ()=>{
-    if(centerlineStage){ stopCenterline(); return; }
     stopDraw();
   });
   btnDrawUndoFab.addEventListener('click', ()=>{
-    if(centerlineStage === 'bank1'){
-      centerlineBank1.pop();
-      if(centerlineBank1Line){ map.removeLayer(centerlineBank1Line); centerlineBank1Line=null; }
-      if(centerlineBank1.length >= 2) centerlineBank1Line = L.polyline(centerlineBank1, { color:'#3fb6e8', weight:3, dashArray:'6,5' }).addTo(map);
-      return;
-    }
-    if(centerlineStage === 'bank2'){
-      centerlineBank2.pop();
-      if(centerlineBank2Line){ map.removeLayer(centerlineBank2Line); centerlineBank2Line=null; }
-      if(centerlineBank2.length >= 2) centerlineBank2Line = L.polyline(centerlineBank2, { color:'#ffd166', weight:3, dashArray:'6,5' }).addTo(map);
-      return;
-    }
     if(drawMode !== 'line' || !drawPoints.length) return;
     drawPoints.pop();
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
@@ -2931,9 +2826,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   });
 
   document.addEventListener('keydown', (e)=>{
-    if(centerlineStage === 'bank1'){ if(e.key==='Escape') stopCenterline(); }
-    else if(centerlineStage === 'bank2'){ if(e.key==='Escape') stopCenterline(); }
-    else if(drawMode){
+    if(drawMode){
       if(e.key === 'Escape'){ stopDraw(); }
       else if(e.key === 'Enter' && drawMode === 'line'){ finishLineDraw(); }
     }
