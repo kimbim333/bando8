@@ -156,6 +156,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   .dot{width:8px;height:8px;border-radius:50%;flex:none;}
   .result-item .nm{color:var(--text-0);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .result-item .ty{font-family:var(--mono);font-size:9.5px;color:var(--text-2);}
+  .search-external-btn{
+    display:block; width:100%; text-align:left; margin-top:6px;
+    background:var(--bg-2); border:1px dashed var(--line); color:var(--text-1);
+    padding:9px 10px; border-radius:6px; font-size:12px; cursor:pointer;
+  }
+  .search-external-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .status-line.err{ color:var(--warn); }
 
   /* ---------- legend tree (Google-Earth-style Places panel) ---------- */
   .legend-section{ max-height:min(60vh, 560px); overflow-y:auto; position:relative; flex:1; min-height:0; }
@@ -2223,6 +2230,35 @@ window.addEventListener('DOMContentLoaded',()=>{
     return null;
   }
 
+  // Fallback xã/phường lookup via OpenStreetMap's free Nominatim reverse-geocoding
+  // service, used only when the KML has no admin-boundary polygon to check against
+  // (findAdminArea above returns null). Results are cached by ~11m-precision grid
+  // cell and calls are throttled to respect Nominatim's public usage policy
+  // (max ~1 request/second) — this is an occasional manual lookup per officer
+  // action, not bulk querying, so it comfortably stays within that limit.
+  let geocodeCache = {};
+  let lastGeocodeCallTime = 0;
+  async function reverseGeocodeXaPhuong(lat, lng){
+    const key = lat.toFixed(4)+','+lng.toFixed(4);
+    if(key in geocodeCache) return geocodeCache[key];
+    const waitMs = Math.max(0, 1100 - (Date.now() - lastGeocodeCallTime));
+    if(waitMs > 0) await new Promise(r=>setTimeout(r, waitMs));
+    lastGeocodeCallTime = Date.now();
+    try{
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&accept-language=vi`);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      const a = data.address || {};
+      const name = a.city_district || a.suburb || a.quarter || a.village || a.town || null;
+      geocodeCache[key] = name;
+      return name;
+    }catch(e){
+      console.warn('Không tra được xã/phường qua Nominatim (có thể do mất mạng):', e);
+      geocodeCache[key] = null;
+      return null;
+    }
+  }
+
   // Geodesic distance on the WGS84 ellipsoid (Vincenty's inverse formula) — this is
   // the same reference ellipsoid/method Google Earth Pro's own "Measurements" tab
   // uses, so "Chiều dài" here now matches what GE Pro reports for the same line
@@ -2380,6 +2416,24 @@ window.addEventListener('DOMContentLoaded',()=>{
     return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  let panelRenderToken = 0; // bumped on every renderCanalInfo/renderPointInfo call, so a
+                             // slow Nominatim reply can't overwrite a panel that has since
+                             // moved on to a different kênh/điểm
+  async function fillAdminAreaAsync(lat, lng, token){
+    const name = await reverseGeocodeXaPhuong(lat, lng);
+    if(!name || token !== panelRenderToken) return; // panel changed since — discard
+    const row = document.getElementById('px-row');
+    const val = document.getElementById('px-value');
+    if(row && val){ val.textContent = name; row.style.display = ''; }
+    const link = document.getElementById('bienban-link');
+    if(link){
+      const url = new URL(link.getAttribute('href'), location.href);
+      url.searchParams.set('px', name);
+      url.searchParams.set('dd', url.searchParams.get('dd') || name);
+      link.setAttribute('href', url.pathname + url.search);
+    }
+  }
+
   function renderCanalInfo(feature, station, near, lookup){
     const panel = document.getElementById('info-panel');
     let personHtml, segmentRangeHtml = '';
@@ -2405,8 +2459,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     const warningHtml = relevantWarnings.length
       ? `<div class="note-box" style="background:#e0a23a22;border-color:#e0a23a44;color:var(--warn);">⚠ ${relevantWarnings.map(w=>escapeHtml(w)).join('<br>')}</div>` : '';
 
-    // Auto-detect xã/phường from the administrative boundary polygons in the KML,
-    // and pass along the responsible person (if known) — both get handed off to
+    // Auto-detect xã/phường from the administrative boundary polygons in the KML
+    // if present; otherwise fall back to an async Nominatim reverse-geocode lookup
+    // (see reverseGeocodeXaPhuong) once the panel is already showing, and pass
+    // along the responsible person (if known) — both get handed off to
     // bien-ban.html so the officer doesn't have to retype them.
     const px = findAdminArea(near.point.lat, near.point.lng);
     const responsiblePerson = (lookup && lookup.reason==='ok') ? lookup.person : '';
@@ -2423,6 +2479,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const kichThuoc = canalSizeMap[canalKey];
     const luuLuong = canalFlowMap[canalKey];
 
+    const geocodeToken = ++panelRenderToken;
     panel.innerHTML=`
       <div class="info-card">
         <span class="tag canal">Kênh / tuyến</span>
@@ -2433,16 +2490,17 @@ window.addEventListener('DOMContentLoaded',()=>{
         ${luuLuong?`<div class="info-row"><span class="k">Lưu lượng</span><span class="v">${escapeHtml(luuLuong)}</span></div>`:''}
         ${station?`<div class="info-row"><span class="k">Vị trí chọn</span><span class="v big">${station}</span></div>`:''}
         <div class="info-row"><span class="k">Tọa độ</span><span class="v">${near.point.lat.toFixed(6)}, ${near.point.lng.toFixed(6)}</span></div>
-        ${px?`<div class="info-row"><span class="k">Xã/Phường</span><span class="v">${escapeHtml(px)}</span></div>`:''}
+        <div class="info-row" id="px-row" style="${px?'':'display:none;'}"><span class="k">Xã/Phường</span><span class="v" id="px-value">${px?escapeHtml(px):''}</span></div>
         <div class="info-row"><span class="k">Người phụ trách</span><span class="v person">${personHtml}</span></div>
         ${segmentRangeHtml}${extHtml}${warningHtml}
-        <a href="bien-ban.html?${bbParams}"
+        <a href="bien-ban.html?${bbParams}" id="bienban-link"
            style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;
            background:#c0392b;color:#fff;padding:12px;border-radius:8px;
            text-decoration:none;font-weight:700;font-size:13.5px;">
           ⚠️ Lập biên bản vi phạm tại đây
         </a>
       </div>`;
+    if(!px) fillAdminAreaAsync(near.point.lat, near.point.lng, geocodeToken);
   }
 
   function renderPointInfo(feature){
@@ -2507,27 +2565,30 @@ window.addEventListener('DOMContentLoaded',()=>{
       ct: feature.name, px: px||'', song: feature.name, dd: px||'', km: kCocForBB
     }).toString();
 
+    const geocodeToken = ++panelRenderToken;
     panel.innerHTML=`
       <div class="info-card">
         <span class="tag point">${escapeHtml(feature.kindLabel||'Điểm công trình')}</span>
         <h2>${escapeHtml(feature.name)}</h2>
         <div class="info-row"><span class="k">Tọa độ</span><span class="v">${feature.latlng.lat.toFixed(6)}, ${feature.latlng.lng.toFixed(6)}</span></div>
-        ${px?`<div class="info-row"><span class="k">Xã/Phường</span><span class="v">${escapeHtml(px)}</span></div>`:''}
+        <div class="info-row" id="px-row" style="${px?'':'display:none;'}"><span class="k">Xã/Phường</span><span class="v" id="px-value">${px?escapeHtml(px):''}</span></div>
         ${structuredHtml}
         ${extHtml}
         ${(!hasExcelInfo && (!feature.ext||!feature.ext.length))?`<div class="note-box">Bạn có thể thêm ghi chú vào thẻ &lt;description&gt; của Placemark này trong KML/KMZ — nội dung sẽ tự hiện ở đây.</div>`:''}
-        <a href="bien-ban.html?${bbParams}"
+        <a href="bien-ban.html?${bbParams}" id="bienban-link"
            style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;
            background:#c0392b;color:#fff;padding:12px;border-radius:8px;
            text-decoration:none;font-weight:700;font-size:13.5px;">
           ⚠️ Lập biên bản vi phạm tại đây
         </a>
       </div>`;
+    if(!px) fillAdminAreaAsync(feature.latlng.lat, feature.latlng.lng, geocodeToken);
   }
 
   /* ===================== SEARCH ===================== */
   const searchInput  = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
+  let externalSearchLayer = null; // temporary boundary/marker drawn from an external place search
 
   searchInput.addEventListener('input', ()=>{
     const q = stripDiacritics(searchInput.value);
@@ -2555,8 +2616,57 @@ window.addEventListener('DOMContentLoaded',()=>{
       });
       searchResults.appendChild(div);
     });
-    if(matches.length===0) searchResults.innerHTML='<div class="status-line">Không tìm thấy kết quả phù hợp.</div>';
+    if(matches.length===0) searchResults.innerHTML='<div class="status-line">Không tìm thấy trong dữ liệu KML.</div>';
+
+    // Extra option: search for a general place (xã/phường/địa danh bất kỳ, không
+    // cần có trong file KML) via OpenStreetMap — only fires on explicit tap, not
+    // on every keystroke, to stay well within Nominatim's public usage limits.
+    const extBtn = document.createElement('button');
+    extBtn.className = 'search-external-btn';
+    extBtn.textContent = `🔍 Tìm "${searchInput.value}" trên bản đồ (xã/phường, địa danh...)`;
+    extBtn.addEventListener('click', ()=> searchExternalPlace(searchInput.value));
+    searchResults.appendChild(extBtn);
   });
+
+  async function searchExternalPlace(query){
+    if(!query || !query.trim()) return;
+    searchResults.innerHTML = '<div class="status-line">Đang tìm trên OpenStreetMap…</div>';
+    try{
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&polygon_geojson=1&limit=6&countrycodes=vn&accept-language=vi`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const results = await res.json();
+      searchResults.innerHTML='';
+      if(!results.length){
+        searchResults.innerHTML = '<div class="status-line">Không tìm thấy địa danh phù hợp trên OpenStreetMap.</div>';
+        return;
+      }
+      results.forEach(r=>{
+        const div = document.createElement('div');
+        div.className='result-item';
+        div.innerHTML = `<span class="dot" style="background:#e0a23a"></span><span class="nm">${escapeHtml(r.display_name)}</span><span class="ty">OSM</span>`;
+        div.addEventListener('click', ()=> flyToExternalPlace(r));
+        searchResults.appendChild(div);
+      });
+    }catch(e){
+      searchResults.innerHTML = '<div class="status-line err">Không tra được (có thể do mất mạng). Thử lại sau.</div>';
+      console.warn('Lỗi tìm địa danh ngoài:', e);
+    }
+  }
+
+  function flyToExternalPlace(result){
+    if(externalSearchLayer){ map.removeLayer(externalSearchLayer); externalSearchLayer = null; }
+    if(result.geojson && (result.geojson.type==='Polygon' || result.geojson.type==='MultiPolygon')){
+      externalSearchLayer = L.geoJSON(result.geojson, {
+        style: { color:'#e0a23a', weight:3, fillColor:'#e0a23a', fillOpacity:0.12, dashArray:'6,4' }
+      }).addTo(map);
+      map.flyToBounds(externalSearchLayer.getBounds(), { padding:[60,60], duration:1.2 });
+    } else {
+      externalSearchLayer = L.marker([result.lat, result.lon]).addTo(map)
+        .bindTooltip(result.display_name, { permanent:false }).openTooltip();
+      map.flyTo([result.lat, result.lon], 15, { duration:1.2 });
+    }
+  }
 
   function renderSearchIndexHint(){ /* placeholder */ }
 

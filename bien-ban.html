@@ -444,7 +444,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="gap"></div>
 </div>
 
-<!-- ===== TAB 4: DANH SÁCH ===== ->
+<!-- ===== TAB 4: DANH SÁCH ===== -->
 <div id="p-ds" class="panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
     <b style="font-size:13px;">Biên bản đã lập</b>
@@ -789,6 +789,31 @@ function bbFindAdminArea(lat,lng){
   for(const a of bbAdminAreas) if(bbPointInPolygon(lat,lng,a.latlngs)) return a.name;
   return null;
 }
+// Fallback xã/phường lookup via OpenStreetMap's free Nominatim reverse-geocoding
+// service, used when the KML has no admin-boundary polygon (bbFindAdminArea above
+// returns null) — same service/logic as index.html's version.
+let bbGeocodeCache = {};
+let bbLastGeocodeCallTime = 0;
+async function bbReverseGeocodeXaPhuong(lat, lng){
+  const key = lat.toFixed(4)+','+lng.toFixed(4);
+  if(key in bbGeocodeCache) return bbGeocodeCache[key];
+  const waitMs = Math.max(0, 1100 - (Date.now() - bbLastGeocodeCallTime));
+  if(waitMs > 0) await new Promise(r=>setTimeout(r, waitMs));
+  bbLastGeocodeCallTime = Date.now();
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&accept-language=vi`);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const a = data.address || {};
+    const name = a.city_district || a.suburb || a.quarter || a.village || a.town || null;
+    bbGeocodeCache[key] = name;
+    return name;
+  }catch(e){
+    console.warn('Không tra được xã/phường qua Nominatim:', e);
+    bbGeocodeCache[key] = null;
+    return null;
+  }
+}
 function bbFindKey(row, candidates){
   const keys=Object.keys(row);
   for(const k of keys){ const nk=bbStripDiacritics(k).replace(/[^a-z0-9]/g,''); if(candidates.includes(nk)) return k; }
@@ -892,6 +917,23 @@ bbInitAutoData();
 // straight to bien-ban.html and get a full auto-fill from one GPS tap.
 function autofillFromCoords(lat, lng){
   const st = document.getElementById('gps-status');
+  // Xã/phường lookup runs regardless of whether a nearby kênh is found below —
+  // knowing the location is useful even standing somewhere with no mapped kênh.
+  const pxSync = bbFindAdminArea(lat, lng);
+  if(pxSync){
+    if(!g('px').value) g('px').value = pxSync;
+    if(!g('dd').value) g('dd').value = pxSync;
+  } else {
+    bbReverseGeocodeXaPhuong(lat, lng).then(name=>{
+      if(!name) return;
+      if(!g('px').value) g('px').value = name;
+      if(!g('dd').value) g('dd').value = name;
+      if(st && st.textContent && !st.textContent.includes('Xã/phường')){
+        st.textContent += ` — Xã/phường: ${name}`;
+      }
+    });
+  }
+
   if(!bbDataReady){
     if(st) st.textContent = '📍 Đã lấy tọa độ. (Không đọc được du-lieu.kml nên chưa tự tính được K-cọc — bạn có thể vào index.html trước rồi bấm "Lập biên bản" từ đúng kênh.)';
     return;
@@ -909,16 +951,13 @@ function autofillFromCoords(lat, lng){
   const station = bbFormatStation(best.near.cumDist);
   const key = bbStripDiacritics(best.canal.name);
   const person = bbFindResponsible(best.near.cumDist, bbPersonSegments[key]);
-  const px = bbFindAdminArea(lat, lng);
 
   g('tu_km').value = station;
   if(!g('ct').value) g('ct').value = best.canal.name;
   if(!g('song').value) g('song').value = best.canal.name;
-  if(px && !g('px').value) g('px').value = px;
-  if(px && !g('dd').value) g('dd').value = px;
   if(person && !g('n1').value) g('n1').value = person;
 
-  if(st) st.textContent = `📍 ${best.canal.name} — ${station}` + (person?` — Phụ trách: ${person}`:'') + (px?` — Xã/phường: ${px}`:'');
+  if(st) st.textContent = `📍 ${best.canal.name} — ${station}` + (person?` — Phụ trách: ${person}`:'') + (pxSync?` — Xã/phường: ${pxSync}`:'');
 }
 
 // ===== PHOTOS =====
