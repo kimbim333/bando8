@@ -1340,7 +1340,12 @@ function newBB(){
 }
 
 // ===== LIST =====
-function fd(s){if(!s)return'';const p=s.split('-');return`${p[2]}/${p[1]}/${p[0]}`;}
+function fd(s){
+  if(!s || typeof s !== 'string') return '';
+  const p=s.split('-');
+  if(p.length!==3) return s; // không đúng định dạng YYYY-MM-DD — hiện nguyên văn thay vì crash
+  return`${p[2]}/${p[1]}/${p[0]}`;
+}
 function renderList(){
   const el=g('vlist');
   if(!vlist.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#999;font-size:13px;">Chưa có biên bản nào.</div>';return;}
@@ -1415,7 +1420,7 @@ function printPDF(){exportRealPdf(saveSilent());}
 // Builds the same standalone 4-page A4 document (Biên bản / Sơ họa / Ảnh / Phiếu giao nhận)
 // used both for the real-PDF export (html2canvas+jsPDF) and the browser-print fallback.
 function buildPrintHtml(d){
-  const fd2=s=>{if(!s)return'...';const p=s.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
+  const fd2=s=>{if(!s||typeof s!=='string')return'...';const p=s.split('-');if(p.length!==3)return s;return`${p[2]}/${p[1]}/${p[0]}`;};
   const yn=s=>s?new Date(s).getFullYear():'....';
   const mm=s=>s?new Date(s).getMonth()+1:'..';
   const dd2=s=>s?new Date(s).getDate():'...';
@@ -1771,27 +1776,48 @@ async function exportRealPdf(d){
     const safeName = ((d.vp_loai==='to_chuc'?d.to_ten:d.vp_ten)||'vuviec').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_');
     const dateStr = (d.ngay||'').replace(/-/g,'') || new Date().toISOString().slice(0,10).replace(/-/g,'');
     const pdfFileName = `BienBan_${safeName}_${dateStr}.pdf`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Tải PDF xuống máy. Vài trình duyệt/thiết bị đôi khi chặn cách tải mặc
-    // định của jsPDF (VD chế độ duyệt riêng tư, thiết lập chặn tải tự động) —
-    // nếu vậy, thử cách dự phòng: mở file trong tab mới để người dùng tự lưu/in
-    // qua trình duyệt, thay vì chỉ báo lỗi rồi dừng lại.
+    // Lưu file PDF. Trên điện thoại, "tải xuống trực tiếp" kiểu máy tính hay bị
+    // trình duyệt chặn/im lặng không làm gì — ưu tiên dùng "Chia sẻ" (Web Share
+    // API) trước trên di động, vì đây là cách chuẩn, đáng tin cậy nhất để lưu/
+    // gửi file trên Android lẫn iPhone (hiện đúng khay chia sẻ quen thuộc, có
+    // "Lưu vào Files"/"Lưu vào Drive"...). Máy tính vẫn dùng tải trực tiếp như cũ.
     let localSaveOk = true;
-    try{
-      pdf.save(pdfFileName);
-    }catch(saveErr){
-      localSaveOk = false;
-      console.warn('pdf.save() lỗi, dùng cách dự phòng (mở tab mới):', saveErr);
+    let usedShare = false;
+    const pdfBlob = pdf.output('blob');
+
+    if(isMobile && navigator.share && navigator.canShare){
       try{
-        const blobUrl = URL.createObjectURL(pdf.output('blob'));
-        window.open(blobUrl, '_blank');
-      }catch(fallbackErr){
-        console.error('Cách dự phòng cũng lỗi:', fallbackErr);
+        const file = new File([pdfBlob], pdfFileName, { type:'application/pdf' });
+        if(navigator.canShare({ files:[file] })){
+          await navigator.share({ files:[file], title: pdfFileName });
+          usedShare = true;
+        }
+      }catch(shareErr){
+        // Người dùng bấm Hủy trên khay chia sẻ cũng rơi vào đây (AbortError) —
+        // không coi là lỗi thật, chỉ chuyển sang cách khác bên dưới.
+        console.warn('Chia sẻ PDF không thành công hoặc bị hủy:', shareErr);
       }
     }
 
-    // Luôn thử đồng bộ PDF lên Google Sheet (qua Drive) — kể cả khi tải xuống
-    // máy bị lỗi ở trên, để vẫn có 1 bản lưu trữ dự phòng xem được qua link.
+    if(!usedShare){
+      try{
+        pdf.save(pdfFileName);
+      }catch(saveErr){
+        localSaveOk = false;
+        console.warn('pdf.save() lỗi, dùng cách dự phòng (mở tab mới):', saveErr);
+        try{
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          window.open(blobUrl, '_blank');
+        }catch(fallbackErr){
+          console.error('Cách dự phòng cũng lỗi:', fallbackErr);
+        }
+      }
+    }
+
+    // Luôn thử đồng bộ PDF lên Google Sheet (qua Drive) — kể cả khi lưu/chia sẻ
+    // trên máy bị lỗi ở trên, để vẫn có 1 bản lưu trữ dự phòng xem được qua link.
     if(GSHEET_URL){
       try{
         const pdfBase64 = pdf.output('datauristring').split(',')[1];
@@ -1801,11 +1827,10 @@ async function exportRealPdf(d){
       }
     }
 
-    if(!localSaveOk){
+    if(!usedShare && !localSaveOk){
       alert('Không tải được PDF trực tiếp xuống máy (trình duyệt chặn) — đã mở file trong tab mới, bạn bấm biểu tượng in/tải trên tab đó để lưu.'
         + (GSHEET_URL ? '\n\nFile cũng đã được gửi lên Google Sheet (mục "Xem PDF" trong Danh sách) để dự phòng.' : ''));
-    }
-    if(/iPhone|iPad/i.test(navigator.userAgent)){
+    } else if(!usedShare && isMobile && /iPhone|iPad/i.test(navigator.userAgent)){
       setTimeout(()=>{
         alert('📄 Đã xuất xong PDF!\n\nTrên iPhone, Safari không tự mở hộp thoại lưu — hãy bấm biểu tượng mũi tên ⬇ tải xuống cạnh thanh địa chỉ (hoặc mở app Files → Downloads) để xem/chia sẻ file vừa lưu.');
       }, 400);
