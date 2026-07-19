@@ -565,9 +565,10 @@ async function loadFromGSheet(){
         // rút gọn, nên hiển thị được trong danh sách nhưng không có đủ dữ liệu
         // để "Sửa" (sẽ mở link PDF thay thế nếu cần xem chi tiết).
         vlist.push({
-          id: rid, ts: '', so:'', vp_loai:'ca_nhan', vp_ten: r.ten_vp, to_ten:'',
-          ngay: r.ngay, gio: r.gio, dd: r.dd, ct: r.ct, tu_km: r.tu_km, bo: r.bo,
-          song:'', hv1: r.hanhvi, kt: r.kt, toado_gsheet: r.toado,
+          id: rid, ts: '', so: r.so||'', vp_loai:'ca_nhan', vp_ten: r.ten_vp, to_ten:'',
+          ngay: r.ngay, gio: r.gio, dd: r.dd, ct: r.ct, px: r.px, tu_km: r.tu_km,
+          den_km: r.den_km, bo: r.bo, song: r.song, x1: r.x1, y1: r.y1, x2: r.x2, y2: r.y2,
+          hv1: r.hanhvi, kt: r.kt,
           pdf_link: r.pdf_link, photos: [], sketch: null, fromGSheet: true
         });
       }
@@ -1299,13 +1300,13 @@ function toggleVpLoai(){
 }
 
 // ===== SAVE =====
-function saveSilent(){
+function saveSilent(skipSync){
   const d=collect();
   const i=vlist.findIndex(x=>String(x.id)===String(d.id));
   if(i>=0)vlist[i]=d;else vlist.push(d);
   localStorage.setItem('vlist',JSON.stringify(vlist));
   cid=d.id;renderList();
-  syncToGSheet(d);
+  if(!skipSync) syncToGSheet(d);
   return d;
 }
 function save(){
@@ -1441,7 +1442,7 @@ function delBB(id){
 
 // ===== PRINT / PDF =====
 function printById(id){const d=vlist.find(x=>String(x.id)===String(id));if(d)exportRealPdf(d);}
-function printPDF(){exportRealPdf(saveSilent());}
+function printPDF(){exportRealPdf(saveSilent(true));}
 
 // Builds the same standalone 4-page A4 document (Biên bản / Sơ họa / Ảnh / Phiếu giao nhận)
 // used both for the real-PDF export (html2canvas+jsPDF) and the browser-print fallback.
