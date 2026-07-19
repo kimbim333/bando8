@@ -548,9 +548,14 @@ async function loadFromGSheet(){
     const records = await res.json();
     if(!Array.isArray(records)) return;
     let addedOrUpdated = 0;
+    const sheetIds = new Set(records.filter(r=>r.id).map(r=>String(r.id)));
     records.forEach(r=>{
       if(!r.id) return;
-      const i = vlist.findIndex(x=>x.id===r.id);
+      const rid = String(r.id); // Sheet trả id dạng số, local lưu dạng chuỗi — ép
+                                 // đồng nhất về chuỗi ngay từ đây để so sánh đúng
+                                 // ở mọi nơi khác (Sửa/Xóa/Xuất PDF), tránh sinh ra
+                                 // 2 bản ghi trùng nội dung nhưng khác kiểu id.
+      const i = vlist.findIndex(x=>String(x.id)===rid);
       if(i>=0){
         // Bản ghi đã có sẵn đầy đủ trên máy này (do chính máy này lập) — không
         // ghi đè, chỉ cập nhật link PDF mới nhất nếu có.
@@ -560,7 +565,7 @@ async function loadFromGSheet(){
         // rút gọn, nên hiển thị được trong danh sách nhưng không có đủ dữ liệu
         // để "Sửa" (sẽ mở link PDF thay thế nếu cần xem chi tiết).
         vlist.push({
-          id: r.id, ts: '', so:'', vp_loai:'ca_nhan', vp_ten: r.ten_vp, to_ten:'',
+          id: rid, ts: '', so:'', vp_loai:'ca_nhan', vp_ten: r.ten_vp, to_ten:'',
           ngay: r.ngay, gio: r.gio, dd: r.dd, ct: r.ct, tu_km: r.tu_km, bo: r.bo,
           song:'', hv1: r.hanhvi, kt: r.kt, toado_gsheet: r.toado,
           pdf_link: r.pdf_link, photos: [], sketch: null, fromGSheet: true
@@ -568,6 +573,20 @@ async function loadFromGSheet(){
       }
       addedOrUpdated++;
     });
+    // Đồng bộ 2 chiều đầy đủ: Danh sách trong app luôn khớp đúng với Google
+    // Sheet — bản ghi nào không còn thấy trên Sheet nữa (dù xóa từ Sheet trực
+    // tiếp, từ app trên máy khác, hay từ chính máy này) sẽ tự động biến mất
+    // khỏi Danh sách. Phù hợp khi nhiều người cùng dùng chung 1 Sheet, tránh
+    // tình trạng mỗi máy thấy 1 danh sách khác nhau.
+    //
+    // LƯU Ý: nếu bạn vừa "Lưu nháp"/"Xuất PDF" một biên bản MỚI trong lúc MẤT
+    // MẠNG (chưa kịp gửi lên Sheet), rồi mở lại app sau khi có mạng — bản ghi
+    // đó có thể bị dọn khỏi Danh sách vì Sheet chưa từng có nó. Nên đảm bảo có
+    // mạng khi lưu, hoặc bấm lại "Lưu nháp" một lần nữa sau khi có mạng để nó
+    // chắc chắn được gửi lên Sheet trước khi tắt app.
+    const beforeCount = vlist.length;
+    vlist = vlist.filter(x => sheetIds.has(String(x.id)));
+    if(vlist.length !== beforeCount) addedOrUpdated++;
     if(addedOrUpdated){
       localStorage.setItem('vlist', JSON.stringify(vlist));
       renderList();
@@ -1282,7 +1301,7 @@ function toggleVpLoai(){
 // ===== SAVE =====
 function saveSilent(){
   const d=collect();
-  const i=vlist.findIndex(x=>x.id===d.id);
+  const i=vlist.findIndex(x=>String(x.id)===String(d.id));
   if(i>=0)vlist[i]=d;else vlist.push(d);
   localStorage.setItem('vlist',JSON.stringify(vlist));
   cid=d.id;renderList();
@@ -1372,7 +1391,7 @@ function renderList(){
 }
 
 function loadBB(id){
-  const d=vlist.find(x=>x.id===id);if(!d)return;
+  const d=vlist.find(x=>String(x.id)===String(id));if(!d)return;
   cid=id;
   const map={'so':'so','ngay':'ngay','gio':'gio','dd':'dd','n1':'n1','cv1':'cv1',
     'n2':'n2','cv2':'cv2','cx_dc':'cx_dc','dv':'dv','vp_loai':'vp_loai',
@@ -1408,13 +1427,20 @@ function restoreSketch(dataUrl){
 }
 
 function delBB(id){
-  if(!confirm('Xóa biên bản này?'))return;
-  vlist=vlist.filter(x=>x.id!==id);
+  if(!confirm('Xóa biên bản này?\n\n(Sẽ xóa cả trên Google Sheet dùng chung, không chỉ trên máy này.)'))return;
+  vlist=vlist.filter(x=>String(x.id)!==String(id));
   localStorage.setItem('vlist',JSON.stringify(vlist));renderList();
+  if(GSHEET_URL){
+    fetch(GSHEET_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action:'delete', id })
+    }).catch(e=>console.warn('Không xóa được trên Google Sheet (có thể do mất mạng):', e));
+  }
 }
 
 // ===== PRINT / PDF =====
-function printById(id){const d=vlist.find(x=>x.id===id);if(d)exportRealPdf(d);}
+function printById(id){const d=vlist.find(x=>String(x.id)===String(id));if(d)exportRealPdf(d);}
 function printPDF(){exportRealPdf(saveSilent());}
 
 // Builds the same standalone 4-page A4 document (Biên bản / Sơ họa / Ảnh / Phiếu giao nhận)
