@@ -769,6 +769,7 @@ window.addEventListener('DOMContentLoaded',()=>{
          especially zoomed in on a narrow bờ kênh. -->
     <div id="measure-crosshair" class="measure-crosshair">⌖</div>
     <div id="measure-float-result" class="measure-float-result"></div>
+    <div id="draw-float-result" class="measure-float-result"></div>
     <div id="measure-fab-row" class="measure-fab-row">
       <button id="btn-measure-undo-fab" class="measure-fab measure-fab-secondary" title="Hoàn tác điểm cuối">↩</button>
       <button id="btn-measure-cancel-fab" class="measure-fab measure-fab-secondary">✕ Hủy</button>
@@ -1177,6 +1178,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     // toggle off if clicking the active one again
     if(measureMode === mode){ stopMeasuring(true); return; }
     stopMeasuring(true);
+    if(typeof stopDraw === 'function') stopDraw(); // tắt vẽ đường nếu đang bật, tránh 2 công cụ chồng nhau
     measureMode = mode;
     map.doubleClickZoom.disable();
     btnDistance.classList.toggle('active', mode==='distance');
@@ -2970,6 +2972,19 @@ window.addEventListener('DOMContentLoaded',()=>{
     drawStatus.textContent = '';
     drawCrosshair.classList.remove('show');
     drawFabRow.classList.remove('show');
+    drawFloatResult.classList.remove('show');
+  }
+
+  const drawFloatResult = document.getElementById('draw-float-result');
+  function updateDrawFloatResult(extraPoint){
+    if(drawMode !== 'line' || !drawPoints.length){ drawFloatResult.classList.remove('show'); return; }
+    const pts = extraPoint ? [...drawPoints, extraPoint] : drawPoints;
+    if(pts.length < 2){
+      drawFloatResult.classList.remove('show');
+      return;
+    }
+    drawFloatResult.classList.add('show');
+    drawFloatResult.innerHTML = `<div class="mfr-label">Đang vẽ (${drawPoints.length} điểm đã chốt)</div>${formatDistance(totalDistanceOf(pts))}`;
   }
 
   function addLineVertex(latlng){
@@ -2978,6 +2993,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(drawPoints.length >= 2){
       drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
     }
+    updateDrawFloatResult();
   }
   function undoLineVertex(){
     if(drawMode !== 'line' || !drawPoints.length) return;
@@ -2986,6 +3002,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(drawPoints.length >= 2){
       drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
     }
+    updateDrawFloatResult();
   }
 
   btnDrawPoint.addEventListener('click', ()=> setDrawMode('point'));
@@ -3045,6 +3062,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       if(drawRubberBand) map.removeLayer(drawRubberBand);
       const last = drawPoints[drawPoints.length-1];
       drawRubberBand = L.polyline([last, e.latlng], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+      updateDrawFloatResult(e.latlng);
     });
     map.on('click', (e)=>{
       if(!drawMode) return;
@@ -3062,6 +3080,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       if(drawRubberBand) map.removeLayer(drawRubberBand);
       const last = drawPoints[drawPoints.length-1];
       drawRubberBand = L.polyline([last, map.getCenter()], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+      updateDrawFloatResult(map.getCenter());
     });
   }
 
@@ -3365,6 +3384,14 @@ ${placemarks}
       } else {
         kmlText = decodeURIComponent(escape(atob(mainFile.contentBase64)));
       }
+
+      // Google Earth Pro đôi khi để sót lại các thẻ dùng tiền tố namespace chưa
+      // khai báo (VD <ns1:link .../>) khi lưu file — trình duyệt đọc nghiêm
+      // ngặt hơn Google Earth nên sẽ chặn toàn bộ file chỉ vì 1 thẻ thừa này.
+      // Dọn sạch các thẻ đó trước khi đọc, không ảnh hưởng gì tới dữ liệu thật.
+      kmlText = kmlText
+        .replace(/<ns\d+:[a-zA-Z0-9_]+(?:\s[^>]*)?\/>/g, '')
+        .replace(/<ns\d+:[a-zA-Z0-9_]+(?:\s[^>]*)?>.*?<\/ns\d+:[a-zA-Z0-9_]+>/gs, '');
 
       const xmlDoc = new DOMParser().parseFromString(kmlText, 'text/xml');
       if(xmlDoc.getElementsByTagName('parsererror').length){
