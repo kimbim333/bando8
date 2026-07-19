@@ -745,7 +745,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <div id="github-dialog" style="display:none;">
     <div id="github-dialog-inner">
       <h3>Lưu lên GitHub</h3>
-      <p class="draw-hint">Cần GitHub Personal Access Token để ghi file. Token chỉ dùng 1 lần cho phiên này, không lưu lại.</p>
+      <p class="draw-hint">Sẽ tự tìm đúng file <code>du-lieu.kml</code> hoặc <code>du-lieu.kmz</code> đang có trong repo, rồi <b>gộp thẳng</b> các đối tượng bạn vừa vẽ vào đó (không đụng gì tới dữ liệu kênh/cống/trạm bơm có sẵn). Xóa đối tượng nào trong danh sách vẽ rồi lưu lại thì đối tượng đó cũng biến mất khỏi file trên GitHub.<br><br>Cần GitHub Personal Access Token để ghi file. Token chỉ dùng 1 lần cho phiên này, không lưu lại.</p>
       <div class="draw-field">
         <label>GitHub Token</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" />
@@ -753,10 +753,6 @@ window.addEventListener('DOMContentLoaded',()=>{
       <div class="draw-field">
         <label>Repository (user/repo)</label>
         <input type="text" id="gh-repo" placeholder="kimbim333/bando2" />
-      </div>
-      <div class="draw-field">
-        <label>Tên file trên GitHub</label>
-        <input type="text" id="gh-filename" value="du-lieu.kml" />
       </div>
       <div class="draw-popup-btns">
         <button id="gh-cancel">Hủy</button>
@@ -3159,9 +3155,91 @@ ${placemarks}
     URL.revokeObjectURL(url);
   });
 
-  // ---- Save to GitHub ----
+  // Tên thư mục "vẽ thêm" bên trong file KML — dùng làm mốc để tìm & thay thế
+  // toàn bộ nội dung mỗi lần lưu, để xóa trên app cũng xóa đúng trên GitHub,
+  // mà không đụng gì tới các thư mục kênh/cống/trạm bơm gốc khác trong file.
+  const DRAWN_FOLDER_NAME = 'Vẽ thêm (từ app)';
+
+  function base64ToBytes(b64){
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  // Chèn/thay thế toàn bộ nội dung thư mục "Vẽ thêm" trong 1 tài liệu KML (đã
+  // parse thành DOM) bằng đúng nội dung hiện tại của drawnFeatures — không
+  // đụng tới bất kỳ Folder/Placemark nào khác trong file.
+  function mergeDrawnFeaturesIntoKmlDoc(xmlDoc){
+    const docEl = xmlDoc.getElementsByTagName('Document')[0] || xmlDoc.documentElement;
+    let drawnFolder = null;
+    Array.from(xmlDoc.getElementsByTagName('Folder')).forEach(f=>{
+      const nameEl = f.getElementsByTagName('name')[0];
+      if(nameEl && nameEl.textContent.trim() === DRAWN_FOLDER_NAME) drawnFolder = f;
+    });
+    if(drawnFolder){
+      while(drawnFolder.firstChild) drawnFolder.removeChild(drawnFolder.firstChild);
+    } else {
+      drawnFolder = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'Folder');
+      docEl.appendChild(drawnFolder);
+    }
+    const nameTag = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'name');
+    nameTag.textContent = DRAWN_FOLDER_NAME;
+    drawnFolder.appendChild(nameTag);
+
+    drawnFeatures.forEach(f=>{
+      const styleId = `style-${f.id}`;
+      const styleEl = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'Style');
+      styleEl.setAttribute('id', styleId);
+      if(f.type === 'point'){
+        const iconStyle = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'IconStyle');
+        const colorEl = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'color'); colorEl.textContent = cssToKmlColor(f.color);
+        iconStyle.appendChild(colorEl);
+        styleEl.appendChild(iconStyle);
+      } else {
+        const lineStyle = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'LineStyle');
+        const colorEl = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'color'); colorEl.textContent = cssToKmlColor(f.color);
+        const widthEl = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'width'); widthEl.textContent = '3';
+        lineStyle.appendChild(colorEl); lineStyle.appendChild(widthEl);
+        styleEl.appendChild(lineStyle);
+      }
+      drawnFolder.appendChild(styleEl);
+
+      const pm = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'Placemark');
+      const pmName = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'name'); pmName.textContent = f.name;
+      const pmDesc = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'description'); pmDesc.textContent = f.desc||'';
+      const pmStyleUrl = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'styleUrl'); pmStyleUrl.textContent = '#'+styleId;
+      pm.appendChild(pmName); pm.appendChild(pmDesc); pm.appendChild(pmStyleUrl);
+
+      if(f.type === 'point'){
+        const point = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'Point');
+        const coords = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'coordinates');
+        coords.textContent = `${f.latlng.lng},${f.latlng.lat},0`;
+        point.appendChild(coords);
+        pm.appendChild(point);
+      } else {
+        const line = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'LineString');
+        const tess = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'tessellate'); tess.textContent = '1';
+        const coords = xmlDoc.createElementNS('http://www.opengis.net/kml/2.2', 'coordinates');
+        coords.textContent = f.latlngs.map(p=>`${p.lng},${p.lat},0`).join(' ');
+        line.appendChild(tess); line.appendChild(coords);
+        pm.appendChild(line);
+      }
+      drawnFolder.appendChild(pm);
+    });
+  }
+
+  async function fetchGithubFileRaw(repo, token, filename){
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filename}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if(!res.ok) return null;
+    const data = await res.json();
+    return { sha: data.sha, contentBase64: (data.content||'').replace(/\n/g,'') };
+  }
+
+  // ---- Save to GitHub (merges drawn features straight into du-lieu.kml/.kmz) ----
   btnSaveGithub.addEventListener('click', ()=>{
-    // Pre-fill repo from current URL if on github.io
     const m = window.location.hostname.match(/^(.+)\.github\.io$/);
     if(m) document.getElementById('gh-repo').value = m[1] + '/' + window.location.pathname.split('/')[1];
     githubDialog.style.display = 'flex';
@@ -3171,35 +3249,62 @@ ${placemarks}
   githubDialog.addEventListener('click', (e)=>{ if(e.target===githubDialog) githubDialog.style.display='none'; });
 
   document.getElementById('gh-confirm').addEventListener('click', async ()=>{
-    const token    = document.getElementById('gh-token').value.trim();
-    const repo     = document.getElementById('gh-repo').value.trim();
-    const filename = document.getElementById('gh-filename').value.trim();
+    const token = document.getElementById('gh-token').value.trim();
+    const repo  = document.getElementById('gh-repo').value.trim();
     const ghStatus = document.getElementById('gh-status');
-    if(!token || !repo || !filename){ ghStatus.textContent='Vui lòng điền đầy đủ thông tin.'; ghStatus.className='status-line err'; return; }
+    if(!token || !repo){ ghStatus.textContent='Vui lòng điền đầy đủ thông tin.'; ghStatus.className='status-line err'; return; }
 
-    ghStatus.textContent = 'Đang kết nối GitHub…';
+    ghStatus.textContent = 'Đang tìm du-lieu.kmz / du-lieu.kml trong repo…';
     ghStatus.className = 'status-line';
 
     try{
-      // Get current file SHA (needed to update existing file)
-      const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filename}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
-      });
-      let sha = null;
-      if(getRes.ok){ const data = await getRes.json(); sha = data.sha; }
+      let mainFilename = 'du-lieu.kmz';
+      let mainFile = await fetchGithubFileRaw(repo, token, mainFilename);
+      let isKmz = true;
+      if(!mainFile){
+        mainFilename = 'du-lieu.kml';
+        mainFile = await fetchGithubFileRaw(repo, token, mainFilename);
+        isKmz = false;
+      }
+      if(!mainFile){
+        throw new Error('Không tìm thấy du-lieu.kml hoặc du-lieu.kmz trong repo này. Kiểm tra lại tên repo.');
+      }
 
-      const kmlStr = buildDrawnKml();
-      const content = btoa(unescape(encodeURIComponent(kmlStr)));
-      const body = { message: 'Cập nhật dữ liệu vẽ thêm', content, ...(sha ? { sha } : {}) };
+      ghStatus.textContent = `Đang gộp vào ${mainFilename}…`;
 
-      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filename}`, {
+      let kmlText, zip = null, kmlEntryName = null;
+      if(isKmz){
+        zip = await JSZip.loadAsync(base64ToBytes(mainFile.contentBase64));
+        kmlEntryName = Object.keys(zip.files).find(n=>/\.kml$/i.test(n));
+        if(!kmlEntryName) throw new Error('Không tìm thấy .kml bên trong du-lieu.kmz.');
+        kmlText = await zip.files[kmlEntryName].async('text');
+      } else {
+        kmlText = decodeURIComponent(escape(atob(mainFile.contentBase64)));
+      }
+
+      const xmlDoc = new DOMParser().parseFromString(kmlText, 'text/xml');
+      if(xmlDoc.getElementsByTagName('parsererror').length){
+        throw new Error('Không đọc được nội dung KML hiện có trên GitHub (file có thể bị lỗi).');
+      }
+      mergeDrawnFeaturesIntoKmlDoc(xmlDoc);
+      const newKmlText = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(xmlDoc);
+
+      let contentBase64;
+      if(isKmz){
+        zip.file(kmlEntryName, newKmlText);
+        contentBase64 = await zip.generateAsync({ type:'base64' });
+      } else {
+        contentBase64 = btoa(unescape(encodeURIComponent(newKmlText)));
+      }
+
+      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${mainFilename}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ message: 'Gộp phần vẽ thêm từ app vào ' + mainFilename, content: contentBase64, sha: mainFile.sha })
       });
 
       if(putRes.ok){
-        ghStatus.textContent = '✅ Đã lưu lên GitHub thành công! Chờ ~1 phút để GitHub Pages cập nhật.';
+        ghStatus.textContent = `✅ Đã gộp vào ${mainFilename} thành công! Chờ ~1 phút để GitHub Pages cập nhật, mọi người mở app sẽ tự thấy.`;
         ghStatus.className = 'status-line ok';
       } else {
         const err = await putRes.json();
