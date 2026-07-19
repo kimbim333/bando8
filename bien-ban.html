@@ -1732,9 +1732,21 @@ function hidePdfBusy(){
 async function exportRealPdf(d){
   if(pdfBusy) return;
   if(!window.jspdf || !window.html2canvas){
-    // Libraries didn't load (e.g. no internet) — fall back to browser print, which
-    // needs no external library since it only relies on the page's own CSS.
-    alert('Không tải được thư viện xuất PDF (cần có mạng lần đầu). Sẽ mở bản xem trước để in/lưu PDF qua trình duyệt thay thế.');
+    // Thư viện có thể vẫn đang tải dở (mạng di động chậm) chứ chưa hẳn là lỗi —
+    // đợi thêm tối đa 8 giây, kiểm tra lại mỗi 300ms, trước khi kết luận là
+    // thật sự không tải được và chuyển sang phương án dự phòng.
+    pdfBusy = true;
+    showPdfBusy('Đang tải thư viện xuất PDF…');
+    const waitStart = Date.now();
+    while((!window.jspdf || !window.html2canvas) && Date.now()-waitStart < 8000){
+      await new Promise(r=>setTimeout(r, 300));
+    }
+    pdfBusy = false;
+    hidePdfBusy();
+  }
+  if(!window.jspdf || !window.html2canvas){
+    // Vẫn không có sau khi đợi — thật sự không tải được (mất mạng, bị chặn...).
+    alert('Không tải được thư viện xuất PDF (cần có mạng, đã đợi 8 giây). Sẽ mở bản xem trước để in/lưu PDF qua trình duyệt thay thế.');
     previewPrint(d);
     return;
   }
@@ -1844,22 +1856,32 @@ async function exportRealPdf(d){
 
     // Luôn thử đồng bộ PDF lên Google Sheet (qua Drive) — kể cả khi lưu/chia sẻ
     // trên máy bị lỗi ở trên, để vẫn có 1 bản lưu trữ dự phòng xem được qua link.
+    let syncedOk = false;
     if(GSHEET_URL){
       try{
         const pdfBase64 = pdf.output('datauristring').split(',')[1];
-        await syncToGSheet({ ...d, pdfBase64, pdfFileName });
+        const syncResult = await syncToGSheet({ ...d, pdfBase64, pdfFileName });
+        syncedOk = !!(syncResult && syncResult.ok);
       }catch(syncErr){
         console.warn('Không đồng bộ được PDF lên Google Sheet:', syncErr);
       }
     }
 
+    // LUÔN báo kết quả rõ ràng — trước đây im lặng nếu chia sẻ/tải thành công
+    // bình thường, khiến người dùng không biết đã xong hay chưa và bấm lại
+    // nhiều lần, tạo ra nhiều dòng trùng lặp trên Google Sheet.
     if(!usedShare && !localSaveOk){
       alert('Không tải được PDF trực tiếp xuống máy (trình duyệt chặn) — đã mở file trong tab mới, bạn bấm biểu tượng in/tải trên tab đó để lưu.'
-        + (GSHEET_URL ? '\n\nFile cũng đã được gửi lên Google Sheet (mục "Xem PDF" trong Danh sách) để dự phòng.' : ''));
+        + (syncedOk ? '\n\nFile cũng đã được gửi lên Google Sheet (mục "Xem PDF" trong Danh sách) để dự phòng.' : ''));
     } else if(!usedShare && isMobile && /iPhone|iPad/i.test(navigator.userAgent)){
       setTimeout(()=>{
-        alert('📄 Đã xuất xong PDF!\n\nTrên iPhone, Safari không tự mở hộp thoại lưu — hãy bấm biểu tượng mũi tên ⬇ tải xuống cạnh thanh địa chỉ (hoặc mở app Files → Downloads) để xem/chia sẻ file vừa lưu.');
+        alert('📄 Đã xuất xong PDF!\n\nTrên iPhone, Safari không tự mở hộp thoại lưu — hãy bấm biểu tượng mũi tên ⬇ tải xuống cạnh thanh địa chỉ (hoặc mở app Files → Downloads) để xem/chia sẻ file vừa lưu.'
+          + (syncedOk ? '\n\n✅ Đã đồng bộ lên Google Sheet.' : ''));
       }, 400);
+    } else {
+      alert('✅ Đã xuất PDF thành công!'
+        + (usedShare ? ' (đã mở khay chia sẻ để bạn lưu/gửi file)' : ' (đã tải xuống máy)')
+        + (GSHEET_URL ? (syncedOk ? '\n☁️ Đã đồng bộ lên Google Sheet.' : '\n⚠️ Chưa đồng bộ được lên Google Sheet (có thể do mất mạng) — bản PDF trên máy vẫn OK, không cần bấm lại.') : ''));
     }
   }catch(err){
     console.error(err);
