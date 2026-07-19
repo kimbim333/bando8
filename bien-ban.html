@@ -446,10 +446,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 <!-- ===== TAB 4: DANH SÁCH ===== -->
 <div id="p-ds" class="panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;">
     <b style="font-size:13px;">Biên bản đã lập</b>
-    <button onclick="newBB()" style="background:var(--accent);color:#fff;border:none;
-      border-radius:6px;padding:7px 12px;font-size:12px;cursor:pointer;">+ Tạo mới</button>
+    <div style="display:flex;gap:6px;">
+      <button onclick="exportListExcel()" style="background:#1a7a4c;color:#fff;border:none;
+        border-radius:6px;padding:7px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">📊 Xuất Excel</button>
+      <button onclick="newBB()" style="background:var(--accent);color:#fff;border:none;
+        border-radius:6px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;">+ Tạo mới</button>
+    </div>
   </div>
   <div id="vlist"><div style="text-align:center;padding:40px;color:#999;font-size:13px;">
     Chưa có biên bản nào.</div></div>
@@ -511,6 +515,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 let photos=[], vlist=JSON.parse(localStorage.getItem('vlist')||'[]'), cid=null, skHist=[];
 let sk, skCtx, drawing=false, sx=0, sy=0, snap;
 
+// ===== ĐỒNG BỘ GOOGLE SHEET (kho lưu chung, chạy ngầm — người dùng không cần
+// biết tới) =====
+// Dán URL "Web app" lấy được sau khi triển khai Google Apps Script (xem file
+// google-apps-script.js) vào đây. Để trống ("") thì app chỉ lưu trên máy như
+// trước (localStorage), không đồng bộ.
+const GSHEET_URL = 'https://script.google.com/macros/s/AKfycbymsWMCmWR3o47Mt3Sn8EV1H0ewx1_oQNruOGMMvHiVKrjJhJ1HDMlCReTh1NTua2s_Vw/exec';
+
+async function syncToGSheet(d){
+  if(!GSHEET_URL) return;
+  try{
+    const { photos, sketch, ...rest } = d; // không gửi ảnh/sơ họa lên Sheet (quá nặng)
+    await fetch(GSHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Apps Script không trả CORS header chuẩn; fire-and-forget
+      headers: { 'Content-Type': 'text/plain' }, // tránh preflight OPTIONS mà Apps Script không xử lý
+      body: JSON.stringify(rest)
+    });
+  }catch(e){
+    console.warn('Không đồng bộ được lên Google Sheet (có thể do mất mạng):', e);
+  }
+}
+
+async function loadFromGSheet(){
+  if(!GSHEET_URL) return;
+  try{
+    const res = await fetch(GSHEET_URL);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const records = await res.json();
+    if(!Array.isArray(records)) return;
+    let addedOrUpdated = 0;
+    records.forEach(r=>{
+      if(!r.id) return;
+      const i = vlist.findIndex(x=>x.id===r.id);
+      if(i>=0){
+        // giữ lại ảnh/sơ họa đã có trên máy này (Sheet không lưu ảnh), chỉ cập
+        // nhật phần thông tin văn bản từ Sheet
+        vlist[i] = { ...vlist[i], ...r, photos: vlist[i].photos, sketch: vlist[i].sketch };
+      } else {
+        vlist.push({ ...r, photos: [], sketch: null });
+      }
+      addedOrUpdated++;
+    });
+    if(addedOrUpdated){
+      localStorage.setItem('vlist', JSON.stringify(vlist));
+      renderList();
+    }
+  }catch(e){
+    console.warn('Không tải được danh sách từ Google Sheet (có thể do mất mạng):', e);
+  }
+}
+
 // ===== INIT =====
 window.onload=()=>{
   const n=new Date();
@@ -527,6 +582,7 @@ window.onload=()=>{
   if(p.get('song')) g('song').value=p.get('song');
   if(p.get('dd'))   g('dd').value=p.get('dd');
   initSk(); renderList(); toggleVpLoai();
+  loadFromGSheet();
 };
 
 // Phụ lục I — Phân nhóm hành vi vi phạm hành chính trong phạm vi bảo vệ công trình
@@ -1213,12 +1269,45 @@ function toggleVpLoai(){
 }
 
 // ===== SAVE =====
-function save(){
+function saveSilent(){
   const d=collect();
   const i=vlist.findIndex(x=>x.id===d.id);
   if(i>=0)vlist[i]=d;else vlist.push(d);
   localStorage.setItem('vlist',JSON.stringify(vlist));
-  cid=d.id;renderList();alert('Đã lưu nháp!');
+  cid=d.id;renderList();
+  syncToGSheet(d);
+  return d;
+}
+function save(){
+  saveSilent();
+  alert('Đã lưu nháp!');
+}
+
+// Xuất toàn bộ Danh sách (đang lưu trong máy này) ra 1 file Excel — dùng để báo
+// cáo tổng hợp, hoặc gộp nhiều máy/nhiều cán bộ lại (mỗi máy tự xuất Excel riêng,
+// rồi ghép các file lại thành 1 bảng chung).
+function exportListExcel(){
+  if(!vlist.length){ alert('Chưa có biên bản nào để xuất.'); return; }
+  const rows = vlist.map(d=>({
+    'Số BB': d.so||'', 'Ngày lập': d.ngay||'', 'Giờ': d.gio||'',
+    'Địa điểm lập BB': d.dd||'', 'Người lập BB': d.n1||'', 'Chức vụ': d.cv1||'',
+    'Loại chủ thể': d.vp_loai==='to_chuc'?'Tổ chức':'Cá nhân',
+    'Họ tên/Tên tổ chức': d.vp_loai==='to_chuc'?(d.to_ten||''):(d.vp_ten||''),
+    'Nơi ở/Địa chỉ': d.vp_loai==='to_chuc'?(d.to_dc||''):(d.vp_noo||''),
+    'Tên công trình': d.ct||'', 'Phường/xã': d.px||'', 'Bờ': d.bo||'', 'Sông': d.song||'',
+    'Từ Km': d.tu_km||'', 'Đến Km': d.den_km||'',
+    'Tọa độ X1': d.x1||'', 'Tọa độ Y1': d.y1||'',
+    'Hành vi 1': d.hv1||'', 'Hành vi 2': d.hv2||'', 'Hành vi 3': d.hv3||'', 'Hành vi 4': d.hv4||'',
+    'Kích thước vi phạm': d.kt||'', 'Yêu cầu khắc phục trước': d.khp||'',
+    'Số ảnh đính kèm': (d.photos||[]).length,
+    'Ngày lưu': d.ts?new Date(d.ts).toLocaleString('vi-VN'):''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = Object.keys(rows[0]).map(k=>({wch: Math.max(12, Math.min(30, k.length+4))}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'DanhSachViPham');
+  const dateStr = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `DanhSach_ViPham_${dateStr}.xlsx`);
 }
 
 function newBB(){
@@ -1307,7 +1396,7 @@ function delBB(id){
 
 // ===== PRINT / PDF =====
 function printById(id){const d=vlist.find(x=>x.id===id);if(d)exportRealPdf(d);}
-function printPDF(){exportRealPdf(collect());}
+function printPDF(){exportRealPdf(saveSilent());}
 
 // Builds the same standalone 4-page A4 document (Biên bản / Sơ họa / Ảnh / Phiếu giao nhận)
 // used both for the real-PDF export (html2canvas+jsPDF) and the browser-print fallback.
