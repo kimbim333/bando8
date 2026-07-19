@@ -931,6 +931,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   function isMobileLayout(){
     return window.matchMedia('(max-width: 768px)').matches;
   }
+  // Phân biệt "có chuột thật" (PC/laptop, con trỏ chính xác) với thiết bị cảm
+  // ứng (điện thoại/tablet, chỉ có ngón tay) — dùng đúng chuẩn CSS "pointer"
+  // thay vì đoán theo bề rộng màn hình, để không nhầm cửa sổ trình duyệt thu
+  // nhỏ trên PC thành "điện thoại".
+  function hasFinePointer(){
+    return window.matchMedia('(pointer: fine)').matches;
+  }
 
   /* ===================== INFO PANEL OVERLAY (large floating card) ===================== */
   const infoPanelOverlay = document.getElementById('info-panel-overlay');
@@ -1175,9 +1182,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnDistance.classList.toggle('active', mode==='distance');
     btnArea.classList.toggle('active', mode==='area');
     map.getContainer().style.cursor = 'crosshair';
-    measureStatus.textContent = mode === 'distance'
-      ? 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm". Xong bấm "✓ Xong".'
-      : 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (≥3 điểm). Xong bấm "✓ Xong".';
+    measureStatus.textContent = hasFinePointer()
+      ? (mode === 'distance'
+          ? 'Rê chuột tới điểm cần đo, click trái để thêm điểm, click phải để lùi lại. Enter/nút "Xong" để kết thúc.'
+          : 'Rê chuột tới điểm cần đo, click trái để thêm điểm (≥3 điểm), click phải để lùi lại. Enter/nút "Xong" để kết thúc.')
+      : (mode === 'distance'
+          ? 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm". Xong bấm "✓ Xong".'
+          : 'Kéo bản đồ để dấu ⌖ trùng điểm cần đo rồi bấm "Thêm điểm" (≥3 điểm). Xong bấm "✓ Xong".');
     measureCrosshair.classList.add('show');
     measureFabRow.classList.add('show');
     updateMeasureFloatResult();
@@ -1341,12 +1352,44 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(!measureMode) return;
     finishMeasuring();
   });
-  map.on('mousemove', (e)=>{
-    if(!measureMode || measurePoints.length === 0) return;
-    if(measurePreviewLine) map.removeLayer(measurePreviewLine);
-    const last = measurePoints[measurePoints.length-1];
-    measurePreviewLine = L.polyline([last, e.latlng], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
-  });
+  // Nét đứt (đường "thước dóng") — có 2 chế độ tùy thiết bị:
+  //  - PC (chuột thật): dấu đỏ ⌖ chạy theo CON TRỎ CHUỘT trên bản đồ; click
+  //    chuột trái thêm điểm ngay tại đó; click chuột phải lùi lại điểm vừa
+  //    thêm — không cần kéo bản đồ nữa, thao tác nhanh hơn hẳn.
+  //  - Điện thoại (cảm ứng): giữ nguyên kiểu "kéo bản đồ, dấu ⌖ đứng im giữa
+  //    màn hình, bấm nút Thêm điểm" — vì thao tác click/tap trực tiếp trên
+  //    cảm ứng khi đang kéo chậm dễ bị Leaflet hiểu nhầm thành nhiều lần chạm
+  //    liên tiếp (đã từng gây lỗi tự thêm hàng loạt điểm trước đây).
+  if(hasFinePointer()){
+    measureCrosshair.style.left = '';
+    measureCrosshair.style.top = '';
+    map.on('mousemove', (e)=>{
+      if(!measureMode) return;
+      const pt = map.latLngToContainerPoint(e.latlng);
+      measureCrosshair.style.left = pt.x + 'px';
+      measureCrosshair.style.top = pt.y + 'px';
+      if(!measurePoints.length) return;
+      if(measurePreviewLine) map.removeLayer(measurePreviewLine);
+      const last = measurePoints[measurePoints.length-1];
+      measurePreviewLine = L.polyline([last, e.latlng], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+    });
+    map.on('click', (e)=>{
+      if(!measureMode) return;
+      addMeasurePoint(e.latlng);
+    });
+    map.on('contextmenu', (e)=>{
+      if(!measureMode) return;
+      e.originalEvent.preventDefault();
+      undoLastMeasurePoint();
+    });
+  } else {
+    map.on('move', ()=>{
+      if(!measureMode || measurePoints.length === 0) return;
+      if(measurePreviewLine) map.removeLayer(measurePreviewLine);
+      const last = measurePoints[measurePoints.length-1];
+      measurePreviewLine = L.polyline([last, map.getCenter()], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+    });
+  }
   document.addEventListener('keydown', (e)=>{
     if(!measureMode) return;
     if(e.key === 'Escape'){ stopMeasuring(true); }
@@ -2872,7 +2915,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   /* ===================== DRAW TOOL (vẽ & lưu) ===================== */
   let drawMode = null; // 'point' | 'line' | null
   let drawPoints = []; // points being drawn for current line
-  let drawPreviewLine = null;
+  let drawPreviewLine = null;   // đường liền nối các điểm đã chốt
+  let drawRubberBand = null;    // nét đứt từ điểm cuối tới vị trí hiện tại (chuột/dấu ⌖)
   let drawnFeatures = []; // {id, type:'point'|'line', name, kind, desc, color, latlngs/latlng, layer}
   let pendingDrawData = null; // temp storage while popup is open
   let drawIdCounter = 0;
@@ -2901,8 +2945,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnDrawPoint.classList.toggle('active', mode==='point');
     btnDrawLine.classList.toggle('active', mode==='line');
     map.getContainer().style.cursor = 'crosshair';
-    if(mode === 'point') drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng vị trí cần đặt điểm rồi bấm "Thêm điểm". Esc để hủy.';
-    if(mode === 'line')  drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng từng điểm dọc theo đường rồi bấm "Thêm điểm". Xong bấm "✓ Xong". Esc để hủy.';
+    if(hasFinePointer()){
+      if(mode === 'point') drawStatus.textContent = 'Rê chuột tới vị trí cần đặt điểm rồi click trái. Esc để hủy.';
+      if(mode === 'line')  drawStatus.textContent = 'Rê chuột, click trái để thêm từng điểm dọc đường, click phải để lùi lại. Enter/nút "Xong" để kết thúc. Esc để hủy.';
+    } else {
+      if(mode === 'point') drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng vị trí cần đặt điểm rồi bấm "Thêm điểm". Esc để hủy.';
+      if(mode === 'line')  drawStatus.textContent = 'Kéo bản đồ để dấu ⌖ trùng từng điểm dọc theo đường rồi bấm "Thêm điểm". Xong bấm "✓ Xong". Esc để hủy.';
+    }
     drawCrosshair.classList.add('show');
     drawFabRow.classList.add('show');
     btnDrawFinishFab.style.display = mode === 'line' ? '' : 'none';
@@ -2917,9 +2966,26 @@ window.addEventListener('DOMContentLoaded',()=>{
     btnDrawLine.classList.remove('active');
     map.getContainer().style.cursor = '';
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
+    if(drawRubberBand){ map.removeLayer(drawRubberBand); drawRubberBand = null; }
     drawStatus.textContent = '';
     drawCrosshair.classList.remove('show');
     drawFabRow.classList.remove('show');
+  }
+
+  function addLineVertex(latlng){
+    drawPoints.push(latlng);
+    if(drawPreviewLine) map.removeLayer(drawPreviewLine);
+    if(drawPoints.length >= 2){
+      drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
+    }
+  }
+  function undoLineVertex(){
+    if(drawMode !== 'line' || !drawPoints.length) return;
+    drawPoints.pop();
+    if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
+    if(drawPoints.length >= 2){
+      drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
+    }
   }
 
   btnDrawPoint.addEventListener('click', ()=> setDrawMode('point'));
@@ -2937,26 +3003,17 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('draw-popup-title').textContent = 'Thêm thông tin đường';
     document.getElementById('draw-type').value = 'Kênh';
     if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
+    if(drawRubberBand){ map.removeLayer(drawRubberBand); drawRubberBand = null; }
     openDrawPopup();
   }
 
-  // NOTE: adding vertices used to happen on direct map click/dblclick, but on some
-  // mobile browsers Leaflet's click-vs-drag detection misfires during a slow drag
-  // (each tiny movement gets miscounted as a separate tap), spamming extra vertices
-  // all along the drag path — same root cause fixed for the measure tool above.
-  // Point/vertex placement now goes exclusively through the "＋ Thêm điểm" button —
-  // drag the map to line up the ⌖ crosshair, then tap the button.
   btnDrawAddFab.addEventListener('click', ()=>{
     const center = map.getCenter();
     if(!drawMode) return;
     if(drawMode === 'point'){
       openPointPopupAt(center);
     } else if(drawMode === 'line'){
-      drawPoints.push(center);
-      if(drawPreviewLine) map.removeLayer(drawPreviewLine);
-      if(drawPoints.length >= 2){
-        drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
-      }
+      addLineVertex(center);
     }
   });
   btnDrawFinishFab.addEventListener('click', ()=>{
@@ -2965,14 +3022,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   btnDrawCancelFab.addEventListener('click', ()=>{
     stopDraw();
   });
-  btnDrawUndoFab.addEventListener('click', ()=>{
-    if(drawMode !== 'line' || !drawPoints.length) return;
-    drawPoints.pop();
-    if(drawPreviewLine){ map.removeLayer(drawPreviewLine); drawPreviewLine = null; }
-    if(drawPoints.length >= 2){
-      drawPreviewLine = L.polyline(drawPoints, { color:'#e85d75', weight:3, dashArray:'6,5' }).addTo(map);
-    }
-  });
+  btnDrawUndoFab.addEventListener('click', undoLineVertex);
 
   document.addEventListener('keydown', (e)=>{
     if(drawMode){
@@ -2980,6 +3030,40 @@ window.addEventListener('DOMContentLoaded',()=>{
       else if(e.key === 'Enter' && drawMode === 'line'){ finishLineDraw(); }
     }
   });
+
+  // Tương tác chuột cho PC — giống hệt cách vừa làm cho công cụ đo lường: dấu
+  // ⌖ chạy theo con trỏ, click trái thêm điểm/vẽ ngay tại đó, click phải lùi
+  // lại điểm vừa vẽ. Trên di động vẫn giữ nguyên "kéo bản đồ, dấu ⌖ đứng im
+  // giữa màn hình, bấm nút Thêm điểm" như trước (tránh lỗi cảm ứng misfire).
+  if(hasFinePointer()){
+    map.on('mousemove', (e)=>{
+      if(!drawMode) return;
+      const pt = map.latLngToContainerPoint(e.latlng);
+      drawCrosshair.style.left = pt.x + 'px';
+      drawCrosshair.style.top = pt.y + 'px';
+      if(drawMode !== 'line' || !drawPoints.length) return;
+      if(drawRubberBand) map.removeLayer(drawRubberBand);
+      const last = drawPoints[drawPoints.length-1];
+      drawRubberBand = L.polyline([last, e.latlng], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+    });
+    map.on('click', (e)=>{
+      if(!drawMode) return;
+      if(drawMode === 'point') openPointPopupAt(e.latlng);
+      else if(drawMode === 'line') addLineVertex(e.latlng);
+    });
+    map.on('contextmenu', (e)=>{
+      if(!drawMode) return;
+      e.originalEvent.preventDefault();
+      undoLineVertex();
+    });
+  } else {
+    map.on('move', ()=>{
+      if(drawMode !== 'line' || !drawPoints.length) return;
+      if(drawRubberBand) map.removeLayer(drawRubberBand);
+      const last = drawPoints[drawPoints.length-1];
+      drawRubberBand = L.polyline([last, map.getCenter()], { color:'#e85d75', weight:2, dashArray:'3,5', opacity:0.6 }).addTo(map);
+    });
+  }
 
   // ---- Popup ----
   function openDrawPopup(){
