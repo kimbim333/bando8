@@ -1938,6 +1938,19 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
     walkAndBuildFeatures(fileTree, fileTree.name);
 
+    // Mặc định ẩn thư mục "Mốc kênh" (nếu có) ngay khi vừa nạp xong — dữ liệu
+    // này thường rất nhiều điểm (hàng nghìn mốc), khiến trang load/render chậm
+    // nếu hiện sẵn hết. Người dùng vẫn tự tích chọn lại trong "Lớp hiển thị"
+    // khi cần xem, dữ liệu vẫn nạp đủ, chỉ là không tự hiện lên bản đồ ngay.
+    (function hideMocKenhByDefault(node){
+      if(node.type !== 'group') return;
+      if(stripDiacritics(node.name||'').includes('moc kenh')){
+        setNodeVisibleRecursive(node, false);
+        return; // tìm thấy rồi thì không cần soi tiếp bên trong nó nữa
+      }
+      node.children.forEach(hideMocKenhByDefault);
+    })(fileTree);
+
     if(newBounds.length){
       let combined = newBounds[0];
       newBounds.forEach(b=> combined = combined.extend(b));
